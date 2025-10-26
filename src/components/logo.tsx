@@ -34,7 +34,6 @@ export function Logo({
         width={logoSize}
         height={logoSize}
         className={cn('object-contain', logoClasses)}
-        priority
       />
       {showText && (
         <span className={cn('font-bold text-black dark:text-white', textSize)}>
