@@ -1,4 +1,4 @@
-import { supabase } from './clients/supabase';
+import { supabase } from './clients/supabase/client';
 import {
   Bookmark,
   BookmarkResponse,

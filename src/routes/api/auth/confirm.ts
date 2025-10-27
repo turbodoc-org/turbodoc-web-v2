@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/clients/supabase';
+import { supabase } from '@/lib/clients/supabase/client';
 import { type EmailOtpType } from '@supabase/supabase-js';
 import { createFileRoute, redirect } from '@tanstack/react-router';
 

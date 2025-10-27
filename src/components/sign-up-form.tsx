@@ -12,7 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useState } from 'react';
-import { supabase } from '@/lib/clients/supabase';
+import { supabase } from '@/lib/clients/supabase/client';
 import { Link, useNavigate } from '@tanstack/react-router';
 
 export function SignUpForm({

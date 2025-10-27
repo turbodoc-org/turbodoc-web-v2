@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { LogoutButton } from './logout-button';
-import { supabase } from '@/lib/clients/supabase';
+import { supabase } from '@/lib/clients/supabase/client';
 import { Link } from '@tanstack/react-router';
 import type { JwtPayload } from '@supabase/supabase-js';
 
