@@ -1,9 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { LoginForm } from '@/components/login-form';
 import { Logo } from '@/components/logo';
+import { z } from 'zod';
+
+const loginSchema = z.object({
+  redirect: z.string().optional(),
+});
 
 export const Route = createFileRoute('/auth/login')({
   component: Login,
+  validateSearch: loginSchema,
 });
 
 function Login() {

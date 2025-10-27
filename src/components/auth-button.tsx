@@ -1,40 +1,10 @@
-import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { LogoutButton } from './logout-button';
-import { supabase } from '@/lib/clients/supabase/client';
 import { Link } from '@tanstack/react-router';
-import type { JwtPayload } from '@supabase/supabase-js';
+import { useAuth } from '@/lib/auth/context';
 
 export function AuthButton() {
-  const [user, setUser] = useState<JwtPayload | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const { data } = await supabase.auth.getClaims();
-        setUser(data?.claims || null);
-      } catch (error) {
-        console.error('Error fetching user:', error);
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getUser();
-
-    // Listen for auth state changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(() => {
-      getUser();
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
+  const { user, loading } = useAuth();
 
   if (loading) {
     return (
