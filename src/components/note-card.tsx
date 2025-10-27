@@ -62,7 +62,7 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
   };
 
   const handleEdit = () => {
-    navigate({ to: `/notes/${note.id}` });
+    navigate({ to: `/note/${note.id}` });
   };
 
   const formatDate = (dateString: string | null) => {

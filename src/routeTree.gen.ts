@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthUpdatePasswordRouteImport } from './routes/auth/update-password'
 import { Route as AuthSignUpSuccessRouteImport } from './routes/auth/sign-up-success'
@@ -18,10 +19,13 @@ import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as AuthErrorRouteImport } from './routes/auth/error'
+import { Route as AuthedNotesRouteImport } from './routes/_authed/notes'
+import { Route as AuthedBookmarksRouteImport } from './routes/_authed/bookmarks'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
 import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
 import { Route as ApiAuthConfirmRouteImport } from './routes/api/auth/confirm'
+import { Route as AuthedNoteNoteIdRouteImport } from './routes/_authed/note.$noteId'
 import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
 import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
@@ -35,6 +39,10 @@ const TermsRoute = TermsRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthedRoute = AuthedRouteImport.update({
+  id: '/_authed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -72,6 +80,16 @@ const AuthErrorRoute = AuthErrorRouteImport.update({
   path: '/auth/error',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthedNotesRoute = AuthedNotesRouteImport.update({
+  id: '/notes',
+  path: '/notes',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedBookmarksRoute = AuthedBookmarksRouteImport.update({
+  id: '/bookmarks',
+  path: '/bookmarks',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
   id: '/demo/start/server-funcs',
   path: '/demo/start/server-funcs',
@@ -91,6 +109,11 @@ const ApiAuthConfirmRoute = ApiAuthConfirmRouteImport.update({
   id: '/api/auth/confirm',
   path: '/api/auth/confirm',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthedNoteNoteIdRoute = AuthedNoteNoteIdRouteImport.update({
+  id: '/note/$noteId',
+  path: '/note/$noteId',
+  getParentRoute: () => AuthedRoute,
 } as any)
 const DemoStartSsrIndexRoute = DemoStartSsrIndexRouteImport.update({
   id: '/demo/start/ssr/',
@@ -117,12 +140,15 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/bookmarks': typeof AuthedBookmarksRoute
+  '/notes': typeof AuthedNotesRoute
   '/auth/error': typeof AuthErrorRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/sign-up-success': typeof AuthSignUpSuccessRoute
   '/auth/update-password': typeof AuthUpdatePasswordRoute
+  '/note/$noteId': typeof AuthedNoteNoteIdRoute
   '/api/auth/confirm': typeof ApiAuthConfirmRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
@@ -136,12 +162,15 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/bookmarks': typeof AuthedBookmarksRoute
+  '/notes': typeof AuthedNotesRoute
   '/auth/error': typeof AuthErrorRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/sign-up-success': typeof AuthSignUpSuccessRoute
   '/auth/update-password': typeof AuthUpdatePasswordRoute
+  '/note/$noteId': typeof AuthedNoteNoteIdRoute
   '/api/auth/confirm': typeof ApiAuthConfirmRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
@@ -154,14 +183,18 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authed': typeof AuthedRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/_authed/bookmarks': typeof AuthedBookmarksRoute
+  '/_authed/notes': typeof AuthedNotesRoute
   '/auth/error': typeof AuthErrorRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/sign-up-success': typeof AuthSignUpSuccessRoute
   '/auth/update-password': typeof AuthUpdatePasswordRoute
+  '/_authed/note/$noteId': typeof AuthedNoteNoteIdRoute
   '/api/auth/confirm': typeof ApiAuthConfirmRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
@@ -177,12 +210,15 @@ export interface FileRouteTypes {
     | '/'
     | '/privacy'
     | '/terms'
+    | '/bookmarks'
+    | '/notes'
     | '/auth/error'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/sign-up'
     | '/auth/sign-up-success'
     | '/auth/update-password'
+    | '/note/$noteId'
     | '/api/auth/confirm'
     | '/demo/api/names'
     | '/demo/start/api-request'
@@ -196,12 +232,15 @@ export interface FileRouteTypes {
     | '/'
     | '/privacy'
     | '/terms'
+    | '/bookmarks'
+    | '/notes'
     | '/auth/error'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/sign-up'
     | '/auth/sign-up-success'
     | '/auth/update-password'
+    | '/note/$noteId'
     | '/api/auth/confirm'
     | '/demo/api/names'
     | '/demo/start/api-request'
@@ -213,14 +252,18 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/_authed'
     | '/privacy'
     | '/terms'
+    | '/_authed/bookmarks'
+    | '/_authed/notes'
     | '/auth/error'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/sign-up'
     | '/auth/sign-up-success'
     | '/auth/update-password'
+    | '/_authed/note/$noteId'
     | '/api/auth/confirm'
     | '/demo/api/names'
     | '/demo/start/api-request'
@@ -233,6 +276,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthedRoute: typeof AuthedRouteWithChildren
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
   AuthErrorRoute: typeof AuthErrorRoute
@@ -265,6 +309,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authed': {
+      id: '/_authed'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -316,6 +367,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthErrorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authed/notes': {
+      id: '/_authed/notes'
+      path: '/notes'
+      fullPath: '/notes'
+      preLoaderRoute: typeof AuthedNotesRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/bookmarks': {
+      id: '/_authed/bookmarks'
+      path: '/bookmarks'
+      fullPath: '/bookmarks'
+      preLoaderRoute: typeof AuthedBookmarksRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/demo/start/server-funcs': {
       id: '/demo/start/server-funcs'
       path: '/demo/start/server-funcs'
@@ -343,6 +408,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/auth/confirm'
       preLoaderRoute: typeof ApiAuthConfirmRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authed/note/$noteId': {
+      id: '/_authed/note/$noteId'
+      path: '/note/$noteId'
+      fullPath: '/note/$noteId'
+      preLoaderRoute: typeof AuthedNoteNoteIdRouteImport
+      parentRoute: typeof AuthedRoute
     }
     '/demo/start/ssr/': {
       id: '/demo/start/ssr/'
@@ -375,8 +447,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthedRouteChildren {
+  AuthedBookmarksRoute: typeof AuthedBookmarksRoute
+  AuthedNotesRoute: typeof AuthedNotesRoute
+  AuthedNoteNoteIdRoute: typeof AuthedNoteNoteIdRoute
+}
+
+const AuthedRouteChildren: AuthedRouteChildren = {
+  AuthedBookmarksRoute: AuthedBookmarksRoute,
+  AuthedNotesRoute: AuthedNotesRoute,
+  AuthedNoteNoteIdRoute: AuthedNoteNoteIdRoute,
+}
+
+const AuthedRouteWithChildren =
+  AuthedRoute._addFileChildren(AuthedRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthedRoute: AuthedRouteWithChildren,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
   AuthErrorRoute: AuthErrorRoute,

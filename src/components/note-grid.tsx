@@ -129,7 +129,7 @@ export function NoteGrid() {
   const handleCreateAndEdit = async () => {
     if (draftNoteId) {
       // If we have a draft, just navigate to it
-      navigate({ to: `/notes/${draftNoteId}` });
+      navigate({ to: `/note/${draftNoteId}` });
       return;
     }
 
@@ -141,7 +141,7 @@ export function NoteGrid() {
         content: newNote.content || '',
         tags: newNote.tags || undefined,
       });
-      navigate({ to: `/notes/${created.id}` });
+      navigate({ to: `/note/${created.id}` });
     } catch (error) {
       console.error('Failed to create note:', error);
     } finally {
