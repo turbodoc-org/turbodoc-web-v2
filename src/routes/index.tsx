@@ -99,7 +99,7 @@ function App() {
                 asChild
                 size="lg"
                 variant="outline"
-                className="text-base px-8 py-6 border-border/50 hover:border-primary/50 hover:text-black transition-all duration-200"
+                className="text-base px-8 py-6"
               >
                 <Link to="/auth/login">Sign In</Link>
               </Button>
