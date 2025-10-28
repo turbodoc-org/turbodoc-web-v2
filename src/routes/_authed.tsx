@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
+import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router';
 import { useAuth } from '@/lib/auth/context';
 import { useEffect } from 'react';
 
@@ -8,12 +8,18 @@ export const Route = createFileRoute('/_authed')({
 
 function AuthedLayout() {
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!loading && !user) {
-      redirect({
+      navigate({
         to: '/auth/login',
-        search: { redirect: window.location.pathname },
+        search: {
+          redirect:
+            window.location.pathname === '/auth/login'
+              ? '/bookmarks'
+              : window.location.pathname,
+        },
       });
     }
   }, [user, loading]);
