@@ -32,6 +32,8 @@ import {
   Globe,
   Clock,
   ImageIcon,
+  Check,
+  Circle,
 } from 'lucide-react';
 import { deleteBookmark, updateBookmark, getOgImage } from '@/lib/api';
 
@@ -110,6 +112,18 @@ export function BookmarkCard({
       setIsEditing(false);
     } catch (error) {
       console.error('Failed to update bookmark:', error);
+    }
+  };
+
+  const handleToggleStatus = async () => {
+    try {
+      const newStatus = bookmark.status === 'read' ? 'unread' : 'read';
+      const updated = await updateBookmark(bookmark.id, {
+        status: newStatus,
+      });
+      onUpdate(updated);
+    } catch (error) {
+      console.error('Failed to update bookmark status:', error);
     }
   };
 
@@ -192,6 +206,22 @@ export function BookmarkCard({
                   Edit bookmark
                 </DropdownMenuItem>
                 <DropdownMenuItem
+                  onClick={handleToggleStatus}
+                  className="cursor-pointer"
+                >
+                  {bookmark.status === 'read' ? (
+                    <>
+                      <Circle className="h-4 w-4 mr-2" />
+                      Mark as unread
+                    </>
+                  ) : (
+                    <>
+                      <Check className="h-4 w-4 mr-2" />
+                      Mark as read
+                    </>
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuItem
                   onClick={() => window.open(bookmark.url, '_blank')}
                   className="cursor-pointer"
                 >
@@ -260,13 +290,23 @@ export function BookmarkCard({
             </div>
             <Badge
               variant={bookmark.status === 'read' ? 'default' : 'outline'}
-              className={`text-xs px-2 py-0.5 ${
+              className={`text-xs px-2.5 py-1 font-semibold ${
                 bookmark.status === 'read'
-                  ? 'bg-success text-success-foreground'
-                  : 'border-border text-muted-foreground'
+                  ? 'bg-green-500/90 hover:bg-green-500 text-white border-green-600 dark:bg-green-600 dark:border-green-700'
+                  : 'bg-blue-500/10 text-blue-600 border-blue-500/30 hover:bg-blue-500/20 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/40'
               }`}
             >
-              {bookmark.status}
+              {bookmark.status === 'read' ? (
+                <span className="flex items-center gap-1">
+                  <Check className="h-3 w-3" />
+                  Read
+                </span>
+              ) : (
+                <span className="flex items-center gap-1">
+                  <Circle className="h-3 w-3" />
+                  Unread
+                </span>
+              )}
             </Badge>
           </div>
         </div>
