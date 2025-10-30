@@ -176,6 +176,176 @@ function App() {
         </div>
       </section>
 
+      {/* Browser Extensions Section */}
+      <section className="py-16 md:py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-linear-to-b from-background via-primary/5 to-background" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+
+        <div className="relative max-w-5xl mx-auto px-4">
+          <div className="text-center space-y-4 mb-12">
+            <div className="flex items-center justify-center mb-4">
+              <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-primary">
+                  Save from anywhere
+                </span>
+              </div>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+              Browser Extensions for Chrome & Firefox
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              One click to save any webpage. Install our browser extension and
+              bookmark content instantly without leaving your browser.
+            </p>
+          </div>
+
+          <div className="relative bg-linear-to-br from-background via-background to-muted/10 border border-border/50 rounded-2xl p-8 md:p-12 shadow-xl backdrop-blur-sm">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-bl from-primary/10 to-transparent rounded-2xl" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-linear-to-tr from-primary/10 to-transparent rounded-2xl" />
+
+            <div className="relative grid md:grid-cols-2 gap-8">
+              {/* Chrome Extension */}
+              <div className="group space-y-6">
+                <div className="flex items-center gap-4">
+                  <div className="p-4 bg-linear-to-br from-red-500/10 to-yellow-500/10 rounded-2xl">
+                    <Image
+                      src="/chrome.png"
+                      alt="Chrome"
+                      className="h-10 w-10 object-contain"
+                      width={40}
+                      height={40}
+                    />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-foreground mb-1">
+                      Chrome Extension
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Available on Chrome Web Store
+                    </p>
+                  </div>
+                </div>
+
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-3">
+                    <div className="mt-0.5 p-1 bg-primary/10 rounded-full">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      One-click bookmarking from any webpage
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className="mt-0.5 p-1 bg-primary/10 rounded-full">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      Auto-fetch titles and metadata
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className="mt-0.5 p-1 bg-primary/10 rounded-full">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      Instant sync across all devices
+                    </span>
+                  </li>
+                </ul>
+
+                <Button
+                  asChild
+                  className="w-full bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg shadow-primary/20 transition-all duration-200 hover:shadow-xl hover:shadow-primary/30"
+                >
+                  <a
+                    href="https://chromewebstore.google.com/detail/turbodoc/fjncckldanedaaaoeapkponpplkahbdg"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2"
+                  >
+                    Install for Chrome
+                    <ArrowRight className="h-4 w-4" />
+                  </a>
+                </Button>
+              </div>
+
+              {/* Firefox Extension */}
+              <div className="group space-y-6">
+                <div className="flex items-center gap-4">
+                  <div className="p-4 bg-linear-to-br from-orange-500/10 to-purple-500/10 rounded-2xl">
+                    <Image
+                      src="/firefox.png"
+                      alt="Firefox"
+                      className="h-10 w-10 object-contain"
+                      width={40}
+                      height={40}
+                    />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-foreground mb-1">
+                      Firefox Extension
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Available on Firefox Add-ons
+                    </p>
+                  </div>
+                </div>
+
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-3">
+                    <div className="mt-0.5 p-1 bg-primary/10 rounded-full">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      One-click bookmarking from any webpage
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className="mt-0.5 p-1 bg-primary/10 rounded-full">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      Auto-fetch titles and metadata
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className="mt-0.5 p-1 bg-primary/10 rounded-full">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      Instant sync across all devices
+                    </span>
+                  </li>
+                </ul>
+
+                <Button
+                  asChild
+                  className="w-full bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg shadow-primary/20 transition-all duration-200 hover:shadow-xl hover:shadow-primary/30"
+                >
+                  <a
+                    href="https://addons.mozilla.org/en-US/firefox/addon/turbodoc/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2"
+                  >
+                    Install for Firefox
+                    <ArrowRight className="h-4 w-4" />
+                  </a>
+                </Button>
+              </div>
+            </div>
+
+            {/* Bottom note */}
+            <div className="relative mt-8 pt-8 border-t border-border/30 text-center">
+              <p className="text-sm text-muted-foreground">
+                Free to install • Lightweight • Privacy-focused • Works offline
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Personal Note Section */}
       <section className="py-16 md:py-24 relative">
         <div className="max-w-4xl mx-auto px-4">
