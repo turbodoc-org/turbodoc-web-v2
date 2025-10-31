@@ -1,6 +1,6 @@
 import { AuthButton } from '@/components/auth/auth-button';
-import { Logo } from '@/components/logo';
-import { ThemeSwitcher } from '@/components/theme-switcher';
+import { Logo } from '@/components/shared/logo';
+import { ThemeSwitcher } from '@/components/shared/theme-switcher';
 import { Link, useRouterState } from '@tanstack/react-router';
 import { BookmarkIcon, Code2, StickyNote } from 'lucide-react';
 

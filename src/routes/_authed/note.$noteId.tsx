@@ -1,4 +1,4 @@
-import { NoteEditor } from '@/components/note-editor';
+import { NoteEditor } from '@/components/note/note-editor';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_authed/note/$noteId')({

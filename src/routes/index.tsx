@@ -1,5 +1,5 @@
-import { AppHeader } from '@/components/app-header';
-import { Logo } from '@/components/logo';
+import { AppHeader } from '@/components/shared/app-header';
+import { Logo } from '@/components/shared/logo';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth/context';
 import { createFileRoute, Link } from '@tanstack/react-router';

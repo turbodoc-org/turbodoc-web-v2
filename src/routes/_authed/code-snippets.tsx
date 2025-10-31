@@ -1,6 +1,6 @@
-import { AppHeader } from '@/components/app-header';
-import { CodeSnippetEditor } from '@/components/code-snippet-editor';
-import { CodeSnippetGrid } from '@/components/code-snippet-grid';
+import { AppHeader } from '@/components/shared/app-header';
+import { CodeSnippetEditor } from '@/components/code-snippet/code-snippet-editor';
+import { CodeSnippetGrid } from '@/components/code-snippet/code-snippet-grid';
 import { Button } from '@/components/ui/button';
 import { createFileRoute } from '@tanstack/react-router';
 import { Plus } from 'lucide-react';

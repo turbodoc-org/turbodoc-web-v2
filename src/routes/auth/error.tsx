@@ -1,6 +1,6 @@
 import { createFileRoute, useSearch } from '@tanstack/react-router';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Logo } from '@/components/logo';
+import { Logo } from '@/components/shared/logo';
 
 export const Route = createFileRoute('/auth/error')({
   component: AuthError,

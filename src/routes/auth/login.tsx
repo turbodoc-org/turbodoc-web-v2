@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { LoginForm } from '@/components/auth/login-form';
-import { Logo } from '@/components/logo';
+import { Logo } from '@/components/shared/logo';
 import { z } from 'zod';
 
 const loginSchema = z.object({

@@ -3,18 +3,18 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Note } from '@/lib/types';
-import { NoteCard } from './shared/note-card';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
+import { NoteCard } from './note-card';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from './ui/dialog';
+} from '../ui/dialog';
 import { Plus, Search, Loader2 } from 'lucide-react';
 import { getNotes, createNote, updateNote } from '@/lib/api';
 import { useDebounce } from '@/lib/hooks/useDebounce';

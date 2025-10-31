@@ -1,5 +1,5 @@
-import { AppHeader } from '@/components/app-header';
-import { NoteGrid } from '@/components/note-grid';
+import { AppHeader } from '@/components/shared/app-header';
+import { NoteGrid } from '@/components/note/note-grid';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_authed/notes')({

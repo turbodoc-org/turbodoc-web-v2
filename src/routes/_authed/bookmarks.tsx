@@ -1,5 +1,5 @@
-import { AppHeader } from '@/components/app-header';
-import { BookmarkGrid } from '@/components/bookmark-grid';
+import { AppHeader } from '@/components/shared/app-header';
+import { BookmarkGrid } from '@/components/bookmark/bookmark-grid';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_authed/bookmarks')({
