@@ -1,6 +1,5 @@
-import { AuthButton } from '@/components/auth-button';
+import { AppHeader } from '@/components/app-header';
 import { Logo } from '@/components/logo';
-import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth/context';
 import { createFileRoute, Link } from '@tanstack/react-router';
@@ -22,35 +21,7 @@ function App() {
   const { loading, user } = useAuth();
   return (
     <main className="min-h-screen flex flex-col bg-linear-to-br from-background via-background to-muted/20">
-      <nav className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm">
-        <div className="w-full max-w-7xl mx-auto flex justify-between items-center p-3 md:p-4 px-4 md:px-6">
-          <div className="flex items-center gap-4 md:gap-6">
-            <Logo size="md" />
-            {!loading && user && (
-              <div className="hidden sm:flex items-center gap-1">
-                <Link
-                  to="/bookmarks"
-                  className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-                >
-                  <BookmarkIcon className="h-4 w-4" />
-                  Bookmarks
-                </Link>
-                <Link
-                  to="/notes"
-                  className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-                >
-                  <StickyNote className="h-4 w-4" />
-                  Notes
-                </Link>
-              </div>
-            )}
-          </div>
-          <div className="flex items-center gap-2 md:gap-3">
-            <ThemeSwitcher />
-            <AuthButton />
-          </div>
-        </div>
-      </nav>
+      <AppHeader showNavLinks={!loading && !!user} />
 
       {/* Hero Section */}
       <section className="relative flex-1 flex flex-col items-center justify-center px-4 py-12 md:py-24 overflow-hidden">
