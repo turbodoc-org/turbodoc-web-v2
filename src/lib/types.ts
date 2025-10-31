@@ -43,3 +43,29 @@ export interface NotesResponse {
 export interface NoteResponse {
   data: Note;
 }
+
+export interface CodeSnippet {
+  id: string;
+  user_id: string;
+  title: string;
+  code: string;
+  language: string;
+  theme: string;
+  background_type: string;
+  background_value: string;
+  padding: number;
+  show_line_numbers: boolean;
+  font_family: string;
+  font_size: number;
+  window_style: string;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface CodeSnippetsResponse {
+  data: CodeSnippet[];
+}
+
+export interface CodeSnippetResponse {
+  data: CodeSnippet;
+}
