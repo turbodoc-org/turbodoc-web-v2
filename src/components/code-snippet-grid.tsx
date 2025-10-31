@@ -23,33 +23,33 @@ import {
   MoreVertical,
   Trash2,
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface CodeSnippetGridProps {
   onEdit: (snippetId: string) => void;
 }
 
 export function CodeSnippetGrid({ onEdit }: CodeSnippetGridProps) {
-  const [snippets, setSnippets] = useState<CodeSnippet[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [snippetToDelete, setSnippetToDelete] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadSnippets();
-  }, []);
+  // Fetch snippets with React Query
+  const { data: snippets = [], isLoading } = useQuery({
+    queryKey: ['codeSnippets'],
+    queryFn: getCodeSnippets,
+  });
 
-  const loadSnippets = async () => {
-    try {
-      setIsLoading(true);
-      const data = await getCodeSnippets();
-      setSnippets(data);
-    } catch (error) {
-      console.error('Failed to load code snippets:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Delete snippet mutation
+  const deleteSnippetMutation = useMutation({
+    mutationFn: deleteCodeSnippet,
+    onSuccess: (_, deletedId) => {
+      queryClient.setQueryData<CodeSnippet[]>(['codeSnippets'], (old = []) =>
+        old.filter((s) => s.id !== deletedId),
+      );
+    },
+  });
 
   const handleDelete = async (id: string) => {
     setSnippetToDelete(id);
@@ -60,8 +60,7 @@ export function CodeSnippetGrid({ onEdit }: CodeSnippetGridProps) {
     if (!snippetToDelete) return;
 
     try {
-      await deleteCodeSnippet(snippetToDelete);
-      setSnippets((prev) => prev.filter((s) => s.id !== snippetToDelete));
+      await deleteSnippetMutation.mutateAsync(snippetToDelete);
       setDeleteDialogOpen(false);
       setSnippetToDelete(null);
     } catch (error) {

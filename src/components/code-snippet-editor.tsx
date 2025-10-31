@@ -11,6 +11,7 @@ import {
 } from '@/lib/api';
 import { Check, Download, Loader2, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDebounce } from '@/lib/hooks/useDebounce';
 import { toPng, toSvg } from 'html-to-image';
 
@@ -127,6 +128,7 @@ export function CodeSnippetEditor({
   snippetId,
   onClose,
 }: CodeSnippetEditorProps) {
+  const queryClient = useQueryClient();
   const [isSaving, setIsSaving] = useState(false);
   const [autoSaveStatus, setAutoSaveStatus] = useState<
     'saved' | 'saving' | 'idle'
@@ -151,12 +153,58 @@ export function CodeSnippetEditor({
   // Debounce form data for auto-save
   const debouncedFormData = useDebounce(formData, 1000);
 
+  // Fetch snippet if editing
+  const { data: snippets } = useQuery({
+    queryKey: ['codeSnippets'],
+    queryFn: getCodeSnippets,
+    enabled: !!snippetId,
+  });
+
+  // Initialize form data when snippet loads
   useEffect(() => {
-    if (snippetId) {
-      loadSnippet();
-      currentSnippetIdRef.current = snippetId;
+    if (snippetId && snippets) {
+      const snippet = snippets.find((s) => s.id === snippetId);
+      if (snippet) {
+        setFormData({
+          title: snippet.title,
+          code: snippet.code,
+          language: snippet.language,
+          theme: snippet.theme,
+          background_type: snippet.background_type,
+          background_value: snippet.background_value,
+          padding: snippet.padding,
+          show_line_numbers: snippet.show_line_numbers,
+          font_family: snippet.font_family,
+          font_size: snippet.font_size,
+          window_style: snippet.window_style,
+        });
+        currentSnippetIdRef.current = snippetId;
+      }
     }
-  }, [snippetId]);
+  }, [snippetId, snippets]);
+
+  // Create snippet mutation
+  const createSnippetMutation = useMutation({
+    mutationFn: createCodeSnippet,
+    onSuccess: (newSnippet) => {
+      queryClient.setQueryData(['codeSnippets'], (old: any[] = []) => [
+        newSnippet,
+        ...old,
+      ]);
+      currentSnippetIdRef.current = newSnippet.id;
+    },
+  });
+
+  // Update snippet mutation
+  const updateSnippetMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      updateCodeSnippet(id, data),
+    onSuccess: (updatedSnippet) => {
+      queryClient.setQueryData(['codeSnippets'], (old: any[] = []) =>
+        old.map((s) => (s.id === updatedSnippet.id ? updatedSnippet : s)),
+      );
+    },
+  });
 
   // Auto-save effect
   useEffect(() => {
@@ -177,11 +225,13 @@ export function CodeSnippetEditor({
 
         if (currentSnippetIdRef.current) {
           // Update existing
-          await updateCodeSnippet(currentSnippetIdRef.current, dataToSave);
+          await updateSnippetMutation.mutateAsync({
+            id: currentSnippetIdRef.current,
+            data: dataToSave,
+          });
         } else {
           // Create new and store the ID
-          const newSnippet = await createCodeSnippet(dataToSave);
-          currentSnippetIdRef.current = newSnippet.id;
+          await createSnippetMutation.mutateAsync(dataToSave);
         }
 
         setAutoSaveStatus('saved');
@@ -193,7 +243,12 @@ export function CodeSnippetEditor({
     };
 
     autoSave();
-  }, [debouncedFormData]);
+  }, [
+    debouncedFormData,
+    autoSaveStatus,
+    createSnippetMutation,
+    updateSnippetMutation,
+  ]);
 
   // Mark as ready for auto-save after initial load
   useEffect(() => {
@@ -201,32 +256,6 @@ export function CodeSnippetEditor({
       setAutoSaveStatus('idle');
     }
   }, [formData.code]);
-
-  const loadSnippet = async () => {
-    if (!snippetId) return;
-
-    try {
-      const snippets = await getCodeSnippets();
-      const snippet = snippets.find((s) => s.id === snippetId);
-      if (snippet) {
-        setFormData({
-          title: snippet.title,
-          code: snippet.code,
-          language: snippet.language,
-          theme: snippet.theme,
-          background_type: snippet.background_type,
-          background_value: snippet.background_value,
-          padding: snippet.padding,
-          show_line_numbers: snippet.show_line_numbers,
-          font_family: snippet.font_family,
-          font_size: snippet.font_size,
-          window_style: snippet.window_style,
-        });
-      }
-    } catch (error) {
-      console.error('Failed to load snippet:', error);
-    }
-  };
 
   const handleSave = async () => {
     if (!formData.code.trim()) {
@@ -243,10 +272,12 @@ export function CodeSnippetEditor({
       const dataToSave = { ...formData, title };
 
       if (currentSnippetIdRef.current) {
-        await updateCodeSnippet(currentSnippetIdRef.current, dataToSave);
+        await updateSnippetMutation.mutateAsync({
+          id: currentSnippetIdRef.current,
+          data: dataToSave,
+        });
       } else {
-        const newSnippet = await createCodeSnippet(dataToSave);
-        currentSnippetIdRef.current = newSnippet.id;
+        await createSnippetMutation.mutateAsync(dataToSave);
       }
       onClose();
     } catch (error) {
