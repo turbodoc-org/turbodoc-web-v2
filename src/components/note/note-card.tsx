@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { deleteNote } from '@/lib/api';
 import { useNavigate } from '@tanstack/react-router';
+import ReactMarkdown from 'react-markdown';
 
 interface NoteCardProps {
   note: Note;
@@ -94,7 +95,7 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
         {/* Header with icon and action menu */}
         <div className="relative p-3 sm:p-4 border-b border-border bg-muted/30 dark:bg-gray-800">
           <div className="flex items-center gap-2">
-            <StickyNote className="h-4 w-4 text-primary flex-shrink-0" />
+            <StickyNote className="h-4 w-4 text-primary shrink-0" />
             <h3 className="font-semibold text-sm leading-tight text-foreground flex-1 min-w-0">
               {note.title ? truncateText(note.title, 30) : 'Untitled Note'}
             </h3>
@@ -140,8 +141,51 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
         <div className="flex-1 p-3 sm:p-4 overflow-hidden">
           <div className="h-full overflow-hidden">
             {note.content ? (
-              <div className="text-xs text-muted-foreground line-clamp-6 overflow-hidden whitespace-pre-wrap">
-                {truncateText(note.content, 200)}
+              <div className="text-xs text-muted-foreground line-clamp-6 overflow-hidden prose prose-xs max-w-none dark:prose-invert">
+                <ReactMarkdown
+                  components={{
+                    // Remove margins from elements to fit better in preview
+                    p: ({ children }) => <p className="mb-1">{children}</p>,
+                    h1: ({ children }) => (
+                      <h1 className="text-sm font-bold mb-1">{children}</h1>
+                    ),
+                    h2: ({ children }) => (
+                      <h2 className="text-sm font-semibold mb-1">{children}</h2>
+                    ),
+                    h3: ({ children }) => (
+                      <h3 className="text-xs font-semibold mb-1">{children}</h3>
+                    ),
+                    ul: ({ children }) => (
+                      <ul className="list-disc ml-3 mb-1">{children}</ul>
+                    ),
+                    ol: ({ children }) => (
+                      <ol className="list-decimal ml-3 mb-1">{children}</ol>
+                    ),
+                    li: ({ children }) => <li className="mb-0">{children}</li>,
+                    code: ({ children }) => (
+                      <code className="text-xs bg-muted px-1 rounded">
+                        {children}
+                      </code>
+                    ),
+                    pre: ({ children }) => (
+                      <pre className="text-xs bg-muted p-1 rounded mb-1 overflow-hidden">
+                        {children}
+                      </pre>
+                    ),
+                    blockquote: ({ children }) => (
+                      <blockquote className="border-l-2 border-primary pl-2 italic mb-1">
+                        {children}
+                      </blockquote>
+                    ),
+                    a: ({ children, href }) => (
+                      <a href={href} className="text-primary underline">
+                        {children}
+                      </a>
+                    ),
+                  }}
+                >
+                  {truncateText(note.content, 300)}
+                </ReactMarkdown>
               </div>
             ) : (
               <div className="flex items-center justify-center h-full text-muted-foreground text-xs">

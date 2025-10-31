@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Note } from '@/lib/types';
 import { NoteCard } from '@/components/note/note-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
   DialogContent,
@@ -19,10 +18,13 @@ import { Plus, Search, Loader2 } from 'lucide-react';
 import { getNotes, createNote, updateNote } from '@/lib/api';
 import { useDebounce } from '@/lib/hooks/useDebounce';
 import { useNavigate } from '@tanstack/react-router';
+import { MDXEditorWrapper } from '@/components/note/mdx-editor-wrapper';
+import type { MDXEditorMethods } from '@mdxeditor/editor';
 
 export function NoteGrid() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const editorRef = useRef<MDXEditorMethods>(null);
   const [filteredNotes, setFilteredNotes] = useState<Note[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -206,7 +208,7 @@ export function NoteGrid() {
               Add Note
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="sm:max-w-5xl max-h-[85vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Create New Note</DialogTitle>
             </DialogHeader>
@@ -220,20 +222,22 @@ export function NoteGrid() {
                     setNewNote({ ...newNote, title: e.target.value })
                   }
                   placeholder="Enter note title"
+                  className="mt-2"
                 />
               </div>
               <div>
                 <Label htmlFor="new-content">Content</Label>
-                <Textarea
-                  id="new-content"
-                  value={newNote.content}
-                  onChange={(e) =>
-                    setNewNote({ ...newNote, content: e.target.value })
-                  }
-                  placeholder="Start writing your note..."
-                  className="min-h-[200px] mt-2"
-                  spellCheck={true}
-                />
+                <div className="border border-border/50 rounded-md overflow-hidden bg-background/50 focus-within:border-primary/50 transition-colors mt-2 mdxeditor-dialog">
+                  <MDXEditorWrapper
+                    key={`create-note-${isCreateDialogOpen}`}
+                    ref={editorRef}
+                    markdown={newNote.content}
+                    onChange={(value) =>
+                      setNewNote({ ...newNote, content: value })
+                    }
+                    placeholder="Start writing your note..."
+                  />
+                </div>
               </div>
               <div className="flex justify-between items-center">
                 <p className="text-sm text-muted-foreground">

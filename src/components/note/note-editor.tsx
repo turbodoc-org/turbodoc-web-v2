@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Note } from '@/lib/types';
 import { getNote, updateNote, deleteNote } from '@/lib/api';
@@ -8,7 +8,6 @@ import { useDebounce } from '@/lib/hooks/useDebounce';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,6 +20,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { ArrowLeft, Trash2, Loader2, Clock, StickyNote } from 'lucide-react';
 import { Link, useNavigate } from '@tanstack/react-router';
+import { MDXEditorWrapper } from './mdx-editor-wrapper';
+import type { MDXEditorMethods } from '@mdxeditor/editor';
 
 interface NoteEditorProps {
   noteId: string;
@@ -29,6 +30,7 @@ interface NoteEditorProps {
 export function NoteEditor({ noteId }: NoteEditorProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const editorRef = useRef<MDXEditorMethods>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [autoSaving, setAutoSaving] = useState(false);
@@ -61,8 +63,14 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
       setContent(note.content || '');
       setTags(note.tags || '');
       setLastSaved(new Date());
+
+      // Update editor content via ref if it exists and content changed
+      if (editorRef.current && note.content !== content) {
+        editorRef.current.setMarkdown(note.content || '');
+      }
     }
-  }, [note]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [note?.id]); // Only run when note ID changes (new note loaded)
 
   // Navigate away if note fails to load
   useEffect(() => {
@@ -127,12 +135,14 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
 
       autoSave();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     debouncedTitle,
     debouncedContent,
     debouncedTags,
-    note,
-    updateNoteMutation,
+    note?.title,
+    note?.content,
+    note?.tags,
   ]);
 
   const handleDelete = async () => {
@@ -152,8 +162,11 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
   };
 
   const handleContentChange = (value: string) => {
-    setContent(value ?? '');
-    setHasChanges(true);
+    // Only update if the value actually changed
+    if (value !== content) {
+      setContent(value);
+      setHasChanges(true);
+    }
   };
 
   const formatDate = (dateString: string | null) => {
@@ -287,14 +300,15 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
             >
               Content
             </Label>
-            <Textarea
-              id="content"
-              value={content}
-              onChange={(e) => handleContentChange(e.target.value)}
-              placeholder="Start writing your note..."
-              className="min-h-[500px] resize-none border-border/50 focus:border-primary/50 bg-background/50 text-base leading-relaxed"
-              spellCheck={true}
-            />
+            <div className="border border-border/50 rounded-md overflow-hidden bg-background/50 focus-within:border-primary/50 transition-colors">
+              <MDXEditorWrapper
+                key={noteId}
+                ref={editorRef}
+                markdown={note?.content || ''}
+                onChange={handleContentChange}
+                placeholder="Start writing your note..."
+              />
+            </div>
           </div>
         </div>
       </main>
