@@ -1,4 +1,4 @@
-import { AuthButton } from '@/components/auth-button';
+import { AuthButton } from '@/components/auth/auth-button';
 import { Logo } from '@/components/logo';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Link, useRouterState } from '@tanstack/react-router';

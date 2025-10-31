@@ -1,5 +1,5 @@
 import { Button } from './ui/button';
-import { LogoutButton } from './logout-button';
+import { LogoutButton } from './auth/logout-button';
 import { Link } from '@tanstack/react-router';
 import { useAuth } from '@/lib/auth/context';
 
