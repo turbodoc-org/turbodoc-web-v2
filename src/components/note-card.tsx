@@ -121,7 +121,10 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
                   Edit note
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => setShowDeleteDialog(true)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowDeleteDialog(true);
+                  }}
                   disabled={isDeleting}
                   className="text-destructive focus:text-destructive"
                 >
@@ -184,7 +187,7 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Note</AlertDialogTitle>
             <AlertDialogDescription>

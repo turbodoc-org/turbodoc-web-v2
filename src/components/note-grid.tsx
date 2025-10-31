@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Note } from '@/lib/types';
 import { NoteCard } from './note-card';
 import { Button } from './ui/button';
@@ -21,10 +22,8 @@ import { useNavigate } from '@tanstack/react-router';
 
 export function NoteGrid() {
   const navigate = useNavigate();
-  const [notes, setNotes] = useState<Note[]>([]);
+  const queryClient = useQueryClient();
   const [filteredNotes, setFilteredNotes] = useState<Note[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isCreating, setIsCreating] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [draftNoteId, setDraftNoteId] = useState<string | null>(null);
@@ -42,9 +41,33 @@ export function NoteGrid() {
   const debouncedNewContent = useDebounce(newNote.content, 800);
   const debouncedNewTags = useDebounce(newNote.tags, 800);
 
-  useEffect(() => {
-    loadNotes();
-  }, []);
+  // Fetch notes with React Query
+  const { data: notes = [], isLoading } = useQuery({
+    queryKey: ['notes'],
+    queryFn: getNotes,
+  });
+
+  // Create note mutation
+  const createNoteMutation = useMutation({
+    mutationFn: createNote,
+    onSuccess: (newNote) => {
+      queryClient.setQueryData<Note[]>(['notes'], (old = []) => [
+        newNote,
+        ...old,
+      ]);
+    },
+  });
+
+  // Update note mutation
+  const updateNoteMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<Note> }) =>
+      updateNote(id, data),
+    onSuccess: (updatedNote) => {
+      queryClient.setQueryData<Note[]>(['notes'], (old = []) =>
+        old.map((note) => (note.id === updatedNote.id ? updatedNote : note)),
+      );
+    },
+  });
 
   // Handle debounced search
   useEffect(() => {
@@ -69,62 +92,54 @@ export function NoteGrid() {
   useEffect(() => {
     if (!isCreateDialogOpen) return;
 
-    const hasContent = debouncedNewTitle || debouncedNewContent;
+    // Only consider real content, not just whitespace
+    const hasRealContent =
+      debouncedNewTitle.trim() || debouncedNewContent.trim();
 
-    if (hasContent && !draftNoteId) {
-      // Create initial draft
+    if (!hasRealContent) return;
+
+    if (!draftNoteId) {
+      // Create initial draft only if there's actual content
       const createDraft = async () => {
         try {
-          const created = await createNote({
-            title: debouncedNewTitle || 'Untitled Note',
+          const created = await createNoteMutation.mutateAsync({
+            title: debouncedNewTitle.trim() || 'Untitled Note',
             content: debouncedNewContent || '',
             tags: debouncedNewTags || undefined,
           });
           setDraftNoteId(created.id);
-          setNotes([created, ...notes]);
         } catch (error) {
           console.error('Failed to create draft note:', error);
         }
       };
       createDraft();
-    } else if (hasContent && draftNoteId) {
+    } else {
       // Update existing draft
       const updateDraft = async () => {
         try {
-          const updated = await updateNote(draftNoteId, {
-            title: debouncedNewTitle || 'Untitled Note',
-            content: debouncedNewContent || '',
-            tags: debouncedNewTags || undefined,
+          await updateNoteMutation.mutateAsync({
+            id: draftNoteId,
+            data: {
+              title: debouncedNewTitle.trim() || 'Untitled Note',
+              content: debouncedNewContent || '',
+              tags: debouncedNewTags || undefined,
+            },
           });
-          // Update the note in our local state
-          setNotes((prev) =>
-            prev.map((note) => (note.id === draftNoteId ? updated : note)),
-          );
         } catch (error) {
           console.error('Failed to update draft note:', error);
         }
       };
       updateDraft();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     debouncedNewTitle,
     debouncedNewContent,
     debouncedNewTags,
     isCreateDialogOpen,
     draftNoteId,
-    notes,
+    // Do NOT include mutations in deps - they change on every mutation
   ]);
-
-  const loadNotes = async () => {
-    try {
-      const data = await getNotes();
-      setNotes(data);
-    } catch (error) {
-      console.error('Failed to load notes:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleCreateAndEdit = async () => {
     if (draftNoteId) {
@@ -134,9 +149,8 @@ export function NoteGrid() {
     }
 
     // If no draft, create new note and redirect
-    setIsCreating(true);
     try {
-      const created = await createNote({
+      const created = await createNoteMutation.mutateAsync({
         title: newNote.title || 'Untitled Note',
         content: newNote.content || '',
         tags: newNote.tags || undefined,
@@ -144,21 +158,22 @@ export function NoteGrid() {
       navigate({ to: `/note/${created.id}` });
     } catch (error) {
       console.error('Failed to create note:', error);
-    } finally {
-      setIsCreating(false);
     }
   };
 
   const handleCreateDialogChange = (open: boolean) => {
     setIsCreateDialogOpen(open);
     if (!open) {
-      // Reset draft state when closing
+      // Reset draft state and form when closing
       setDraftNoteId(null);
+      setNewNote({ title: '', content: '', tags: '' });
     }
   };
 
   const handleDeleteNote = (id: string) => {
-    setNotes(notes.filter((note) => note.id !== id));
+    queryClient.setQueryData<Note[]>(['notes'], (old = []) =>
+      old.filter((note) => note.id !== id),
+    );
   };
 
   if (isLoading) {
@@ -237,10 +252,10 @@ export function NoteGrid() {
                   </Button>
                   <Button
                     onClick={handleCreateAndEdit}
-                    disabled={isCreating}
+                    disabled={createNoteMutation.isPending}
                     className="bg-primary hover:bg-primary/90 text-primary-foreground"
                   >
-                    {isCreating ? (
+                    {createNoteMutation.isPending ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                         Creating...

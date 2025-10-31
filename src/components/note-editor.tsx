@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Note } from '@/lib/types';
 import { getNote, updateNote, deleteNote } from '@/lib/api';
 import { useDebounce } from '@/lib/hooks/useDebounce';
@@ -27,9 +28,7 @@ interface NoteEditorProps {
 
 export function NoteEditor({ noteId }: NoteEditorProps) {
   const navigate = useNavigate();
-  const [note, setNote] = useState<Note | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [deleting, setDeleting] = useState(false);
+  const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [autoSaving, setAutoSaving] = useState(false);
@@ -44,23 +43,59 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
   const debouncedContent = useDebounce(content, 1000);
   const debouncedTags = useDebounce(tags, 1000);
 
-  const loadNote = useCallback(async () => {
-    try {
-      setLoading(true);
-      const noteData = await getNote(noteId);
-      setNote(noteData);
-      setTitle(noteData.title || '');
-      setContent(noteData.content || '');
-      setTags(noteData.tags || '');
+  // Fetch note with React Query
+  const {
+    data: note,
+    isLoading: loading,
+    isError,
+  } = useQuery({
+    queryKey: ['note', noteId],
+    queryFn: () => getNote(noteId),
+    retry: 1,
+  });
+
+  // Initialize form when note loads
+  useEffect(() => {
+    if (note) {
+      setTitle(note.title || '');
+      setContent(note.content || '');
+      setTags(note.tags || '');
       setLastSaved(new Date());
-    } catch (error) {
-      console.error('Failed to load note:', error);
+    }
+  }, [note]);
+
+  // Navigate away if note fails to load
+  useEffect(() => {
+    if (isError) {
       console.error('Failed to load note');
       navigate({ to: '/notes' });
-    } finally {
-      setLoading(false);
     }
-  }, [noteId, navigate]);
+  }, [isError, navigate]);
+
+  // Update note mutation
+  const updateNoteMutation = useMutation({
+    mutationFn: (data: Partial<Note>) => updateNote(noteId, data),
+    onSuccess: (updatedNote) => {
+      queryClient.setQueryData(['note', noteId], updatedNote);
+      queryClient.setQueryData<Note[]>(['notes'], (old = []) =>
+        old.map((n) => (n.id === noteId ? updatedNote : n)),
+      );
+      setHasChanges(false);
+      setLastSaved(new Date());
+    },
+  });
+
+  // Delete note mutation
+  const deleteNoteMutation = useMutation({
+    mutationFn: () => deleteNote(noteId),
+    onSuccess: () => {
+      queryClient.setQueryData<Note[]>(['notes'], (old = []) =>
+        old.filter((n) => n.id !== noteId),
+      );
+      console.log('Note deleted successfully');
+      navigate({ to: '/notes' });
+    },
+  });
 
   // Auto-save effect
   useEffect(() => {
@@ -78,14 +113,11 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
       const autoSave = async () => {
         try {
           setAutoSaving(true);
-          const updated = await updateNote(note.id, {
+          await updateNoteMutation.mutateAsync({
             title: debouncedTitle || undefined,
             content: debouncedContent || undefined,
             tags: debouncedTags || null,
           });
-          setNote(updated);
-          setHasChanges(false);
-          setLastSaved(new Date());
         } catch (error) {
           console.error('Failed to auto-save note:', error);
         } finally {
@@ -95,25 +127,22 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
 
       autoSave();
     }
-  }, [debouncedTitle, debouncedContent, debouncedTags, note]);
-
-  useEffect(() => {
-    loadNote();
-  }, [loadNote]);
+  }, [
+    debouncedTitle,
+    debouncedContent,
+    debouncedTags,
+    note,
+    updateNoteMutation,
+  ]);
 
   const handleDelete = async () => {
     if (!note) return;
 
     try {
-      setDeleting(true);
-      await deleteNote(note.id);
-      console.log('Note deleted successfully');
-      navigate({ to: '/notes' });
+      await deleteNoteMutation.mutateAsync();
     } catch (error) {
       console.error('Failed to delete note:', error);
       console.error('Failed to delete note');
-    } finally {
-      setDeleting(false);
     }
   };
 
@@ -221,7 +250,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
               variant="outline"
               size="sm"
               onClick={() => setShowDeleteDialog(true)}
-              disabled={deleting}
+              disabled={deleteNoteMutation.isPending}
               className="text-destructive hover:text-destructive"
             >
               <Trash2 className="h-4 w-4" />
@@ -284,10 +313,10 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              disabled={deleting}
+              disabled={deleteNoteMutation.isPending}
               className="bg-destructive hover:bg-destructive/90"
             >
-              {deleting ? (
+              {deleteNoteMutation.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Deleting...
