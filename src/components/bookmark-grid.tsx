@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Bookmark } from '@/lib/types';
 import { BookmarkCard } from './bookmark-card';
 import { DragDropZone } from './drag-drop-zone';
@@ -19,12 +20,11 @@ import { getBookmarks, createBookmark, searchBookmarks } from '@/lib/api';
 import { useDebounce } from '@/lib/hooks/useDebounce';
 
 export function BookmarkGrid() {
-  const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
+  const queryClient = useQueryClient();
   const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Debounce search term with 300ms delay
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -34,9 +34,25 @@ export function BookmarkGrid() {
     tags: '',
   });
 
-  useEffect(() => {
-    loadBookmarks();
-  }, []);
+  // Fetch bookmarks with React Query
+  const { data: bookmarks = [], isLoading } = useQuery({
+    queryKey: ['bookmarks'],
+    queryFn: getBookmarks,
+  });
+
+  // Create bookmark mutation
+  const createBookmarkMutation = useMutation({
+    mutationFn: createBookmark,
+    onSuccess: (newBookmark) => {
+      queryClient.setQueryData<Bookmark[]>(['bookmarks'], (old = []) => [
+        newBookmark,
+        ...old,
+      ]);
+      // Close dialog and reset form on success
+      setIsDialogOpen(false);
+      setNewBookmark({ title: '', url: '', tags: '' });
+    },
+  });
 
   // Handle debounced search
   useEffect(() => {
@@ -108,52 +124,41 @@ export function BookmarkGrid() {
     }
   }, [searchTerm, debouncedSearchTerm]);
 
-  const loadBookmarks = async () => {
-    try {
-      const data = await getBookmarks();
-      setBookmarks(data);
-    } catch (error) {
-      console.error('Failed to load bookmarks:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleCreateBookmark = async () => {
     if (!newBookmark.title || !newBookmark.url) {
       return;
     }
 
-    setIsCreating(true);
     try {
-      const created = await createBookmark({
+      await createBookmarkMutation.mutateAsync({
         title: newBookmark.title,
         url: newBookmark.url,
         tags: newBookmark.tags || undefined,
       });
-      setBookmarks([created, ...bookmarks]);
-      setNewBookmark({ title: '', url: '', tags: '' });
-      setIsCreating(false);
     } catch (error) {
       console.error('Failed to create bookmark:', error);
-      setIsCreating(false);
     }
   };
 
   const handleDragDropBookmark = (bookmark: Bookmark) => {
-    setBookmarks([bookmark, ...bookmarks]);
+    queryClient.setQueryData<Bookmark[]>(['bookmarks'], (old = []) => [
+      bookmark,
+      ...old,
+    ]);
   };
 
   const handleUpdateBookmark = (updatedBookmark: Bookmark) => {
-    setBookmarks(
-      bookmarks.map((bookmark) =>
+    queryClient.setQueryData<Bookmark[]>(['bookmarks'], (old = []) =>
+      old.map((bookmark) =>
         bookmark.id === updatedBookmark.id ? updatedBookmark : bookmark,
       ),
     );
   };
 
   const handleDeleteBookmark = (id: string) => {
-    setBookmarks(bookmarks.filter((bookmark) => bookmark.id !== id));
+    queryClient.setQueryData<Bookmark[]>(['bookmarks'], (old = []) =>
+      old.filter((bookmark) => bookmark.id !== id),
+    );
   };
 
   if (isLoading) {
@@ -180,7 +185,7 @@ export function BookmarkGrid() {
             className="pl-10 bg-background/60 backdrop-blur-sm border-border focus:border-primary focus:ring-primary/20 text-foreground placeholder:text-muted-foreground"
           />
         </div>
-        <Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg">
               <Plus className="h-4 w-4 mr-2" />
@@ -229,11 +234,13 @@ export function BookmarkGrid() {
                 <Button
                   onClick={handleCreateBookmark}
                   disabled={
-                    !newBookmark.title || !newBookmark.url || isCreating
+                    !newBookmark.title ||
+                    !newBookmark.url ||
+                    createBookmarkMutation.isPending
                   }
                   className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
-                  {isCreating ? (
+                  {createBookmarkMutation.isPending ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Creating...
