@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Card, CardContent } from './ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Upload, Link2, Plus } from 'lucide-react';
 import { createBookmark, getOgImage } from '@/lib/api';
 import { Bookmark } from '@/lib/types';

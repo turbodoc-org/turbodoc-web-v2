@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { CodeEditor } from '@/components/code-editor';
+import { CodeEditor } from '@/components/code-snippet/code-editor';
 import {
   createCodeSnippet,
   getCodeSnippets,

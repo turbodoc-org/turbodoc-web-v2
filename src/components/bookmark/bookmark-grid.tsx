@@ -3,18 +3,18 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Bookmark } from '@/lib/types';
-import { BookmarkCard } from './bookmark-card';
-import { DragDropZone } from './drag-drop-zone';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
+import { BookmarkCard } from '@/components/bookmark/bookmark-card';
+import { DragDropZone } from '@/components/bookmark/drag-drop-zone';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from './ui/dialog';
+} from '@/components/ui/dialog';
 import { Plus, Search, Loader2 } from 'lucide-react';
 import { getBookmarks, createBookmark, searchBookmarks } from '@/lib/api';
 import { useDebounce } from '@/lib/hooks/useDebounce';
