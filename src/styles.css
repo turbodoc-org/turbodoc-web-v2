@@ -269,10 +269,28 @@ code {
 .mdxeditor-root-contenteditable ol {
   margin-left: 1.5rem !important;
   margin-bottom: 1rem !important;
+  padding-left: 1.5rem !important;
+}
+
+.mdxeditor-root-contenteditable ul {
+  list-style-type: disc !important;
+}
+
+.mdxeditor-root-contenteditable ol {
+  list-style-type: decimal !important;
+}
+
+.mdxeditor-root-contenteditable ul ul {
+  list-style-type: circle !important;
+}
+
+.mdxeditor-root-contenteditable ul ul ul {
+  list-style-type: square !important;
 }
 
 .mdxeditor-root-contenteditable li {
   margin-bottom: 0.5rem !important;
+  display: list-item !important;
 }
 
 .mdxeditor-root-contenteditable code {
@@ -352,6 +370,15 @@ code {
 .dark .mdxeditor-root-contenteditable p,
 .dark .mdxeditor-root-contenteditable li,
 .dark .mdxeditor-root-contenteditable span {
+  color: var(--foreground) !important;
+}
+
+.dark .mdxeditor-root-contenteditable ul,
+.dark .mdxeditor-root-contenteditable ol {
+  color: var(--foreground) !important;
+}
+
+.dark .mdxeditor-root-contenteditable li::marker {
   color: var(--foreground) !important;
 }
 
