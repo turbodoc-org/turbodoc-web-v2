@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as CodeSnippetsRouteImport } from './routes/code-snippets'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthUpdatePasswordRouteImport } from './routes/auth/update-password'
@@ -20,7 +21,6 @@ import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as AuthErrorRouteImport } from './routes/auth/error'
 import { Route as AuthedNotesRouteImport } from './routes/_authed/notes'
-import { Route as AuthedCodeSnippetsRouteImport } from './routes/_authed/code-snippets'
 import { Route as AuthedBookmarksRouteImport } from './routes/_authed/bookmarks'
 import { Route as ApiAuthConfirmRouteImport } from './routes/api/auth/confirm'
 import { Route as AuthedNoteNoteIdRouteImport } from './routes/_authed/note.$noteId'
@@ -33,6 +33,11 @@ const TermsRoute = TermsRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CodeSnippetsRoute = CodeSnippetsRouteImport.update({
+  id: '/code-snippets',
+  path: '/code-snippets',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthedRoute = AuthedRouteImport.update({
@@ -79,11 +84,6 @@ const AuthedNotesRoute = AuthedNotesRouteImport.update({
   path: '/notes',
   getParentRoute: () => AuthedRoute,
 } as any)
-const AuthedCodeSnippetsRoute = AuthedCodeSnippetsRouteImport.update({
-  id: '/code-snippets',
-  path: '/code-snippets',
-  getParentRoute: () => AuthedRoute,
-} as any)
 const AuthedBookmarksRoute = AuthedBookmarksRouteImport.update({
   id: '/bookmarks',
   path: '/bookmarks',
@@ -102,10 +102,10 @@ const AuthedNoteNoteIdRoute = AuthedNoteNoteIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/code-snippets': typeof CodeSnippetsRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/bookmarks': typeof AuthedBookmarksRoute
-  '/code-snippets': typeof AuthedCodeSnippetsRoute
   '/notes': typeof AuthedNotesRoute
   '/auth/error': typeof AuthErrorRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -118,10 +118,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/code-snippets': typeof CodeSnippetsRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/bookmarks': typeof AuthedBookmarksRoute
-  '/code-snippets': typeof AuthedCodeSnippetsRoute
   '/notes': typeof AuthedNotesRoute
   '/auth/error': typeof AuthErrorRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -136,10 +136,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authed': typeof AuthedRouteWithChildren
+  '/code-snippets': typeof CodeSnippetsRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/_authed/bookmarks': typeof AuthedBookmarksRoute
-  '/_authed/code-snippets': typeof AuthedCodeSnippetsRoute
   '/_authed/notes': typeof AuthedNotesRoute
   '/auth/error': typeof AuthErrorRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -154,10 +154,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/code-snippets'
     | '/privacy'
     | '/terms'
     | '/bookmarks'
-    | '/code-snippets'
     | '/notes'
     | '/auth/error'
     | '/auth/forgot-password'
@@ -170,10 +170,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/code-snippets'
     | '/privacy'
     | '/terms'
     | '/bookmarks'
-    | '/code-snippets'
     | '/notes'
     | '/auth/error'
     | '/auth/forgot-password'
@@ -187,10 +187,10 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authed'
+    | '/code-snippets'
     | '/privacy'
     | '/terms'
     | '/_authed/bookmarks'
-    | '/_authed/code-snippets'
     | '/_authed/notes'
     | '/auth/error'
     | '/auth/forgot-password'
@@ -205,6 +205,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthedRoute: typeof AuthedRouteWithChildren
+  CodeSnippetsRoute: typeof CodeSnippetsRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
   AuthErrorRoute: typeof AuthErrorRoute
@@ -230,6 +231,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/code-snippets': {
+      id: '/code-snippets'
+      path: '/code-snippets'
+      fullPath: '/code-snippets'
+      preLoaderRoute: typeof CodeSnippetsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authed': {
@@ -295,13 +303,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedNotesRouteImport
       parentRoute: typeof AuthedRoute
     }
-    '/_authed/code-snippets': {
-      id: '/_authed/code-snippets'
-      path: '/code-snippets'
-      fullPath: '/code-snippets'
-      preLoaderRoute: typeof AuthedCodeSnippetsRouteImport
-      parentRoute: typeof AuthedRoute
-    }
     '/_authed/bookmarks': {
       id: '/_authed/bookmarks'
       path: '/bookmarks'
@@ -328,14 +329,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthedRouteChildren {
   AuthedBookmarksRoute: typeof AuthedBookmarksRoute
-  AuthedCodeSnippetsRoute: typeof AuthedCodeSnippetsRoute
   AuthedNotesRoute: typeof AuthedNotesRoute
   AuthedNoteNoteIdRoute: typeof AuthedNoteNoteIdRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedBookmarksRoute: AuthedBookmarksRoute,
-  AuthedCodeSnippetsRoute: AuthedCodeSnippetsRoute,
   AuthedNotesRoute: AuthedNotesRoute,
   AuthedNoteNoteIdRoute: AuthedNoteNoteIdRoute,
 }
@@ -346,6 +345,7 @@ const AuthedRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthedRoute: AuthedRouteWithChildren,
+  CodeSnippetsRoute: CodeSnippetsRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
   AuthErrorRoute: AuthErrorRoute,
