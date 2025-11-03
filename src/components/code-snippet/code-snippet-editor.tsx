@@ -14,6 +14,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDebounce } from '@/lib/hooks/useDebounce';
 import { toPng, toSvg } from 'html-to-image';
+import { useAuth } from '@/lib/auth/context';
+import { LoginModal } from '@/components/auth/login-modal';
+
+const LOCALSTORAGE_KEY = 'turbodoc-code-snippet-draft';
 
 interface CodeSnippetEditorProps {
   snippetId: string | null;
@@ -120,7 +124,6 @@ const FONTS = [
 
 const WINDOW_STYLES = [
   { value: 'mac', label: 'macOS' },
-  { value: 'windows', label: 'Windows' },
   { value: 'none', label: 'None' },
 ];
 
@@ -128,11 +131,13 @@ export function CodeSnippetEditor({
   snippetId,
   onClose,
 }: CodeSnippetEditorProps) {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [isSaving, setIsSaving] = useState(false);
   const [autoSaveStatus, setAutoSaveStatus] = useState<
     'saved' | 'saving' | 'idle'
   >('idle');
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
   const currentSnippetIdRef = useRef<string | null>(snippetId);
 
@@ -149,6 +154,32 @@ export function CodeSnippetEditor({
     font_size: 14,
     window_style: 'mac',
   });
+
+  // Load from localStorage on mount for new snippets (anonymous or logged in users)
+  useEffect(() => {
+    if (!snippetId && typeof window !== 'undefined') {
+      const savedDraft = localStorage.getItem(LOCALSTORAGE_KEY);
+      if (savedDraft) {
+        try {
+          const parsed = JSON.parse(savedDraft);
+          setFormData(parsed);
+        } catch (error) {
+          console.error('Failed to load draft from localStorage:', error);
+        }
+      }
+    }
+  }, [snippetId]);
+
+  // Save to localStorage whenever formData changes (for non-saved snippets)
+  useEffect(() => {
+    if (
+      !currentSnippetIdRef.current &&
+      formData.code.trim() &&
+      typeof window !== 'undefined'
+    ) {
+      localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(formData));
+    }
+  }, [formData]);
 
   // Debounce form data for auto-save
   const debouncedFormData = useDebounce(formData, 1000);
@@ -206,10 +237,10 @@ export function CodeSnippetEditor({
     },
   });
 
-  // Auto-save effect
+  // Auto-save effect (only for authenticated users)
   useEffect(() => {
-    // Don't auto-save if there's no code or if this is the initial load
-    if (!debouncedFormData.code.trim() || autoSaveStatus === 'idle') {
+    // Don't auto-save if not authenticated, no code, or if this is the initial load
+    if (!user || !debouncedFormData.code.trim() || autoSaveStatus === 'idle') {
       return;
     }
 
@@ -231,7 +262,13 @@ export function CodeSnippetEditor({
           });
         } else {
           // Create new and store the ID
-          await createSnippetMutation.mutateAsync(dataToSave);
+          const newSnippet =
+            await createSnippetMutation.mutateAsync(dataToSave);
+          currentSnippetIdRef.current = newSnippet.id;
+          // Clear localStorage after successful save
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem(LOCALSTORAGE_KEY);
+          }
         }
 
         setAutoSaveStatus('saved');
@@ -244,6 +281,7 @@ export function CodeSnippetEditor({
 
     autoSave();
   }, [
+    user,
     debouncedFormData,
     autoSaveStatus,
     createSnippetMutation,
@@ -263,6 +301,16 @@ export function CodeSnippetEditor({
       return;
     }
 
+    // Check if user is logged in
+    if (!user) {
+      setShowLoginModal(true);
+      return;
+    }
+
+    await performSave();
+  };
+
+  const performSave = async () => {
     try {
       setIsSaving(true);
 
@@ -278,6 +326,10 @@ export function CodeSnippetEditor({
         });
       } else {
         await createSnippetMutation.mutateAsync(dataToSave);
+        // Clear localStorage after successful save
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem(LOCALSTORAGE_KEY);
+        }
       }
       onClose();
     } catch (error) {
@@ -286,6 +338,12 @@ export function CodeSnippetEditor({
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleLoginSuccess = async () => {
+    // After successful login, automatically save the snippet
+    setShowLoginModal(false);
+    await performSave();
   };
 
   const handleExportSVG = async () => {
@@ -330,21 +388,26 @@ export function CodeSnippetEditor({
     THEMES.find((t) => t.value === formData.theme) || THEMES[0];
 
   return (
-    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="w-full max-w-7xl h-[90vh] bg-background border border-border rounded-lg shadow-2xl flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center">
+      <div className="w-full h-screen bg-background border border-border rounded-lg shadow-2xl flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-semibold">
               {snippetId ? 'Edit' : 'Create'} Code Screenshot
             </h2>
-            {autoSaveStatus === 'saving' && (
+            {!user && (
+              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                Work saved locally
+              </span>
+            )}
+            {user && autoSaveStatus === 'saving' && (
               <span className="text-xs text-muted-foreground flex items-center gap-1">
                 <Loader2 className="h-3 w-3 animate-spin" />
                 Saving...
               </span>
             )}
-            {autoSaveStatus === 'saved' && (
+            {user && autoSaveStatus === 'saved' && (
               <span className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
                 <Check className="h-3 w-3" />
                 Saved
@@ -380,10 +443,15 @@ export function CodeSnippetEditor({
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Saving...
                 </>
-              ) : (
+              ) : user ? (
                 <>
                   <Check className="h-4 w-4 mr-2" />
                   Save & Close
+                </>
+              ) : (
+                <>
+                  <Check className="h-4 w-4 mr-2" />
+                  Login to Save
                 </>
               )}
             </Button>
@@ -593,6 +661,14 @@ export function CodeSnippetEditor({
           </div>
         </div>
       </div>
+
+      {/* Login Modal */}
+      <LoginModal
+        open={showLoginModal}
+        search={{ redirect: '/code-snippets' }}
+        onOpenChange={setShowLoginModal}
+        onSuccess={handleLoginSuccess}
+      />
     </div>
   );
 }
