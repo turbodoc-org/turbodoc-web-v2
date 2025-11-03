@@ -4,11 +4,17 @@ import { Logo } from '@/components/shared/logo';
 
 interface LoginModalProps {
   open: boolean;
+  search?: { redirect: string | undefined };
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 }
 
-export function LoginModal({ open, onOpenChange }: LoginModalProps) {
+export function LoginModal({
+  open,
+  onOpenChange,
+  onSuccess,
+  search,
+}: LoginModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -16,7 +22,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
           <div className="flex justify-center mb-8">
             <Logo size="lg" href="/" showText={false} />
           </div>
-          <LoginForm />
+          <LoginForm search={search} onSuccess={onSuccess} />
         </div>
       </DialogContent>
     </Dialog>

@@ -18,9 +18,11 @@ import { Link, useNavigate } from '@tanstack/react-router';
 export function LoginForm({
   className,
   search,
+  onSuccess,
   ...props
 }: React.ComponentPropsWithoutRef<'div'> & {
   search?: { redirect?: string | undefined };
+  onSuccess?: () => void;
 }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,6 +43,7 @@ export function LoginForm({
       if (error) throw error;
       const redirectTo = search?.redirect || '/bookmarks';
       navigate({ to: redirectTo });
+      onSuccess?.();
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred');
     } finally {
