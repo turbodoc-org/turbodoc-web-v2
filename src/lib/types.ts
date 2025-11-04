@@ -31,6 +31,7 @@ export interface Note {
   title: string;
   content: string;
   tags: string | null;
+  version: number;
   created_at: string | null;
   updated_at: string | null;
 }

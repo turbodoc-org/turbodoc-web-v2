@@ -273,6 +273,15 @@ export async function updateNote(
     body: JSON.stringify(updates),
   });
 
+  // Handle version conflict (409)
+  if (response.status === 409) {
+    const conflictData = await response.json();
+    const error: any = new Error('Version conflict detected');
+    error.conflict = true;
+    error.serverNote = conflictData.data;
+    throw error;
+  }
+
   if (!response.ok) {
     throw new Error('Failed to update note');
   }

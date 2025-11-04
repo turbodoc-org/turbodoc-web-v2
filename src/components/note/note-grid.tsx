@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Note } from '@/lib/types';
 import { NoteCard } from '@/components/note/note-card';
@@ -25,7 +25,6 @@ export function NoteGrid() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const editorRef = useRef<MDXEditorMethods>(null);
-  const [filteredNotes, setFilteredNotes] = useState<Note[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [draftNoteId, setDraftNoteId] = useState<string | null>(null);
@@ -71,14 +70,13 @@ export function NoteGrid() {
     },
   });
 
-  // Handle debounced search
-  useEffect(() => {
+  // Filter notes based on search term
+  const filteredNotes = useMemo(() => {
     if (!debouncedSearchTerm.trim()) {
-      setFilteredNotes(notes);
-      return;
+      return notes;
     }
 
-    const filtered = notes.filter(
+    return notes.filter(
       (note) =>
         note.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
         note.content
@@ -87,7 +85,6 @@ export function NoteGrid() {
         (note.tags &&
           note.tags.toLowerCase().includes(debouncedSearchTerm.toLowerCase())),
     );
-    setFilteredNotes(filtered);
   }, [notes, debouncedSearchTerm]);
 
   // Auto-create draft note when user starts typing
