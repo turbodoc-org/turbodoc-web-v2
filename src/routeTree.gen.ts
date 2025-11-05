@@ -21,9 +21,11 @@ import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as AuthErrorRouteImport } from './routes/auth/error'
 import { Route as AuthedNotesRouteImport } from './routes/_authed/notes'
+import { Route as AuthedDiagramsRouteImport } from './routes/_authed/diagrams'
 import { Route as AuthedBookmarksRouteImport } from './routes/_authed/bookmarks'
 import { Route as ApiAuthConfirmRouteImport } from './routes/api/auth/confirm'
 import { Route as AuthedNoteNoteIdRouteImport } from './routes/_authed/note.$noteId'
+import { Route as AuthedDiagramDiagramIdRouteImport } from './routes/_authed/diagram.$diagramId'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -84,6 +86,11 @@ const AuthedNotesRoute = AuthedNotesRouteImport.update({
   path: '/notes',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedDiagramsRoute = AuthedDiagramsRouteImport.update({
+  id: '/diagrams',
+  path: '/diagrams',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedBookmarksRoute = AuthedBookmarksRouteImport.update({
   id: '/bookmarks',
   path: '/bookmarks',
@@ -99,6 +106,11 @@ const AuthedNoteNoteIdRoute = AuthedNoteNoteIdRouteImport.update({
   path: '/note/$noteId',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedDiagramDiagramIdRoute = AuthedDiagramDiagramIdRouteImport.update({
+  id: '/diagram/$diagramId',
+  path: '/diagram/$diagramId',
+  getParentRoute: () => AuthedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -106,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/bookmarks': typeof AuthedBookmarksRoute
+  '/diagrams': typeof AuthedDiagramsRoute
   '/notes': typeof AuthedNotesRoute
   '/auth/error': typeof AuthErrorRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -113,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/sign-up-success': typeof AuthSignUpSuccessRoute
   '/auth/update-password': typeof AuthUpdatePasswordRoute
+  '/diagram/$diagramId': typeof AuthedDiagramDiagramIdRoute
   '/note/$noteId': typeof AuthedNoteNoteIdRoute
   '/api/auth/confirm': typeof ApiAuthConfirmRoute
 }
@@ -122,6 +136,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/bookmarks': typeof AuthedBookmarksRoute
+  '/diagrams': typeof AuthedDiagramsRoute
   '/notes': typeof AuthedNotesRoute
   '/auth/error': typeof AuthErrorRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -129,6 +144,7 @@ export interface FileRoutesByTo {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/sign-up-success': typeof AuthSignUpSuccessRoute
   '/auth/update-password': typeof AuthUpdatePasswordRoute
+  '/diagram/$diagramId': typeof AuthedDiagramDiagramIdRoute
   '/note/$noteId': typeof AuthedNoteNoteIdRoute
   '/api/auth/confirm': typeof ApiAuthConfirmRoute
 }
@@ -140,6 +156,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/_authed/bookmarks': typeof AuthedBookmarksRoute
+  '/_authed/diagrams': typeof AuthedDiagramsRoute
   '/_authed/notes': typeof AuthedNotesRoute
   '/auth/error': typeof AuthErrorRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -147,6 +164,7 @@ export interface FileRoutesById {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/sign-up-success': typeof AuthSignUpSuccessRoute
   '/auth/update-password': typeof AuthUpdatePasswordRoute
+  '/_authed/diagram/$diagramId': typeof AuthedDiagramDiagramIdRoute
   '/_authed/note/$noteId': typeof AuthedNoteNoteIdRoute
   '/api/auth/confirm': typeof ApiAuthConfirmRoute
 }
@@ -158,6 +176,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/bookmarks'
+    | '/diagrams'
     | '/notes'
     | '/auth/error'
     | '/auth/forgot-password'
@@ -165,6 +184,7 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/auth/sign-up-success'
     | '/auth/update-password'
+    | '/diagram/$diagramId'
     | '/note/$noteId'
     | '/api/auth/confirm'
   fileRoutesByTo: FileRoutesByTo
@@ -174,6 +194,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/bookmarks'
+    | '/diagrams'
     | '/notes'
     | '/auth/error'
     | '/auth/forgot-password'
@@ -181,6 +202,7 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/auth/sign-up-success'
     | '/auth/update-password'
+    | '/diagram/$diagramId'
     | '/note/$noteId'
     | '/api/auth/confirm'
   id:
@@ -191,6 +213,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/_authed/bookmarks'
+    | '/_authed/diagrams'
     | '/_authed/notes'
     | '/auth/error'
     | '/auth/forgot-password'
@@ -198,6 +221,7 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/auth/sign-up-success'
     | '/auth/update-password'
+    | '/_authed/diagram/$diagramId'
     | '/_authed/note/$noteId'
     | '/api/auth/confirm'
   fileRoutesById: FileRoutesById
@@ -303,6 +327,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedNotesRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/diagrams': {
+      id: '/_authed/diagrams'
+      path: '/diagrams'
+      fullPath: '/diagrams'
+      preLoaderRoute: typeof AuthedDiagramsRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/bookmarks': {
       id: '/_authed/bookmarks'
       path: '/bookmarks'
@@ -324,18 +355,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedNoteNoteIdRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/diagram/$diagramId': {
+      id: '/_authed/diagram/$diagramId'
+      path: '/diagram/$diagramId'
+      fullPath: '/diagram/$diagramId'
+      preLoaderRoute: typeof AuthedDiagramDiagramIdRouteImport
+      parentRoute: typeof AuthedRoute
+    }
   }
 }
 
 interface AuthedRouteChildren {
   AuthedBookmarksRoute: typeof AuthedBookmarksRoute
+  AuthedDiagramsRoute: typeof AuthedDiagramsRoute
   AuthedNotesRoute: typeof AuthedNotesRoute
+  AuthedDiagramDiagramIdRoute: typeof AuthedDiagramDiagramIdRoute
   AuthedNoteNoteIdRoute: typeof AuthedNoteNoteIdRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedBookmarksRoute: AuthedBookmarksRoute,
+  AuthedDiagramsRoute: AuthedDiagramsRoute,
   AuthedNotesRoute: AuthedNotesRoute,
+  AuthedDiagramDiagramIdRoute: AuthedDiagramDiagramIdRoute,
   AuthedNoteNoteIdRoute: AuthedNoteNoteIdRoute,
 }
 

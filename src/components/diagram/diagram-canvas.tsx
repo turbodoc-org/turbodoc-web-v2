@@ -32,12 +32,10 @@ import {
   Cloud,
   CloudOff,
   Save,
-  Plus,
   FolderOpen,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDebounce } from 'use-debounce';
-import { createBrowserClient } from '@supabase/ssr';
 import { CommandPalette } from '@/components/diagram/command-palette';
 import { KeyboardShortcutsDialog } from '@/components/diagram/keyboard-shortcuts-dialog';
 import { useCanvasHotkeys } from '@/lib/hotkeys/useCanvasHotkeys';
@@ -53,6 +51,7 @@ import { createDiagram, updateDiagram } from '@/lib/api';
 import { Image as UnpicImage } from '@unpic/react';
 import { useNavigate } from '@tanstack/react-router';
 import { LoginModal } from '../auth/login-modal';
+import { supabase } from '@/lib/clients/supabase/client';
 
 type ShapeType =
   | 'rectangle'
@@ -180,11 +179,6 @@ export default function DiagramCanvas({
   // Keyboard shortcuts UI
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [showShortcutsDialog, setShowShortcutsDialog] = useState(false);
-
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY!,
-  );
 
   // Save current state to history before making changes
   const saveToHistory = useCallback(() => {
@@ -679,64 +673,6 @@ export default function DiagramCanvas({
       console.error('Failed to manually sync diagram:', error);
     } finally {
       setIsSyncing(false);
-    }
-  };
-
-  // Handle new diagram creation
-  const handleNewDiagram = async () => {
-    // If not signed in, show confirmation dialog
-    if (!userId) {
-      if (shapes.length > 0 || connections.length > 0) {
-        setShowNewDiagramDialog(true);
-      } else {
-        // No data to lose, just navigate
-        navigate({ to: '/diagrams' });
-      }
-      return;
-    }
-
-    // If signed in, auto-save current diagram first
-    if (currentDiagramId && (shapes.length > 0 || connections.length > 0)) {
-      try {
-        await updateDiagram(currentDiagramId, {
-          shapes: shapes.map((s) => ({
-            id: s.id,
-            type: s.type,
-            x: s.x,
-            y: s.y,
-            width: s.width,
-            height: s.height,
-            label: s.text,
-            color: s.color,
-            fontSize: s.fontSize,
-            imageUrl: s.imageUrl,
-          })),
-          connections: connections.map((c) => ({
-            id: c.id,
-            from: c.from,
-            to: c.to,
-            fromAnchor: '',
-            toAnchor: '',
-          })),
-        });
-      } catch (error) {
-        console.error('Failed to save current diagram:', error);
-      }
-    }
-
-    // Create new empty diagram in Supabase
-    try {
-      const newDiagram = await createDiagram({
-        title: 'Untitled Diagram',
-        shapes: [],
-        connections: [],
-      });
-
-      if (newDiagram?.id) {
-        navigate({ to: `/diagram/${newDiagram.id}` });
-      }
-    } catch (error) {
-      console.error('Failed to create new diagram:', error);
     }
   };
 
@@ -2035,31 +1971,14 @@ export default function DiagramCanvas({
               height={32}
               className="rounded-md"
             />
-            <h1 className="font-mono text-lg font-semibold text-foreground">
-              EasyDraw
+            <h1 className="text-lg font-bold text-black dark:text-white">
+              Turbodoc
             </h1>
           </div>
 
           {/* Navigation buttons - only visible when signed in */}
           {userId && (
             <div className="flex items-center gap-1 border-l border-border pl-3">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleNewDiagram}
-                    className="h-8 gap-1.5"
-                  >
-                    <Plus className="h-4 w-4" />
-                    <span className="text-sm">New</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Create new diagram</p>
-                </TooltipContent>
-              </Tooltip>
-
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -2273,7 +2192,7 @@ export default function DiagramCanvas({
                   </p>
                 </TooltipContent>
               </Tooltip>
-              <span className="min-w-[3rem] text-center text-xs font-mono text-muted-foreground">
+              <span className="min-w-12 text-center text-xs font-mono text-muted-foreground">
                 {Math.round(zoom * 100)}%
               </span>
               <Tooltip>
@@ -2415,19 +2334,21 @@ export default function DiagramCanvas({
                 {isSyncing ? (
                   <>
                     <Cloud className="h-4 w-4 animate-pulse text-blue-500" />
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-muted-foreground w-12 text-left">
                       Syncing...
                     </span>
                   </>
                 ) : lastSyncTime ? (
                   <>
                     <Cloud className="h-4 w-4 text-green-500" />
-                    <span className="text-xs text-muted-foreground">Saved</span>
+                    <span className="text-xs text-muted-foreground w-12 text-left">
+                      Saved
+                    </span>
                   </>
                 ) : (
                   <>
                     <CloudOff className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-muted-foreground w-12 text-left">
                       Not synced
                     </span>
                   </>
@@ -2521,7 +2442,7 @@ export default function DiagramCanvas({
             }
             className="w-32"
           />
-          <span className="min-w-[2rem] text-xs font-mono text-muted-foreground">
+          <span className="min-w-8 text-xs font-mono text-muted-foreground">
             {shapes.find((s) => s.id === selectedId)?.fontSize || 14}px
           </span>
         </div>
