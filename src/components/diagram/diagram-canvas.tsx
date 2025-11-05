@@ -1023,7 +1023,7 @@ export default function DiagramCanvas({
     y: number,
     maxWidth: number,
     lineHeight: number,
-    fontSize: number,
+    _fontSize: number,
   ) => {
     const words = text.split(' ');
     const lines: string[] = [];
