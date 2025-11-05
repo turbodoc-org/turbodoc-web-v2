@@ -10,6 +10,9 @@ import {
   CodeSnippet,
   CodeSnippetsResponse,
   CodeSnippetResponse,
+  Diagram,
+  DiagramsResponse,
+  DiagramResponse,
 } from './types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.turbodoc.ai';
@@ -424,4 +427,160 @@ export async function deleteCodeSnippet(id: string): Promise<void> {
   if (!response.ok) {
     throw new Error('Failed to delete code snippet');
   }
+}
+
+// Diagram API functions
+export async function getDiagrams(): Promise<Diagram[]> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    throw new Error('No session found');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/v1/diagrams`, {
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch diagrams');
+  }
+
+  const result: DiagramsResponse = await response.json();
+  return result.data;
+}
+
+export async function getDiagram(id: string): Promise<Diagram> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    throw new Error('No session found');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/v1/diagrams/${id}`, {
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch diagram');
+  }
+
+  const result: DiagramResponse = await response.json();
+  return result.data;
+}
+
+export async function createDiagram(diagram: {
+  title: string;
+  shapes?: any[];
+  connections?: any[];
+  thumbnail?: string;
+}): Promise<Diagram> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    throw new Error('No session found');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/v1/diagrams`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(diagram),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to create diagram');
+  }
+
+  const result: DiagramResponse = await response.json();
+  return result.data;
+}
+
+export async function updateDiagram(
+  id: string,
+  updates: Partial<Diagram>,
+): Promise<Diagram> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    throw new Error('No session found');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/v1/diagrams/${id}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(updates),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to update diagram');
+  }
+
+  const result: DiagramResponse = await response.json();
+  return result.data;
+}
+
+export async function deleteDiagram(id: string): Promise<void> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    throw new Error('No session found');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/v1/diagrams/${id}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to delete diagram');
+  }
+}
+
+export async function duplicateDiagram(id: string): Promise<Diagram> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    throw new Error('No session found');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/v1/diagrams/${id}/duplicate`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to duplicate diagram');
+  }
+
+  const result: DiagramResponse = await response.json();
+  return result.data;
 }
