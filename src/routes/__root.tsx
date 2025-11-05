@@ -2,8 +2,8 @@ import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'next-themes';
 import { AuthProvider } from '@/lib/auth/context';
-
 import appCss from '../styles.css?url';
+import { Toaster } from '@/components/ui/sonner';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -63,6 +63,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           >
             <AuthProvider>{children}</AuthProvider>
             <Scripts />
+            <Toaster />
           </ThemeProvider>
         </QueryClientProvider>
       </body>

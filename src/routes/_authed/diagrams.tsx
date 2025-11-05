@@ -2,7 +2,9 @@ import { AppHeader } from '@/components/shared/app-header';
 import { DiagramGrid } from '@/components/diagram/diagram-grid';
 import { Button } from '@/components/ui/button';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useCreateDiagram } from '@/lib/hooks/use-diagrams';
 import { Plus } from 'lucide-react';
+import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_authed/diagrams')({
   component: Diagrams,
@@ -10,9 +12,27 @@ export const Route = createFileRoute('/_authed/diagrams')({
 
 function Diagrams() {
   const navigate = useNavigate();
+  const createDiagramMutation = useCreateDiagram();
 
-  const handleNewDiagram = () => {
-    navigate({ to: '/diagram/new' });
+  const handleNewDiagram = async () => {
+    try {
+      // Create a new diagram with default title
+      const timestamp = new Date().toLocaleDateString();
+      const newDiagram = await createDiagramMutation.mutateAsync({
+        title: `Diagram ${timestamp}`,
+        shapes: [],
+        connections: [],
+      });
+
+      // Navigate to the new diagram
+      navigate({
+        to: '/diagram/$diagramId',
+        params: { diagramId: newDiagram.id },
+      });
+    } catch (error) {
+      console.error('Failed to create new diagram:', error);
+      toast.error('Failed to create new diagram. Please try again.');
+    }
   };
 
   return (
@@ -27,6 +47,7 @@ function Diagrams() {
             </h1>
             <Button
               onClick={handleNewDiagram}
+              disabled={createDiagramMutation.isPending}
               className="flex items-center gap-2"
               size="sm"
             >
