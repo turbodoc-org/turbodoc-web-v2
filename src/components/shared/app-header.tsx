@@ -2,7 +2,7 @@ import { AuthButton } from '@/components/auth/auth-button';
 import { Logo } from '@/components/shared/logo';
 import { ThemeSwitcher } from '@/components/shared/theme-switcher';
 import { Link, useRouterState } from '@tanstack/react-router';
-import { BookmarkIcon, Code2, StickyNote } from 'lucide-react';
+import { BookmarkIcon, Code2, StickyNote, Workflow } from 'lucide-react';
 
 interface AppHeaderProps {
   showNavLinks?: boolean;
@@ -44,6 +44,17 @@ export function AppHeader({ showNavLinks = true }: AppHeaderProps) {
               >
                 <StickyNote className="h-4 w-4" />
                 Notes
+              </Link>
+              <Link
+                to="/diagrams"
+                className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  isActive('/diagrams')
+                    ? 'bg-muted text-foreground'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                }`}
+              >
+                <Workflow className="h-4 w-4" />
+                Diagrams
               </Link>
               <Link
                 to="/code-snippets"
