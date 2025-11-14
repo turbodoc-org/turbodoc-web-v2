@@ -13,6 +13,8 @@ import {
   Twitter,
   StickyNote,
   Smartphone,
+  Code2,
+  Workflow,
 } from 'lucide-react';
 
 export const Route = createFileRoute('/')({ component: App });
@@ -48,9 +50,8 @@ function App() {
               </span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Turbodoc is a fast, beautiful bookmark and note manager for iOS
-              and web. Keep your favorite links and markdown notes synchronized
-              across all your devices.
+              One place for bookmarks, notes, code, and diagrams. Fast,
+              beautiful, and always in sync.
             </p>
           </div>
 
@@ -96,19 +97,19 @@ function App() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Open Source */}
+            {/* Bookmarks */}
             <div className="group bg-background/60 backdrop-blur-sm p-8 rounded-xl shadow-sm border border-border/50 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 hover:-translate-y-1">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-3 bg-linear-to-br from-primary/10 to-primary/5 rounded-xl group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
                   <BookmarkIcon className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold text-foreground">
-                  Proudly Open Source
+                  Smart Bookmarks
                 </h3>
               </div>
               <p className="text-muted-foreground leading-relaxed">
-                Turbodoc is built with love and transparency. Contribute to the
-                project on GitHub and help shape its future.
+                Save links with auto titles, descriptions, and thumbnails. Find
+                anything fast with full-text search.
               </p>
             </div>
 
@@ -123,8 +124,40 @@ function App() {
                 </h3>
               </div>
               <p className="text-muted-foreground leading-relaxed">
-                Write beautiful notes with markdown support, real-time preview,
-                and powerful organization features.
+                Write in Markdown with instant preview. Organize ideas without
+                friction.
+              </p>
+            </div>
+
+            {/* Code Snippets */}
+            <div className="group bg-background/60 backdrop-blur-sm p-8 rounded-xl shadow-sm border border-border/50 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 hover:-translate-y-1">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 bg-linear-to-br from-primary/10 to-primary/5 rounded-xl group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
+                  <Code2 className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold text-foreground">
+                  Code Snippets
+                </h3>
+              </div>
+              <p className="text-muted-foreground leading-relaxed">
+                Your personal code library. Save and reuse snippets with syntax
+                highlighting and one-click copy.
+              </p>
+            </div>
+
+            {/* Diagrams */}
+            <div className="group bg-background/60 backdrop-blur-sm p-8 rounded-xl shadow-sm border border-border/50 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 hover:-translate-y-1">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 bg-linear-to-br from-primary/10 to-primary/5 rounded-xl group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
+                  <Workflow className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold text-foreground">
+                  Visual Diagrams
+                </h3>
+              </div>
+              <p className="text-muted-foreground leading-relaxed">
+                Sketch ideas fast. Build flowcharts and architecture diagrams
+                with drag-and-drop. Export PNG or PDF.
               </p>
             </div>
 
@@ -135,13 +168,235 @@ function App() {
                   <Smartphone className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold text-foreground">
-                  Cross-Platform
+                  Cross-Platform Sync
                 </h3>
               </div>
               <p className="text-muted-foreground leading-relaxed">
-                Access your bookmarks and notes seamlessly across iOS, web, and
-                browser extensions.
+                Start on your phone, finish on your laptop. Everything syncs
+                instantly across mobile, web, and browser extensions. Always up
+                to date.
               </p>
+            </div>
+
+            {/* Open Source */}
+            <div className="group bg-background/60 backdrop-blur-sm p-8 rounded-xl shadow-sm border border-border/50 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 hover:-translate-y-1">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 bg-linear-to-br from-primary/10 to-primary/5 rounded-xl group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
+                  <Github className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold text-foreground">
+                  Open Source
+                </h3>
+              </div>
+              <p className="text-muted-foreground leading-relaxed">
+                Open source and privacy-first. Your data, your control. Join us
+                on{' '}
+                <a
+                  href="https://github.com/turbodoc-org"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  GitHub
+                </a>
+                .
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature Showcase Section */}
+      <section className="py-16 md:py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-linear-to-b from-background via-muted/10 to-background" />
+        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/3 left-1/4 w-48 h-48 bg-primary/10 rounded-full blur-2xl" />
+
+        <div className="relative max-w-7xl mx-auto px-4">
+          <div className="text-center space-y-4 mb-16">
+            <div className="flex items-center justify-center mb-4">
+              <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-primary">
+                  Four powerful tools in one
+                </span>
+              </div>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+              Your complete digital workspace
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              One app, four tools. Bookmark articles, write docs, save code, and
+              map ideas — organized and accessible.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            {/* Bookmarks & Notes */}
+            <div className="group bg-linear-to-br from-background via-background to-muted/5 border border-border/50 rounded-2xl p-8 shadow-lg backdrop-blur-sm hover:shadow-xl hover:border-primary/20 transition-all duration-300">
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <div className="p-4 bg-linear-to-br from-blue-500/10 to-purple-500/10 rounded-2xl">
+                    <BookmarkIcon className="h-8 w-8 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-foreground mb-2">
+                      Bookmarks & Notes
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Save any link with auto metadata, then write rich Markdown
+                      — searchable and in sync.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                    <span className="text-sm text-muted-foreground">
+                      Auto titles, descriptions, and favicons
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                    <span className="text-sm text-muted-foreground">
+                      Live Markdown preview
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                    <span className="text-sm text-muted-foreground">
+                      Full-text search across everything
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Code Snippets */}
+            <div className="group bg-linear-to-br from-background via-background to-muted/5 border border-border/50 rounded-2xl p-8 shadow-lg backdrop-blur-sm hover:shadow-xl hover:border-primary/20 transition-all duration-300">
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <div className="p-4 bg-linear-to-br from-green-500/10 to-emerald-500/10 rounded-2xl">
+                    <Code2 className="h-8 w-8 text-green-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-foreground mb-2">
+                      Code Snippets
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Your code, organized. Save snippets with language
+                      formatting, syntax highlighting, and one-click copy.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-green-500 rounded-full" />
+                    <span className="text-sm text-muted-foreground">
+                      Language formatting for 100+ languages
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-green-500 rounded-full" />
+                    <span className="text-sm text-muted-foreground">
+                      Beautiful syntax highlighting
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-green-500 rounded-full" />
+                    <span className="text-sm text-muted-foreground">
+                      One-click copy to clipboard
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Diagrams - Full Width */}
+          <div className="bg-linear-to-br from-background via-background to-muted/5 border border-border/50 rounded-2xl p-8 shadow-lg backdrop-blur-sm hover:shadow-xl hover:border-primary/20 transition-all duration-300">
+            <div className="flex flex-col lg:flex-row items-start gap-8">
+              <div className="flex-1 space-y-6">
+                <div className="flex items-start gap-4">
+                  <div className="p-4 bg-linear-to-br from-orange-500/10 to-red-500/10 rounded-2xl">
+                    <Workflow className="h-8 w-8 text-orange-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-foreground mb-2">
+                      Visual Diagrams
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Think visually, work faster. Create flowcharts,
+                      wireframes, and architecture diagrams with an intuitive
+                      editor. Export high-quality PNG/PDF when you&apos;re ready
+                      to share.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full" />
+                    <span className="text-sm text-muted-foreground">
+                      Drag-and-drop canvas
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full" />
+                    <span className="text-sm text-muted-foreground">
+                      Shapes, connectors, and text
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full" />
+                    <span className="text-sm text-muted-foreground">
+                      Auto-routed connections
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full" />
+                    <span className="text-sm text-muted-foreground">
+                      Export to high-res PNG or PDF
+                    </span>
+                  </div>
+                </div>
+
+                <Button
+                  asChild
+                  className="bg-linear-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-lg shadow-orange-500/20"
+                >
+                  <Link to="/auth/sign-up" className="flex items-center gap-2">
+                    Try Diagram Editor
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+
+              {/* Visual representation */}
+              <div className="flex-1 lg:max-w-md">
+                <div className="relative bg-muted/30 rounded-xl p-6 border border-border/30">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-16 h-12 bg-blue-500/20 border-2 border-blue-500/40 rounded-lg flex items-center justify-center">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                      </div>
+                      <div className="flex-1 h-px bg-border" />
+                      <div className="w-16 h-12 bg-green-500/20 border-2 border-green-500/40 rounded-lg flex items-center justify-center">
+                        <div className="w-2 h-2 bg-green-500 rounded-full" />
+                      </div>
+                    </div>
+                    <div className="flex justify-center">
+                      <div className="w-px h-8 bg-border" />
+                    </div>
+                    <div className="flex justify-center">
+                      <div className="w-20 h-14 bg-orange-500/20 border-2 border-orange-500/40 rounded-lg flex items-center justify-center transform rotate-45">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -166,8 +421,8 @@ function App() {
               Browser Extensions for Chrome & Firefox
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              One click to save any webpage. Install our browser extension and
-              bookmark content instantly without leaving your browser.
+              Save any webpage instantly while you browse. No context switching,
+              no copy-pasting URLs — just one click and it&apos;s saved forever.
             </p>
           </div>
 
@@ -310,8 +565,268 @@ function App() {
             {/* Bottom note */}
             <div className="relative mt-8 pt-8 border-t border-border/30 text-center">
               <p className="text-sm text-muted-foreground">
-                Free to install • Lightweight • Privacy-focused • Works offline
+                Free to install • Lightweight • Privacy-focused
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Open Source Contribution Section */}
+      <section className="py-16 md:py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-linear-to-b from-background via-muted/10 to-background" />
+        <div className="absolute top-1/2 left-1/3 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
+
+        <div className="relative max-w-6xl mx-auto px-4">
+          <div className="text-center space-y-4 mb-12">
+            <div className="flex items-center justify-center mb-4">
+              <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
+                <Github className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-primary">
+                  100% Open Source
+                </span>
+              </div>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+              Built in the open
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Every line of code is open source. Contribute on GitHub and help
+              us build the best content organizer out there.
+            </p>
+          </div>
+
+          <div className="relative bg-linear-to-br from-background via-background to-muted/10 border border-border/50 rounded-2xl p-8 md:p-12 shadow-xl backdrop-blur-sm">
+            <div className="absolute top-0 right-0 w-40 h-40 bg-linear-to-bl from-primary/10 to-transparent rounded-2xl" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-linear-to-tr from-primary/10 to-transparent rounded-2xl" />
+
+            <div className="relative grid md:grid-cols-2 gap-8 mb-8">
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-xl font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <Github className="h-5 w-5 text-primary" />
+                    Why contribute?
+                  </h3>
+                  <ul className="space-y-3">
+                    <li className="flex items-start gap-3">
+                      <div className="mt-1 w-1.5 h-1.5 bg-primary rounded-full shrink-0" />
+                      <span className="text-muted-foreground">
+                        Learn modern tech: React, TypeScript, TanStack, Supabase
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="mt-1 w-1.5 h-1.5 bg-primary rounded-full shrink-0" />
+                      <span className="text-muted-foreground">
+                        Build features used by thousands of people
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="mt-1 w-1.5 h-1.5 bg-primary rounded-full shrink-0" />
+                      <span className="text-muted-foreground">
+                        Join a welcoming community of makers
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="mt-1 w-1.5 h-1.5 bg-primary rounded-full shrink-0" />
+                      <span className="text-muted-foreground">
+                        Get credit for your work in a real product
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-xl font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <Code2 className="h-5 w-5 text-primary" />
+                    All repositories
+                  </h3>
+                  <ul className="space-y-3">
+                    <li className="flex items-start gap-3">
+                      <div className="mt-1 w-1.5 h-1.5 bg-primary rounded-full shrink-0" />
+                      <span className="text-muted-foreground">
+                        Web app (React, TypeScript, TanStack)
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="mt-1 w-1.5 h-1.5 bg-primary rounded-full shrink-0" />
+                      <span className="text-muted-foreground">
+                        API (Cloudflare Workers, Hono)
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="mt-1 w-1.5 h-1.5 bg-primary rounded-full shrink-0" />
+                      <span className="text-muted-foreground">
+                        Browser extensions (Chrome, Firefox)
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="mt-1 w-1.5 h-1.5 bg-primary rounded-full shrink-0" />
+                      <span className="text-muted-foreground">
+                        iOS and Android apps (native Swift & Kotlin - coming
+                        soon)
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative flex flex-col sm:flex-row items-center justify-center gap-4 pt-6 border-t border-border/30">
+              <Button
+                asChild
+                size="lg"
+                className="bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg shadow-primary/20"
+              >
+                <a
+                  href="https://github.com/turbodoc-org"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2"
+                >
+                  <Github className="h-5 w-5" />
+                  View on GitHub
+                  <ArrowRight className="h-4 w-4" />
+                </a>
+              </Button>
+              <p className="text-sm text-muted-foreground">
+                Star • Fork • Submit PRs • Report issues
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Mobile Apps Section */}
+      <section className="py-16 md:py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-linear-to-b from-background via-primary/5 to-background" />
+        <div className="absolute top-1/2 right-1/3 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
+
+        <div className="relative max-w-5xl mx-auto px-4">
+          <div className="text-center space-y-4 mb-12">
+            <div className="flex items-center justify-center mb-4">
+              <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
+                <Smartphone className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-primary">
+                  Coming Soon
+                </span>
+              </div>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+              Native mobile apps for iOS & Android
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Take Turbodoc everywhere. Save, organize, and access your content
+              on the go with native mobile apps designed for speed and
+              simplicity.
+            </p>
+          </div>
+
+          <div className="relative bg-linear-to-br from-background via-background to-muted/10 border border-border/50 rounded-2xl p-8 md:p-12 shadow-xl backdrop-blur-sm">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-bl from-primary/10 to-transparent rounded-2xl" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-linear-to-tr from-primary/10 to-transparent rounded-2xl" />
+
+            <div className="relative grid md:grid-cols-2 gap-8">
+              {/* iOS App */}
+              <div className="group space-y-6">
+                <div className="flex items-center gap-4">
+                  <div className="p-4 bg-linear-to-br from-blue-500/10 to-purple-500/10 rounded-2xl">
+                    <svg
+                      className="h-10 w-10"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-foreground mb-1">
+                      iOS App
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Coming to the App Store
+                    </p>
+                  </div>
+                </div>
+
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-3">
+                    <div className="mt-0.5 p-1 bg-primary/10 rounded-full">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      Native SwiftUI interface
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className="mt-0.5 p-1 bg-primary/10 rounded-full">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      Share extension for quick saves
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className="mt-0.5 p-1 bg-primary/10 rounded-full">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      Offline mode with background sync
+                    </span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Android App */}
+              <div className="group space-y-6">
+                <div className="flex items-center gap-4">
+                  <div className="p-4 bg-linear-to-br from-green-500/10 to-emerald-500/10 rounded-2xl">
+                    <svg
+                      className="h-10 w-10"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85-.29-.15-.65-.06-.83.22l-1.88 3.24a11.5 11.5 0 0 0-8.94 0L5.65 5.67c-.19-.28-.54-.37-.83-.22-.3.16-.42.54-.26.85l1.84 3.18C2.92 11.03 1 14.22 1 17.8h22c0-3.58-1.92-6.77-5.4-8.32zM8.06 15.2c-.66 0-1.2-.54-1.2-1.2 0-.66.54-1.2 1.2-1.2.66 0 1.2.54 1.2 1.2 0 .66-.54 1.2-1.2 1.2zm7.88 0c-.66 0-1.2-.54-1.2-1.2 0-.66.54-1.2 1.2-1.2.66 0 1.2.54 1.2 1.2 0 .66-.54 1.2-1.2 1.2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-foreground mb-1">
+                      Android App
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Coming to Google Play
+                    </p>
+                  </div>
+                </div>
+
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-3">
+                    <div className="mt-0.5 p-1 bg-primary/10 rounded-full">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      Material Design 3 interface
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className="mt-0.5 p-1 bg-primary/10 rounded-full">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      Share sheet integration
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className="mt-0.5 p-1 bg-primary/10 rounded-full">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      Widget support for quick access
+                    </span>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
