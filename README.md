@@ -1,310 +1,437 @@
-Welcome to your new TanStack app! 
+# Turbodoc Web
 
-# Getting Started
+A modern, responsive web application for managing bookmarks, notes, code snippets, and visual diagrams. Built with TanStack Start and React 19, the web app provides a seamless experience for saving, organizing, and accessing your content with real-time synchronization across all your devices.
 
-To run this application:
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+
+- pnpm (recommended package manager)
+- Supabase project (for authentication and data storage)
+- Cloudflare account (for deployment)
+
+### Installation
 
 ```bash
 pnpm install
-pnpm start
 ```
 
-# Building For Production
+### Environment Setup
 
-To build this application for production:
+1. Create your environment file:
+
+   ```bash
+   touch .env
+   ```
+
+2. Configure your environment variables:
+
+   ```bash
+   VITE_SUPABASE_URL=your_supabase_project_url
+   VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
+   VITE_API_URL=https://api.turbodoc.ai
+   ```
+
+   The Supabase values can be found in your [Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true).
+
+### Development
+
+Start the development server:
 
 ```bash
-pnpm build
+pnpm dev
 ```
 
-## Testing
+The application will be available at `http://localhost:3000`.
 
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+## 🏗️ Architecture
 
-```bash
-pnpm test
+### Tech Stack
+
+- **Framework**: TanStack Start (React framework with file-based routing)
+- **Runtime**: React 19 with modern concurrent features
+- **Build Tool**: Vite for blazing-fast builds and HMR
+- **Language**: TypeScript with strict mode
+- **Authentication**: Supabase Auth with SSR support
+- **Database**: Supabase (PostgreSQL) via REST API
+- **Styling**: Tailwind CSS 4 with shadcn/ui components
+- **State Management**: TanStack Query for server state + React hooks
+- **Routing**: TanStack Router with file-based routing
+- **Form Handling**: React Hook Form with Zod validation
+- **Icons**: Lucide React
+- **Theme**: next-themes for dark/light mode switching
+- **Code Editor**: CodeMirror 6 with multi-language support
+- **Markdown Editor**: MDXEditor for rich text editing
+- **Diagram Canvas**: HTML Canvas API with drag-and-drop
+
+### Project Structure
+
+```txt
+turbodoc-web-v2/
+├── src/
+│   ├── routes/                      # File-based routing
+│   │   ├── __root.tsx              # Root layout
+│   │   ├── index.tsx               # Landing page
+│   │   ├── auth/                   # Authentication pages
+│   │   │   ├── login.tsx
+│   │   │   ├── sign-up.tsx
+│   │   │   ├── forgot-password.tsx
+│   │   │   ├── confirm.tsx
+│   │   │   └── error.tsx
+│   │   ├── bookmarks/              # Bookmark management
+│   │   │   ├── index.tsx
+│   │   │   └── $id.tsx
+│   │   ├── notes/                  # Note management
+│   │   │   ├── index.tsx
+│   │   │   └── $id.tsx
+│   │   ├── code/                   # Code snippet management
+│   │   │   ├── index.tsx
+│   │   │   └── $id.tsx
+│   │   └── diagrams/               # Visual diagram editor
+│   │       ├── index.tsx
+│   │       └── $id.tsx
+│   ├── components/                  # React components
+│   │   ├── ui/                     # shadcn/ui base components
+│   │   │   ├── button.tsx
+│   │   │   ├── card.tsx
+│   │   │   ├── dialog.tsx
+│   │   │   ├── form.tsx
+│   │   │   └── ...
+│   │   ├── shared/                 # Shared app components
+│   │   │   ├── app-header.tsx
+│   │   │   ├── logo.tsx
+│   │   │   └── theme-switcher.tsx
+│   │   ├── bookmark/               # Bookmark components
+│   │   │   ├── bookmark-card.tsx
+│   │   │   └── bookmark-grid.tsx
+│   │   ├── note/                   # Note components
+│   │   │   ├── note-card.tsx
+│   │   │   ├── note-editor.tsx
+│   │   │   └── note-grid.tsx
+│   │   ├── code/                   # Code snippet components
+│   │   │   ├── code-card.tsx
+│   │   │   ├── code-editor.tsx
+│   │   │   └── code-grid.tsx
+│   │   └── diagram/                # Diagram components
+│   │       ├── diagram-canvas.tsx
+│   │       ├── diagram-card.tsx
+│   │       └── diagram-grid.tsx
+│   ├── lib/                        # Utilities and configurations
+│   │   ├── auth/                   # Authentication utilities
+│   │   │   ├── context.tsx
+│   │   │   └── provider.tsx
+│   │   ├── clients/                # External clients
+│   │   │   └── supabase/
+│   │   │       ├── client.ts       # Browser client
+│   │   │       └── server.ts       # Server client
+│   │   ├── hooks/                  # Custom React hooks
+│   │   ├── api.ts                  # API integration layer
+│   │   ├── types.ts                # TypeScript type definitions
+│   │   └── utils.ts                # Utility functions
+│   ├── router.tsx                  # Router configuration
+│   ├── routeTree.gen.ts           # Generated route tree
+│   └── styles.css                  # Global styles
+├── public/                         # Static assets
+├── wrangler.jsonc                  # Cloudflare Pages configuration
+└── vite.config.ts                  # Vite configuration
 ```
 
-## Styling
+### Key Features
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
+#### Content Management
 
+- **Smart Bookmarks**: Save, organize, and search bookmarks with tags and status tracking (read/unread/archived)
+- **Markdown Notes**: Rich text editing with MDXEditor, full Markdown support, and instant preview
+- **Code Snippets**: Multi-language syntax highlighting with CodeMirror 6, one-click copy, and syntax validation
+- **Visual Diagrams**: Drag-and-drop canvas editor for flowcharts and diagrams with export to PNG/PDF
 
-## Linting & Formatting
+#### Authentication System
 
-This project uses [Biome](https://biomejs.dev/) for linting and formatting. The following scripts are available:
+- **Email/Password**: Secure authentication with Supabase Auth
+- **Server-Side Rendering**: Full SSR support with cookie-based sessions
+- **Automatic Redirects**: Protected routes with middleware
+- **Password Reset**: Email-based password recovery
+- **Session Management**: Automatic token refresh and persistence
 
+#### User Interface
 
-```bash
-pnpm lint
-pnpm format
-pnpm check
-```
+- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile
+- **Dark Mode**: System-aware theme switching with smooth transitions
+- **Accessible**: WCAG 2.1 compliant components
+- **Modern Design**: Clean, minimal interface with smooth animations
+- **Loading States**: Proper loading indicators and skeleton screens
+- **Real-time Sync**: Changes synchronized across all devices instantly
 
+## 🎨 UI Components
 
-## Shadcn
+### Design System
 
-Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
+Built on **shadcn/ui** with fully customized components:
 
-```bash
-pnpx shadcn@latest add button
-```
+- **Button**: Various styles and sizes with loading states
+- **Card**: Container component for content display
+- **Dialog**: Modal overlays for forms and confirmations
+- **Form**: Validated forms with error handling
+- **Input**: Text inputs with validation states
+- **Badge**: Tag display with different variants
+- **Tooltip**: Contextual help and information
+- **Dropdown**: Action menus and selectors
 
+### Custom Components
 
+- **BookmarkCard**: Individual bookmark with metadata and actions
+- **BookmarkGrid**: Responsive grid layout for bookmarks
+- **NoteCard**: Note preview with title and excerpt
+- **NoteEditor**: Full-featured Markdown editor with toolbar
+- **CodeEditor**: Syntax-highlighted code editor with language selection
+- **DiagramCanvas**: Interactive canvas for creating visual diagrams
+- **ThemeSwitcher**: Toggle between light and dark modes
+- **AppHeader**: Responsive navigation with authentication state
 
-## Routing
-This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
+## 🔐 Authentication Flow
 
-### Adding A Route
+### SSR Authentication
 
-To add a new route to your application just add another a new file in the `./src/routes` directory.
+The app uses Supabase Auth with Server-Side Rendering:
 
-TanStack will automatically generate the content of the route file for you.
+1. **Router Integration**: Authentication state managed through TanStack Router
+2. **Context Provider**: Global auth state accessible throughout the app
+3. **Protected Routes**: Automatic redirects for unauthenticated users
+4. **Cookie Management**: Secure HTTP-only cookies for sessions
 
-Now that you have two routes you can use a `Link` component to navigate between them.
+### Protected Routes
 
-### Adding Links
+- `/bookmarks/*`: Requires authenticated user
+- `/notes/*`: Requires authenticated user
+- `/code/*`: Requires authenticated user
+- `/diagrams/*`: Requires authenticated user
+- Automatic redirects to `/auth/login` for unauthenticated users
+- Post-login redirects back to intended destination
 
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
+### Authentication Pages
 
-```tsx
-import { Link } from "@tanstack/react-router";
-```
+- **Sign In** (`/auth/login`): Email and password authentication
+- **Sign Up** (`/auth/sign-up`): User registration with email verification
+- **Forgot Password** (`/auth/forgot-password`): Password reset flow
+- **Confirmation** (`/auth/confirm`): Email verification landing
+- **Error** (`/auth/error`): Authentication error handling
 
-Then anywhere in your JSX you can use it like so:
+## 🌐 API Integration
 
-```tsx
-<Link to="/about">About</Link>
-```
+### Backend Communication
 
-This will create a link that will navigate to the `/about` route.
+The web app communicates with the Turbodoc API:
 
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
+- **REST Endpoints**: Full CRUD operations for all content types
+- **Authentication**: JWT bearer tokens for API access
+- **Error Handling**: Consistent error responses and user feedback
+- **Type Safety**: Shared TypeScript types with API
+- **Real-time Updates**: Optimistic updates with error rollback
 
-### Using A Layout
+### Data Management
 
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you use the `<Outlet />` component.
+- **TanStack Query**: Efficient server state management with caching
+- **Route Loaders**: Pre-fetch data before route navigation
+- **Optimistic Updates**: Instant UI feedback with background sync
+- **Cache Invalidation**: Smart cache updates on mutations
+- **Error Recovery**: Automatic retry and error boundaries
 
-Here is an example layout that includes a header:
+## 🔧 Development Commands
 
-```tsx
-import { Outlet, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Start development server on port 3000 |
+| `pnpm build` | Build for production |
+| `pnpm serve` | Preview production build locally |
+| `pnpm preview` | Build and preview with Wrangler |
+| `pnpm format` | Format code with Biome |
+| `pnpm lint` | Run Biome linting |
+| `pnpm check` | Run Biome checks (lint + format) |
 
-import { Link } from "@tanstack/react-router";
+### Deployment Commands
 
-export const Route = createRootRoute({
-  component: () => (
-    <>
-      <header>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-        </nav>
-      </header>
-      <Outlet />
-      <TanStackRouterDevtools />
-    </>
-  ),
-})
-```
+| Command | Description |
+|---------|-------------|
+| `pnpm deploy` | Build and deploy to Cloudflare Pages |
+| `pnpm cf-typegen` | Generate Cloudflare Worker types |
 
-The `<TanStackRouterDevtools />` component is not required so you can remove it if you don't want it in your layout.
+## 🚀 Deployment
 
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
+### Cloudflare Pages
 
+1. **Build the application**:
 
-## Data Fetching
+   ```bash
+   pnpm build
+   ```
 
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
+2. **Deploy to Cloudflare Pages**:
 
-For example:
+   ```bash
+   pnpm deploy
+   ```
 
-```tsx
-const peopleRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/people",
-  loader: async () => {
-    const response = await fetch("https://swapi.dev/api/people");
-    return response.json() as Promise<{
-      results: {
-        name: string;
-      }[];
-    }>;
-  },
-  component: () => {
-    const data = peopleRoute.useLoaderData();
-    return (
-      <ul>
-        {data.results.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    );
-  },
-});
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-### React-Query
-
-React-Query is an excellent addition or alternative to route loading and integrating it into you application is a breeze.
-
-First add your dependencies:
-
-```bash
-pnpm add @tanstack/react-query @tanstack/react-query-devtools
-```
-
-Next we'll need to create a query client and provider. We recommend putting those in `main.tsx`.
-
-```tsx
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-// ...
-
-const queryClient = new QueryClient();
-
-// ...
-
-if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
-
-  root.render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  );
-}
-```
-
-You can also add TanStack Query Devtools to the root route (optional).
-
-```tsx
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-
-const rootRoute = createRootRoute({
-  component: () => (
-    <>
-      <Outlet />
-      <ReactQueryDevtools buttonPosition="top-right" />
-      <TanStackRouterDevtools />
-    </>
-  ),
-});
-```
-
-Now you can use `useQuery` to fetch your data.
-
-```tsx
-import { useQuery } from "@tanstack/react-query";
-
-import "./App.css";
-
-function App() {
-  const { data } = useQuery({
-    queryKey: ["people"],
-    queryFn: () =>
-      fetch("https://swapi.dev/api/people")
-        .then((res) => res.json())
-        .then((data) => data.results as { name: string }[]),
-    initialData: [],
-  });
+3. **Configure environment variables** in Cloudflare Pages dashboard:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_PUBLISHABLE_KEY`
+   - `VITE_API_URL`
 
-  return (
-    <div>
-      <ul>
-        {data.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
+### Automatic Deployment
 
-export default App;
-```
+Connect your GitHub repository to Cloudflare Pages for automatic deployments:
 
-You can find out everything you need to know on how to use React-Query in the [React-Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
+1. **Build command**: `pnpm build`
+2. **Build output directory**: `dist`
+3. **Environment variables**: Configure in Cloudflare dashboard
 
-## State Management
+## 🔄 Integration
 
-Another common requirement for React applications is state management. There are many options for state management in React. TanStack Store provides a great starting point for your project.
+### Cross-Platform Synchronization
 
-First you need to add TanStack Store as a dependency:
+- **Shared Database**: Same Supabase backend as iOS and Android apps
+- **Real-time Updates**: Changes sync across all platforms instantly
+- **Consistent API**: Uses Turbodoc REST API for all operations
+- **Authentication**: Shared user accounts across all platforms
 
-```bash
-pnpm add @tanstack/store
-```
+### Browser Extensions
 
-Now let's create a simple counter in the `src/App.tsx` file as a demonstration.
+- **Chrome Extension**: Save content directly from your browser
+- **Firefox Extension**: Full feature parity with Chrome version
+- **Context Menu**: Right-click to save links, text, and images
+- **One-Click Sync**: Instant synchronization with web app
 
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store } from "@tanstack/store";
-import "./App.css";
+### Mobile Apps (Coming Soon)
 
-const countStore = new Store(0);
+- **iOS App**: Native SwiftUI app with share extension and offline mode
+- **Android App**: Material Design 3 app with widget support
 
-function App() {
-  const count = useStore(countStore);
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-    </div>
-  );
-}
+### Third-Party Services
 
-export default App;
-```
+- **Supabase**: Authentication, database, and real-time subscriptions
+- **Cloudflare**: CDN, edge computing, and DNS management
+- **Turbodoc API**: Centralized API for all CRUD operations
 
-One of the many nice features of TanStack Store is the ability to derive state from other state. That derived state will update when the base state updates.
+## ⚡ Performance
 
-Let's check this out by doubling the count using derived state.
+### Optimization Strategies
 
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store, Derived } from "@tanstack/store";
-import "./App.css";
+- **TanStack Start**: Fast SSR with optimal code splitting
+- **Vite**: Lightning-fast development builds and HMR
+- **Code Splitting**: Automatic route-based code splitting
+- **Image Optimization**: Unpic for optimal image loading
+- **Lazy Loading**: Components loaded on demand
+- **Edge Computing**: Cloudflare Pages for global CDN
 
-const countStore = new Store(0);
+### Monitoring
 
-const doubledStore = new Derived({
-  fn: () => countStore.state * 2,
-  deps: [countStore],
-});
-doubledStore.mount();
+- **Core Web Vitals**: Monitor user experience metrics
+- **Cloudflare Analytics**: Edge performance insights
+- **React DevTools**: Component performance profiling
 
-function App() {
-  const count = useStore(countStore);
-  const doubledCount = useStore(doubledStore);
+## 🎨 Styling
 
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-      <div>Doubled - {doubledCount}</div>
-    </div>
-  );
-}
+### Tailwind CSS 4
 
-export default App;
-```
+- **Utility Classes**: Rapid styling with utility-first approach
+- **Custom Design System**: Consistent spacing, colors, and typography
+- **Responsive Design**: Mobile-first responsive utilities
+- **Dark Mode**: Built-in dark mode with CSS variables
+- **Vite Integration**: Instant CSS updates during development
 
-We use the `Derived` class to create a new store that is derived from another store. The `Derived` class has a `mount` method that will start the derived store updating.
+### Component System
 
-Once we've created the derived store we can use it in the `App` component just like we would any other store using the `useStore` hook.
+- **shadcn/ui**: High-quality, accessible base components
+- **Custom Variants**: Extended components for specific use cases
+- **Consistent Styling**: Design system with CSS variables
+- **Animation**: Smooth transitions with tw-animate-css
 
-You can find out everything you need to know on how to use TanStack Store in the [TanStack Store documentation](https://tanstack.com/store/latest).
+## 📱 Responsive Design
 
-# Demo files
+### Breakpoints
 
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
+- **Mobile**: 320px - 768px
+- **Tablet**: 768px - 1024px
+- **Desktop**: 1024px+
 
-# Learn More
+### Mobile-First Approach
 
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+- Progressive enhancement from mobile base styles
+- Touch-friendly interface elements
+- Optimized navigation for small screens
+- Fast loading on mobile networks
+
+## 🔍 SEO & Accessibility
+
+### SEO Optimization
+
+- **Meta Tags**: Dynamic meta tags for each page
+- **Performance**: Fast loading for better search rankings
+- **Sitemap**: Automatic sitemap generation
+- **Semantic HTML**: Proper document structure
+
+### Accessibility
+
+- **WCAG 2.1**: AA compliance level
+- **Keyboard Navigation**: Full keyboard accessibility
+- **Screen Readers**: Proper ARIA labels and roles
+- **Color Contrast**: Sufficient contrast ratios
+- **Focus Management**: Clear focus indicators
+
+## 📚 Learn More
+
+### Documentation
+
+- [TanStack Start Documentation](https://tanstack.com/start)
+- [TanStack Router Documentation](https://tanstack.com/router)
+- [TanStack Query Documentation](https://tanstack.com/query)
+- [React Documentation](https://react.dev/)
+- [Supabase Documentation](https://supabase.com/docs)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [shadcn/ui Documentation](https://ui.shadcn.com/)
+
+### Turbodoc Ecosystem
+
+- [Turbodoc API Documentation](../turbodoc-api/README.md)
+- [Turbodoc Browser Extensions](../turbodoc-extensions/README.md)
+- [Turbodoc iOS App](../turbodoc-ios/README.md)
+- [Project Overview](../README.md)
+
+## 🤝 Contributing
+
+### Development Workflow
+
+1. **Fork** the repository
+2. **Create** a feature branch
+3. **Make** your changes
+4. **Test** thoroughly
+5. **Submit** a pull request
+
+### Code Standards
+
+- **TypeScript**: Strict mode enabled
+- **Biome**: Follow configured linting and formatting rules
+- **Components**: Reusable, well-documented components
+- **Accessibility**: Maintain WCAG compliance
+- **Performance**: Consider bundle size and runtime performance
+
+## 🔒 Security
+
+### Security Measures
+
+- **HTTPS Only**: All communications encrypted
+- **CSP Headers**: Content Security Policy implemented
+- **XSS Protection**: Input sanitization and validation
+- **CSRF Protection**: Built-in protection with secure cookies
+- **Environment Variables**: Secure configuration management
+
+### Best Practices
+
+- **No Secrets in Client**: Environment variables properly scoped
+- **Secure Headers**: Security headers configured in Cloudflare
+- **Input Validation**: All user inputs validated with Zod
+- **Error Handling**: Secure error messages without sensitive data
+
+---
+
+**Turbodoc Web** - Your digital workspace for everything you save. Built with TanStack Start for modern performance and developer experience.
