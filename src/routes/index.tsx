@@ -62,19 +62,24 @@ function App() {
                 size="lg"
                 className="text-base px-8 py-6 bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg shadow-primary/25 transition-all duration-200 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5"
               >
-                <Link to="/auth/sign-up" className="flex items-center gap-2">
+                <Link
+                  to={user ? '/bookmarks' : '/auth/sign-up'}
+                  className="flex items-center gap-2"
+                >
                   Get Started
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="text-base px-8 py-6"
-              >
-                <Link to="/auth/login">Sign In</Link>
-              </Button>
+              {!user && (
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="text-base px-8 py-6"
+                >
+                  <Link to="/auth/login">Sign In</Link>
+                </Button>
+              )}
             </div>
             <p className="text-sm text-muted-foreground flex items-center gap-1">
               <span>✨</span> Free to use (while in beta)
