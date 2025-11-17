@@ -232,7 +232,6 @@ export function NoteGrid() {
                     onChange={(value) =>
                       setNewNote({ ...newNote, content: value })
                     }
-                    placeholder="Start writing your note..."
                   />
                 </div>
               </div>

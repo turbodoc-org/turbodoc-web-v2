@@ -306,7 +306,6 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
                 ref={editorRef}
                 markdown={note?.content || ''}
                 onChange={handleContentChange}
-                placeholder="Start writing your note..."
               />
             </div>
           </div>
