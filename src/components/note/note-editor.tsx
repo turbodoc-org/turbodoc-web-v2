@@ -45,6 +45,13 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
   const debouncedContent = useDebounce(content, 1000);
   const debouncedTags = useDebounce(tags, 1000);
 
+  // Invalidate notes query when component unmounts to ensure fresh data on notes page
+  useEffect(() => {
+    return () => {
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
+    };
+  }, [queryClient]);
+
   // Fetch note with React Query
   const {
     data: note,
