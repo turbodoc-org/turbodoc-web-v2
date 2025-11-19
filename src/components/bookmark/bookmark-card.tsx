@@ -168,7 +168,12 @@ export function BookmarkCard({
     <Card className="group h-full hover:shadow-lg transition-all duration-200 border border-border hover:border-primary/20 shadow-sm bg-card overflow-hidden dark:border-gray-400">
       <CardContent className="p-0 flex flex-col h-full">
         {/* OG Image Header */}
-        <div className="relative h-32 sm:h-40 bg-secondary border-b border-border">
+        <a
+          href={bookmark.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="relative h-32 sm:h-40 bg-secondary border-b border-border block hover:opacity-90 transition-opacity cursor-pointer"
+        >
           {ogImage && !imageError ? (
             <img
               src={ogImage}
@@ -194,13 +199,17 @@ export function BookmarkCard({
           )}
 
           {/* Action Menu Overlay */}
-          <div className="absolute top-2 right-2">
+          <div
+            className="absolute top-2 right-2"
+            onClick={(e) => e.preventDefault()}
+          >
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
                   size="sm"
                   className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background/90"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <MoreVertical className="h-4 w-4 text-foreground" />
                 </Button>
@@ -244,13 +253,20 @@ export function BookmarkCard({
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        </div>
+        </a>
 
         <div className="p-3 sm:p-4 flex-grow flex flex-col">
           <div className="mb-3">
-            <h3 className="font-semibold text-base leading-tight line-clamp-2 text-foreground mb-2">
-              {bookmark.title}
-            </h3>
+            <a
+              href={bookmark.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block group/title"
+            >
+              <h3 className="font-semibold text-base leading-tight line-clamp-2 text-foreground mb-2 transition-colors">
+                {bookmark.title}
+              </h3>
+            </a>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Globe className="h-3 w-3 flex-shrink-0" />
               <a
