@@ -31,6 +31,10 @@ export const MDXEditorWrapper = forwardRef<
     <MDXEditor
       {...props}
       ref={ref || editorRef}
+      toMarkdownOptions={{
+        bullet: '-',
+        bulletOther: '*',
+      }}
       plugins={[
         // Headings, lists, quotes
         headingsPlugin(),
