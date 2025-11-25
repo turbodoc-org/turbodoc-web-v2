@@ -1,4 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
+import { AppHeader } from '@/components/shared/app-header';
+import { AppFooter } from '@/components/shared/app-footer';
+import { useAuth } from '@/lib/auth/context';
 
 export const Route = createFileRoute('/privacy')({
   head: () => ({
@@ -14,8 +17,11 @@ export const Route = createFileRoute('/privacy')({
 });
 
 function Privacy() {
+  const { loading, user } = useAuth();
+
   return (
     <div className="min-h-screen bg-background">
+      <AppHeader showNavLinks={!loading && !!user} />
       <div className="container max-w-4xl mx-auto px-4 py-12 md:py-16">
         {/* Header */}
         <div className="text-center mb-12">
@@ -219,6 +225,8 @@ function Privacy() {
           </Link>
         </div>
       </div>
+
+      <AppFooter />
     </div>
   );
 }

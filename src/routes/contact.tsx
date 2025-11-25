@@ -1,4 +1,5 @@
 import { AppHeader } from '@/components/shared/app-header';
+import { AppFooter } from '@/components/shared/app-footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -6,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/lib/auth/context';
 import { sendContactMessage } from '@/lib/api';
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { Image } from '@unpic/react';
 import {
   MessageSquare,
@@ -367,36 +368,7 @@ function ContactPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border/50 bg-linear-to-t from-muted/40 to-muted/20 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="text-sm text-muted-foreground">
-              © 2025 Turbodoc. All rights reserved.
-            </div>
-            <div className="flex items-center gap-8">
-              <Link
-                to="/"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
-              >
-                Home
-              </Link>
-              <Link
-                to="/privacy"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
-              >
-                Privacy
-              </Link>
-              <Link
-                to="/terms"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
-              >
-                Terms
-              </Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <AppFooter />
     </main>
   );
 }

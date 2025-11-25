@@ -1,4 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
+import { AppHeader } from '@/components/shared/app-header';
+import { AppFooter } from '@/components/shared/app-footer';
+import { useAuth } from '@/lib/auth/context';
 
 export const Route = createFileRoute('/terms')({
   head: () => ({
@@ -15,8 +18,11 @@ export const Route = createFileRoute('/terms')({
 });
 
 function Terms() {
+  const { loading, user } = useAuth();
+
   return (
     <div className="min-h-screen bg-background">
+      <AppHeader showNavLinks={!loading && !!user} />
       <div className="container max-w-4xl mx-auto px-4 py-12 md:py-16">
         {/* Header */}
         <div className="text-center mb-12">
@@ -287,6 +293,8 @@ function Terms() {
           </Link>
         </div>
       </div>
+
+      <AppFooter />
     </div>
   );
 }

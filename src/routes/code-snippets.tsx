@@ -1,4 +1,5 @@
 import { AppHeader } from '@/components/shared/app-header';
+import { AppFooter } from '@/components/shared/app-footer';
 import { CodeSnippetEditor } from '@/components/code-snippet/code-snippet-editor';
 import { CodeSnippetGrid } from '@/components/code-snippet/code-snippet-grid';
 import { Button } from '@/components/ui/button';
@@ -93,6 +94,8 @@ function CodeSnippets() {
       {isEditorOpen && (
         <CodeSnippetEditor snippetId={editingSnippet} onClose={handleClose} />
       )}
+
+      <AppFooter />
     </main>
   );
 }
