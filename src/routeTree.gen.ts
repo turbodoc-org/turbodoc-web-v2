@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CodeSnippetsRouteImport } from './routes/code-snippets'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
@@ -35,6 +36,11 @@ const TermsRoute = TermsRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CodeSnippetsRoute = CodeSnippetsRouteImport.update({
@@ -115,6 +121,7 @@ const AuthedDiagramDiagramIdRoute = AuthedDiagramDiagramIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/code-snippets': typeof CodeSnippetsRoute
+  '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/bookmarks': typeof AuthedBookmarksRoute
@@ -133,6 +140,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/code-snippets': typeof CodeSnippetsRoute
+  '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/bookmarks': typeof AuthedBookmarksRoute
@@ -153,6 +161,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authed': typeof AuthedRouteWithChildren
   '/code-snippets': typeof CodeSnippetsRoute
+  '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/_authed/bookmarks': typeof AuthedBookmarksRoute
@@ -173,6 +182,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/code-snippets'
+    | '/contact'
     | '/privacy'
     | '/terms'
     | '/bookmarks'
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/code-snippets'
+    | '/contact'
     | '/privacy'
     | '/terms'
     | '/bookmarks'
@@ -210,6 +221,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authed'
     | '/code-snippets'
+    | '/contact'
     | '/privacy'
     | '/terms'
     | '/_authed/bookmarks'
@@ -230,6 +242,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthedRoute: typeof AuthedRouteWithChildren
   CodeSnippetsRoute: typeof CodeSnippetsRoute
+  ContactRoute: typeof ContactRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
   AuthErrorRoute: typeof AuthErrorRoute
@@ -255,6 +268,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/code-snippets': {
@@ -388,6 +408,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthedRoute: AuthedRouteWithChildren,
   CodeSnippetsRoute: CodeSnippetsRoute,
+  ContactRoute: ContactRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
   AuthErrorRoute: AuthErrorRoute,

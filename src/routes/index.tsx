@@ -960,6 +960,12 @@ function App() {
             </div>
             <div className="flex items-center gap-8">
               <Link
+                to="/contact"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
+              >
+                Contact
+              </Link>
+              <Link
                 to="/privacy"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
               >

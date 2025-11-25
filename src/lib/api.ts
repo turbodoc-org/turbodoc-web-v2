@@ -584,3 +584,25 @@ export async function duplicateDiagram(id: string): Promise<Diagram> {
   const result: DiagramResponse = await response.json();
   return result.data;
 }
+
+// Contact API function (no authentication required)
+export async function sendContactMessage(contactData: {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}): Promise<{ success: boolean; message: string }> {
+  const response = await fetch(`${API_BASE_URL}/v1/contact`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(contactData),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to send message');
+  }
+
+  return await response.json();
+}

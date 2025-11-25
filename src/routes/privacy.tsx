@@ -24,7 +24,7 @@ function Privacy() {
           </h1>
           <p className="text-lg text-muted-foreground">
             Last updated:{' '}
-            {new Date().toLocaleDateString('en-US', {
+            {new Date('2025-11-20').toLocaleDateString('en-US', {
               year: 'numeric',
               month: 'long',
               day: 'numeric',
