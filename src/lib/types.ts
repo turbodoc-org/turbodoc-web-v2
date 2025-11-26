@@ -15,6 +15,15 @@ export interface BookmarkResponse {
   data: Bookmark[];
 }
 
+export interface Tag {
+  tag: string;
+  count: number;
+}
+
+export interface TagsResponse {
+  data: Tag[];
+}
+
 export interface BookmarkSearchResponse {
   data: Bookmark[];
   query: string;

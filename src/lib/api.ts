@@ -13,6 +13,8 @@ import {
   Diagram,
   DiagramsResponse,
   DiagramResponse,
+  Tag,
+  TagsResponse,
 } from './types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.turbodoc.ai';
@@ -605,4 +607,28 @@ export async function sendContactMessage(contactData: {
   }
 
   return await response.json();
+}
+
+export async function getTags(): Promise<Tag[]> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    throw new Error('No session found');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/v1/tags`, {
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch tags');
+  }
+
+  const result: TagsResponse = await response.json();
+  return result.data;
 }

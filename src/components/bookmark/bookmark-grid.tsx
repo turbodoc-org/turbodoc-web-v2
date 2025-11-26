@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Bookmark } from '@/lib/types';
 import { BookmarkCard } from '@/components/bookmark/bookmark-card';
 import { DragDropZone } from '@/components/bookmark/drag-drop-zone';
+import { TagFilter } from '@/components/bookmark/tag-filter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,6 +25,7 @@ export function BookmarkGrid() {
   const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Debounce search term with 300ms delay
@@ -54,68 +56,80 @@ export function BookmarkGrid() {
     },
   });
 
-  // Handle debounced search
+  // Handle debounced search and tag filtering
   useEffect(() => {
     const performSearch = async () => {
-      if (!debouncedSearchTerm.trim()) {
-        // No search term, show all bookmarks
-        setFilteredBookmarks(bookmarks);
+      let results = bookmarks;
+
+      // Apply text search if there's a search term
+      if (debouncedSearchTerm.trim()) {
+        // Short queries (< 3 characters) use client-side filtering
+        if (debouncedSearchTerm.trim().length < 3) {
+          results = bookmarks.filter(
+            (bookmark) =>
+              bookmark.title
+                .toLowerCase()
+                .includes(debouncedSearchTerm.toLowerCase()) ||
+              bookmark.url
+                .toLowerCase()
+                .includes(debouncedSearchTerm.toLowerCase()) ||
+              (bookmark.tags &&
+                bookmark.tags
+                  .toLowerCase()
+                  .includes(debouncedSearchTerm.toLowerCase())),
+          );
+          setIsSearching(false);
+        } else {
+          // Longer queries use server-side search
+          setIsSearching(true);
+          try {
+            results = await searchBookmarks(debouncedSearchTerm);
+          } catch (error) {
+            console.error(
+              'Search failed, falling back to client-side filtering:',
+              error,
+            );
+            // Fallback to client-side filtering on error
+            results = bookmarks.filter(
+              (bookmark) =>
+                bookmark.title
+                  .toLowerCase()
+                  .includes(debouncedSearchTerm.toLowerCase()) ||
+                bookmark.url
+                  .toLowerCase()
+                  .includes(debouncedSearchTerm.toLowerCase()) ||
+                (bookmark.tags &&
+                  bookmark.tags
+                    .toLowerCase()
+                    .includes(debouncedSearchTerm.toLowerCase())),
+            );
+          } finally {
+            setIsSearching(false);
+          }
+        }
+      } else {
         setIsSearching(false);
-        return;
       }
 
-      // Short queries (< 3 characters) use client-side filtering
-      if (debouncedSearchTerm.trim().length < 3) {
-        const filtered = bookmarks.filter(
-          (bookmark) =>
-            bookmark.title
-              .toLowerCase()
-              .includes(debouncedSearchTerm.toLowerCase()) ||
-            bookmark.url
-              .toLowerCase()
-              .includes(debouncedSearchTerm.toLowerCase()) ||
-            (bookmark.tags &&
-              bookmark.tags
-                .toLowerCase()
-                .includes(debouncedSearchTerm.toLowerCase())),
-        );
-        setFilteredBookmarks(filtered);
-        setIsSearching(false);
-        return;
+      // Apply tag filtering (client-side, works with any previous filtering)
+      if (selectedTags.length > 0) {
+        results = results.filter((bookmark) => {
+          if (!bookmark.tags) return false;
+          const bookmarkTags = bookmark.tags
+            .split('|')
+            .map((tag) => tag.trim().toLowerCase());
+          // Match ANY of the selected tags
+          return selectedTags.some((selectedTag) =>
+            bookmarkTags.includes(selectedTag.toLowerCase()),
+          );
+        });
       }
 
-      // Longer queries use server-side search
-      setIsSearching(true);
-      try {
-        const searchResults = await searchBookmarks(debouncedSearchTerm);
-        setFilteredBookmarks(searchResults);
-      } catch (error) {
-        console.error(
-          'Search failed, falling back to client-side filtering:',
-          error,
-        );
-        // Fallback to client-side filtering on error
-        const filtered = bookmarks.filter(
-          (bookmark) =>
-            bookmark.title
-              .toLowerCase()
-              .includes(debouncedSearchTerm.toLowerCase()) ||
-            bookmark.url
-              .toLowerCase()
-              .includes(debouncedSearchTerm.toLowerCase()) ||
-            (bookmark.tags &&
-              bookmark.tags
-                .toLowerCase()
-                .includes(debouncedSearchTerm.toLowerCase())),
-        );
-        setFilteredBookmarks(filtered);
-      } finally {
-        setIsSearching(false);
-      }
+      setFilteredBookmarks(results);
     };
 
     performSearch();
-  }, [bookmarks, debouncedSearchTerm]);
+  }, [bookmarks, debouncedSearchTerm, selectedTags]);
 
   // Set searching state when user is typing
   useEffect(() => {
@@ -185,9 +199,16 @@ export function BookmarkGrid() {
             className="pl-10 bg-background/60 backdrop-blur-sm border-border focus:border-primary focus:ring-primary/20 text-foreground placeholder:text-muted-foreground"
           />
         </div>
+        <div className="flex-1 max-w-md">
+          <TagFilter
+            selectedTags={selectedTags}
+            onTagsChange={setSelectedTags}
+            maxVisibleTags={2}
+          />
+        </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg">
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg sm:ml-auto shrink-0">
               <Plus className="h-4 w-4 mr-2" />
               Add Bookmark
             </Button>
@@ -264,11 +285,13 @@ export function BookmarkGrid() {
             <Search className="h-8 w-8 text-primary" />
           </div>
           <h3 className="text-lg font-semibold mb-2 text-foreground">
-            {searchTerm ? 'No bookmarks found' : 'No bookmarks yet'}
+            {searchTerm || selectedTags.length > 0
+              ? 'No bookmarks found'
+              : 'No bookmarks yet'}
           </h3>
           <p className="text-muted-foreground text-sm">
-            {searchTerm
-              ? 'Try adjusting your search terms or check the spelling.'
+            {searchTerm || selectedTags.length > 0
+              ? 'Try adjusting your search terms or selected tags.'
               : 'Create your first bookmark to get started organizing your links!'}
           </p>
         </div>
