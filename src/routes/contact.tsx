@@ -30,18 +30,33 @@ function ContactPage() {
     email: '',
     subject: '',
     message: '',
+    website: '', // honeypot field
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Honeypot check - if filled, it's likely a bot
+    if (formData.website) {
+      console.log('Bot detected - honeypot field filled');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      const data = await sendContactMessage(formData);
+      const { website, ...dataToSend } = formData; // Remove honeypot from submission
+      const data = await sendContactMessage(dataToSend);
       setIsSuccess(true);
-      setFormData({ name: '', email: '', subject: '', message: '' });
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: '',
+        website: '',
+      });
       toast.success(data.message || 'Message sent successfully!');
 
       // Reset success state after 5 seconds
@@ -111,7 +126,16 @@ function ContactPage() {
                       possible.
                     </p>
                     <Button
-                      onClick={() => setIsSuccess(false)}
+                      onClick={() => {
+                        setIsSuccess(false);
+                        setFormData({
+                          name: '',
+                          email: '',
+                          subject: '',
+                          message: '',
+                          website: '',
+                        });
+                      }}
                       variant="outline"
                       className="mt-4"
                     >
@@ -159,6 +183,20 @@ function ContactPage() {
                         onChange={handleChange}
                         required
                         className="bg-background"
+                      />
+                    </div>
+
+                    {/* Honeypot field - hidden from users but visible to bots */}
+                    <div className="hidden" aria-hidden="true">
+                      <Label htmlFor="website">Website</Label>
+                      <Input
+                        id="website"
+                        name="website"
+                        type="text"
+                        tabIndex={-1}
+                        autoComplete="off"
+                        value={formData.website}
+                        onChange={handleChange}
                       />
                     </div>
 
