@@ -1,18 +1,21 @@
 import { supabase } from './clients/supabase/client';
-import {
+import type {
   Bookmark,
   BookmarkResponse,
   BookmarkSearchResponse,
-  OgImageResponse,
-  Note,
-  NotesResponse,
-  NoteResponse,
   CodeSnippet,
-  CodeSnippetsResponse,
   CodeSnippetResponse,
+  CodeSnippetsResponse,
   Diagram,
-  DiagramsResponse,
   DiagramResponse,
+  DiagramsResponse,
+  Note,
+  NoteResponse,
+  NotesResponse,
+  OgImageResponse,
+  PersonalAccessToken,
+  PersonalAccessTokenCreateResponse,
+  PersonalAccessTokensResponse,
   Tag,
   TagsResponse,
 } from './types';
@@ -631,4 +634,93 @@ export async function getTags(): Promise<Tag[]> {
 
   const result: TagsResponse = await response.json();
   return result.data;
+}
+
+export async function getPersonalAccessTokens(): Promise<
+  PersonalAccessToken[]
+> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    throw new Error('No session found');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/v1/pats`, {
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch personal access tokens');
+  }
+
+  const result: PersonalAccessTokensResponse = await response.json();
+  return result.data;
+}
+
+export async function createPersonalAccessToken(payload: {
+  name: string;
+  scopes?: string[];
+  expires_at?: string | null;
+}): Promise<{ pat: PersonalAccessToken; token: string | null }> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    throw new Error('No session found');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/v1/pats`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to create personal access token');
+  }
+
+  const result: PersonalAccessTokenCreateResponse | any = await response.json();
+  const rawData =
+    result?.data?.pat ?? result?.data ?? result?.pat ?? result ?? {};
+  const token =
+    result?.token ??
+    result?.data?.token ??
+    result?.pat?.token ??
+    (typeof rawData?.token === 'string' ? rawData.token : null);
+  const { token: _token, ...pat } = rawData as PersonalAccessToken & {
+    token?: string;
+  };
+
+  return { pat, token };
+}
+
+export async function revokePersonalAccessToken(id: string): Promise<void> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    throw new Error('No session found');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/v1/pats/${id}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to revoke personal access token');
+  }
 }
