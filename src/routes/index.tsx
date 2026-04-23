@@ -1,23 +1,21 @@
-import { AppHeader } from '@/components/shared/app-header';
-import { AppFooter } from '@/components/shared/app-footer';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/lib/auth/context';
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { Image } from '@unpic/react';
+import { AppHeader } from "@/components/shared/app-header";
+import { AppFooter } from "@/components/shared/app-footer";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth/context";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Image } from "@unpic/react";
 import {
   Sparkles,
   ArrowRight,
   BookmarkIcon,
-  Github,
-  Linkedin,
-  Twitter,
   StickyNote,
   Smartphone,
   Code2,
   Workflow,
-} from 'lucide-react';
+} from "lucide-react";
+import { GithubIcon, LinkedinIcon, XIcon } from "@/components/shared/brand-icons";
 
-export const Route = createFileRoute('/')({ component: App });
+export const Route = createFileRoute("/")({ component: App });
 
 function App() {
   const { loading, user } = useAuth();
@@ -45,13 +43,13 @@ function App() {
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground tracking-tight">
               Save, organize, and access your content
               <span className="bg-linear-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent">
-                {' '}
+                {" "}
                 everywhere
               </span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              One place for bookmarks, notes, code, and diagrams. Fast,
-              beautiful, and always in sync.
+              One place for bookmarks, notes, code, and diagrams. Fast, beautiful, and always in
+              sync.
             </p>
           </div>
 
@@ -63,7 +61,7 @@ function App() {
                 className="text-base px-8 py-6 bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg shadow-primary/25 transition-all duration-200 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5"
               >
                 <Link
-                  to={user ? '/bookmarks' : '/auth/sign-up'}
+                  to={user ? "/bookmarks" : "/auth/sign-up"}
                   className="flex items-center gap-2"
                 >
                   Get Started
@@ -71,12 +69,7 @@ function App() {
                 </Link>
               </Button>
               {!user && (
-                <Button
-                  asChild
-                  size="lg"
-                  variant="outline"
-                  className="text-base px-8 py-6"
-                >
+                <Button asChild size="lg" variant="outline" className="text-base px-8 py-6">
                   <Link to="/auth/login">Sign In</Link>
                 </Button>
               )}
@@ -96,8 +89,8 @@ function App() {
               Everything you need to stay organized
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Powerful features designed to help you save, organize, and access
-              your content effortlessly.
+              Powerful features designed to help you save, organize, and access your content
+              effortlessly.
             </p>
           </div>
 
@@ -108,13 +101,11 @@ function App() {
                 <div className="p-3 bg-linear-to-br from-primary/10 to-primary/5 rounded-xl group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
                   <BookmarkIcon className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold text-foreground">
-                  Smart Bookmarks
-                </h3>
+                <h3 className="text-xl font-semibold text-foreground">Smart Bookmarks</h3>
               </div>
               <p className="text-muted-foreground leading-relaxed">
-                Save links with auto titles, descriptions, and thumbnails. Find
-                anything fast with full-text search.
+                Save links with auto titles, descriptions, and thumbnails. Find anything fast with
+                full-text search.
               </p>
             </div>
 
@@ -124,13 +115,10 @@ function App() {
                 <div className="p-3 bg-linear-to-br from-primary/10 to-primary/5 rounded-xl group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
                   <StickyNote className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold text-foreground">
-                  Markdown Notes
-                </h3>
+                <h3 className="text-xl font-semibold text-foreground">Markdown Notes</h3>
               </div>
               <p className="text-muted-foreground leading-relaxed">
-                Write in Markdown with instant preview. Organize ideas without
-                friction.
+                Write in Markdown with instant preview. Organize ideas without friction.
               </p>
             </div>
 
@@ -140,13 +128,11 @@ function App() {
                 <div className="p-3 bg-linear-to-br from-primary/10 to-primary/5 rounded-xl group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
                   <Code2 className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold text-foreground">
-                  Code Snippets
-                </h3>
+                <h3 className="text-xl font-semibold text-foreground">Code Snippets</h3>
               </div>
               <p className="text-muted-foreground leading-relaxed">
-                Your personal code library. Save and reuse snippets with syntax
-                highlighting and one-click copy.
+                Your personal code library. Save and reuse snippets with syntax highlighting and
+                one-click copy.
               </p>
             </div>
 
@@ -156,13 +142,11 @@ function App() {
                 <div className="p-3 bg-linear-to-br from-primary/10 to-primary/5 rounded-xl group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
                   <Workflow className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold text-foreground">
-                  Visual Diagrams
-                </h3>
+                <h3 className="text-xl font-semibold text-foreground">Visual Diagrams</h3>
               </div>
               <p className="text-muted-foreground leading-relaxed">
-                Sketch ideas fast. Build flowcharts and architecture diagrams
-                with drag-and-drop. Export PNG or PDF.
+                Sketch ideas fast. Build flowcharts and architecture diagrams with drag-and-drop.
+                Export PNG or PDF.
               </p>
             </div>
 
@@ -172,14 +156,11 @@ function App() {
                 <div className="p-3 bg-linear-to-br from-primary/10 to-primary/5 rounded-xl group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
                   <Smartphone className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold text-foreground">
-                  Cross-Platform Sync
-                </h3>
+                <h3 className="text-xl font-semibold text-foreground">Cross-Platform Sync</h3>
               </div>
               <p className="text-muted-foreground leading-relaxed">
-                Start on your phone, finish on your laptop. Everything syncs
-                instantly across mobile, web, and browser extensions. Always up
-                to date.
+                Start on your phone, finish on your laptop. Everything syncs instantly across
+                mobile, web, and browser extensions. Always up to date.
               </p>
             </div>
 
@@ -187,20 +168,13 @@ function App() {
             <div className="group bg-background/60 backdrop-blur-sm p-8 rounded-xl shadow-sm border border-border/50 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 hover:-translate-y-1">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-3 bg-linear-to-br from-primary/10 to-primary/5 rounded-xl group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
-                  <Github className="h-6 w-6 text-primary" />
+                  <GithubIcon className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold text-foreground">
-                  Open Source
-                </h3>
+                <h3 className="text-xl font-semibold text-foreground">Open Source</h3>
               </div>
               <p className="text-muted-foreground leading-relaxed">
-                Open source and privacy-first. Your data, your control. Join us
-                on{' '}
-                <a
-                  href="https://github.com/turbodoc-org"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                Open source and privacy-first. Your data, your control. Join us on{" "}
+                <a href="https://github.com/turbodoc-org" target="_blank" rel="noopener noreferrer">
                   GitHub
                 </a>
                 .
@@ -221,17 +195,15 @@ function App() {
             <div className="flex items-center justify-center mb-4">
               <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
                 <Sparkles className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium text-primary">
-                  Four powerful tools in one
-                </span>
+                <span className="text-sm font-medium text-primary">Four powerful tools in one</span>
               </div>
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">
               Your complete digital workspace
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              One app, four tools. Bookmark articles, write docs, save code, and
-              map ideas — organized and accessible.
+              One app, four tools. Bookmark articles, write docs, save code, and map ideas —
+              organized and accessible.
             </p>
           </div>
 
@@ -248,8 +220,8 @@ function App() {
                       Bookmarks & Notes
                     </h3>
                     <p className="text-muted-foreground">
-                      Save any link with auto metadata, then write rich Markdown
-                      — searchable and in sync.
+                      Save any link with auto metadata, then write rich Markdown — searchable and in
+                      sync.
                     </p>
                   </div>
                 </div>
@@ -263,9 +235,7 @@ function App() {
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                    <span className="text-sm text-muted-foreground">
-                      Live Markdown preview
-                    </span>
+                    <span className="text-sm text-muted-foreground">Live Markdown preview</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 bg-blue-500 rounded-full" />
@@ -285,12 +255,10 @@ function App() {
                     <Code2 className="h-8 w-8 text-green-600" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-foreground mb-2">
-                      Code Snippets
-                    </h3>
+                    <h3 className="text-xl font-semibold text-foreground mb-2">Code Snippets</h3>
                     <p className="text-muted-foreground">
-                      Your code, organized. Save snippets with language
-                      formatting, syntax highlighting, and one-click copy.
+                      Your code, organized. Save snippets with language formatting, syntax
+                      highlighting, and one-click copy.
                     </p>
                   </div>
                 </div>
@@ -328,14 +296,11 @@ function App() {
                     <Workflow className="h-8 w-8 text-orange-600" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-foreground mb-2">
-                      Visual Diagrams
-                    </h3>
+                    <h3 className="text-xl font-semibold text-foreground mb-2">Visual Diagrams</h3>
                     <p className="text-muted-foreground">
-                      Think visually, work faster. Create flowcharts,
-                      wireframes, and architecture diagrams with an intuitive
-                      editor. Export high-quality PNG/PDF when you&apos;re ready
-                      to share.
+                      Think visually, work faster. Create flowcharts, wireframes, and architecture
+                      diagrams with an intuitive editor. Export high-quality PNG/PDF when
+                      you&apos;re ready to share.
                     </p>
                   </div>
                 </div>
@@ -343,9 +308,7 @@ function App() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 bg-orange-500 rounded-full" />
-                    <span className="text-sm text-muted-foreground">
-                      Drag-and-drop canvas
-                    </span>
+                    <span className="text-sm text-muted-foreground">Drag-and-drop canvas</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 bg-orange-500 rounded-full" />
@@ -355,9 +318,7 @@ function App() {
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 bg-orange-500 rounded-full" />
-                    <span className="text-sm text-muted-foreground">
-                      Auto-routed connections
-                    </span>
+                    <span className="text-sm text-muted-foreground">Auto-routed connections</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 bg-orange-500 rounded-full" />
@@ -417,17 +378,15 @@ function App() {
             <div className="flex items-center justify-center mb-4">
               <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
                 <Sparkles className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium text-primary">
-                  Save from anywhere
-                </span>
+                <span className="text-sm font-medium text-primary">Save from anywhere</span>
               </div>
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">
               Browser Extensions for Chrome & Firefox
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Save any webpage instantly while you browse. No context switching,
-              no copy-pasting URLs — just one click and it&apos;s saved forever.
+              Save any webpage instantly while you browse. No context switching, no copy-pasting
+              URLs — just one click and it&apos;s saved forever.
             </p>
           </div>
 
@@ -449,12 +408,8 @@ function App() {
                     />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-foreground mb-1">
-                      Chrome Extension
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      Available on Chrome Web Store
-                    </p>
+                    <h3 className="text-xl font-semibold text-foreground mb-1">Chrome Extension</h3>
+                    <p className="text-sm text-muted-foreground">Available on Chrome Web Store</p>
                   </div>
                 </div>
 
@@ -517,9 +472,7 @@ function App() {
                     <h3 className="text-xl font-semibold text-foreground mb-1">
                       Firefox Extension
                     </h3>
-                    <p className="text-sm text-muted-foreground">
-                      Available on Firefox Add-ons
-                    </p>
+                    <p className="text-sm text-muted-foreground">Available on Firefox Add-ons</p>
                   </div>
                 </div>
 
@@ -587,17 +540,15 @@ function App() {
             <div className="flex items-center justify-center mb-4">
               <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
                 <Smartphone className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium text-primary">
-                  Available Now
-                </span>
+                <span className="text-sm font-medium text-primary">Available Now</span>
               </div>
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">
               Turbodoc for iPhone & iPad
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Your digital life, organized and accessible from anywhere. Stop
-              drowning in browser tabs and scattered notes.
+              Your digital life, organized and accessible from anywhere. Stop drowning in browser
+              tabs and scattered notes.
             </p>
           </div>
 
@@ -611,21 +562,13 @@ function App() {
               <div className="flex flex-col md:flex-row items-center md:items-center justify-between gap-6 mb-8 pb-8 border-b border-border/30">
                 <div className="flex items-center gap-4">
                   <div className="p-4 bg-linear-to-br from-blue-500/10 to-purple-500/10 rounded-2xl">
-                    <svg
-                      className="h-12 w-12"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
+                    <svg className="h-12 w-12" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-foreground mb-1">
-                      Turbodoc for iOS
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Organize your digital life on the go
-                    </p>
+                    <h3 className="text-2xl font-bold text-foreground mb-1">Turbodoc for iOS</h3>
+                    <p className="text-muted-foreground">Organize your digital life on the go</p>
                   </div>
                 </div>
 
@@ -666,13 +609,11 @@ function App() {
                       </svg>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground mb-1">
-                        Capture Ideas by Voice
-                      </h4>
+                      <h4 className="font-semibold text-foreground mb-1">Capture Ideas by Voice</h4>
                       <p className="text-sm text-muted-foreground leading-relaxed">
-                        Record voice notes while walking, driving, or whenever
-                        typing isn&apos;t practical. Automatic transcription
-                        turns your words into searchable text instantly.
+                        Record voice notes while walking, driving, or whenever typing isn&apos;t
+                        practical. Automatic transcription turns your words into searchable text
+                        instantly.
                       </p>
                     </div>
                   </div>
@@ -701,9 +642,8 @@ function App() {
                         Digitize Physical Notes
                       </h4>
                       <p className="text-sm text-muted-foreground leading-relaxed">
-                        Snap photos of whiteboards, book pages, or receipts.
-                        Advanced text recognition extracts content you can edit,
-                        search, and organize.
+                        Snap photos of whiteboards, book pages, or receipts. Advanced text
+                        recognition extracts content you can edit, search, and organize.
                       </p>
                     </div>
                   </div>
@@ -716,13 +656,10 @@ function App() {
                       <BookmarkIcon className="h-5 w-5 text-green-600" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground mb-1">
-                        Never Lose a Link
-                      </h4>
+                      <h4 className="font-semibold text-foreground mb-1">Never Lose a Link</h4>
                       <p className="text-sm text-muted-foreground leading-relaxed">
-                        Save websites, articles, and videos from any app.
-                        Automatic metadata fetching creates a visual, organized
-                        collection you can find in seconds.
+                        Save websites, articles, and videos from any app. Automatic metadata
+                        fetching creates a visual, organized collection you can find in seconds.
                       </p>
                     </div>
                   </div>
@@ -747,13 +684,10 @@ function App() {
                       </svg>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground mb-1">
-                        Save from Anywhere
-                      </h4>
+                      <h4 className="font-semibold text-foreground mb-1">Save from Anywhere</h4>
                       <p className="text-sm text-muted-foreground leading-relaxed">
-                        Use the iOS share sheet to save content from Safari,
-                        Instagram, YouTube, or any app. One tap, and it&apos;s
-                        saved forever.
+                        Use the iOS share sheet to save content from Safari, Instagram, YouTube, or
+                        any app. One tap, and it&apos;s saved forever.
                       </p>
                     </div>
                   </div>
@@ -778,13 +712,10 @@ function App() {
                       </svg>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground mb-1">
-                        Works Without Internet
-                      </h4>
+                      <h4 className="font-semibold text-foreground mb-1">Works Without Internet</h4>
                       <p className="text-sm text-muted-foreground leading-relaxed">
-                        Access everything offline. Changes sync automatically
-                        when you&apos;re back online. Your content is always
-                        ready, no matter where you are.
+                        Access everything offline. Changes sync automatically when you&apos;re back
+                        online. Your content is always ready, no matter where you are.
                       </p>
                     </div>
                   </div>
@@ -809,13 +740,10 @@ function App() {
                       </svg>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground mb-1">
-                        Home Screen Widgets
-                      </h4>
+                      <h4 className="font-semibold text-foreground mb-1">Home Screen Widgets</h4>
                       <p className="text-sm text-muted-foreground leading-relaxed">
-                        Quick actions right on your home screen. Add bookmarks,
-                        create notes, or jump to recent items without opening
-                        the app.
+                        Quick actions right on your home screen. Add bookmarks, create notes, or
+                        jump to recent items without opening the app.
                       </p>
                     </div>
                   </div>
@@ -890,21 +818,13 @@ function App() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-linear-to-br from-green-500/10 to-emerald-500/10 rounded-xl">
-                  <svg
-                    className="h-8 w-8"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
+                  <svg className="h-8 w-8" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85-.29-.15-.65-.06-.83.22l-1.88 3.24a11.5 11.5 0 0 0-8.94 0L5.65 5.67c-.19-.28-.54-.37-.83-.22-.3.16-.42.54-.26.85l1.84 3.18C2.92 11.03 1 14.22 1 17.8h22c0-3.58-1.92-6.77-5.4-8.32zM8.06 15.2c-.66 0-1.2-.54-1.2-1.2 0-.66.54-1.2 1.2-1.2.66 0 1.2.54 1.2 1.2 0 .66-.54 1.2-1.2 1.2zm7.88 0c-.66 0-1.2-.54-1.2-1.2 0-.66.54-1.2 1.2-1.2.66 0 1.2.54 1.2 1.2 0 .66-.54 1.2-1.2 1.2z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-1">
-                    Android App
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Coming soon to Google Play Store
-                  </p>
+                  <h3 className="text-lg font-semibold text-foreground mb-1">Android App</h3>
+                  <p className="text-sm text-muted-foreground">Coming soon to Google Play Store</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 px-4 py-2 bg-green-500/10 rounded-full border border-green-500/20">
@@ -933,40 +853,34 @@ function App() {
 
               <div className="prose prose-lg max-w-none text-foreground space-y-6">
                 <p className="text-lg leading-relaxed text-muted-foreground">
-                  Like many of you, I found myself drowning in digital chaos.
-                  Browser bookmarks scattered across different devices,
-                  important links buried in random folders, and notes written on
-                  whatever app was convenient at the moment.
+                  Like many of you, I found myself drowning in digital chaos. Browser bookmarks
+                  scattered across different devices, important links buried in random folders, and
+                  notes written on whatever app was convenient at the moment.
                 </p>
 
                 <p className="text-lg leading-relaxed text-muted-foreground">
-                  I tried everything - bookmark managers that were too
-                  complicated, note apps that didn&apos;t sync properly, and
-                  solutions that required me to change my entire workflow.
-                  Nothing felt right. I wanted something simple yet powerful,
-                  something that worked seamlessly across all my devices without
-                  getting in my way.
+                  I tried everything - bookmark managers that were too complicated, note apps that
+                  didn&apos;t sync properly, and solutions that required me to change my entire
+                  workflow. Nothing felt right. I wanted something simple yet powerful, something
+                  that worked seamlessly across all my devices without getting in my way.
                 </p>
 
                 <p className="text-lg leading-relaxed text-foreground font-medium">
-                  So I built Turbodoc. Not because the world needed another
-                  productivity app, but because I needed a tool that understood
-                  how I actually work. A place where I could save that
-                  interesting article I found at 2 AM, jot down quick thoughts
-                  in markdown, and find everything instantly when I needed it.
+                  So I built Turbodoc. Not because the world needed another productivity app, but
+                  because I needed a tool that understood how I actually work. A place where I could
+                  save that interesting article I found at 2 AM, jot down quick thoughts in
+                  markdown, and find everything instantly when I needed it.
                 </p>
 
                 <p className="text-lg leading-relaxed text-muted-foreground">
-                  Turbodoc is for people who love saving things but hate losing
-                  them. It&apos;s for those who appreciate beautiful design but
-                  need rock-solid functionality. It&apos;s for anyone who
-                  believes that organizing your digital life shouldn&apos;t be a
+                  Turbodoc is for people who love saving things but hate losing them. It&apos;s for
+                  those who appreciate beautiful design but need rock-solid functionality. It&apos;s
+                  for anyone who believes that organizing your digital life shouldn&apos;t be a
                   full-time job.
                 </p>
 
                 <p className="text-lg leading-relaxed font-medium text-primary my-0">
-                  I hope it helps you stay organized and focused on what matters
-                  most.
+                  I hope it helps you stay organized and focused on what matters most.
                 </p>
               </div>
 
@@ -990,11 +904,11 @@ function App() {
                     <a
                       href="https://x.com/nwbotha"
                       className="group text-muted-foreground hover:text-primary transition-all duration-200 p-3 hover:bg-primary/10 rounded-xl border border-transparent hover:border-primary/20"
-                      aria-label="Twitter"
+                      aria-label="X"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <Twitter className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+                      <XIcon className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
                     </a>
                     <a
                       href="https://www.linkedin.com/in/nico-botha/"
@@ -1003,7 +917,7 @@ function App() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <Linkedin className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+                      <LinkedinIcon className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
                     </a>
                     <a
                       href="https://github.com/Ngineer101"
@@ -1012,7 +926,7 @@ function App() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <Github className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+                      <GithubIcon className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
                     </a>
                   </div>
 
@@ -1038,18 +952,14 @@ function App() {
           <div className="text-center space-y-4 mb-12">
             <div className="flex items-center justify-center mb-4">
               <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
-                <Github className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium text-primary">
-                  100% Open Source
-                </span>
+                <GithubIcon className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-primary">100% Open Source</span>
               </div>
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-              Built in the open
-            </h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">Built in the open</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Every line of code is open source. Contribute on GitHub and help
-              us build the best content organizer out there.
+              Every line of code is open source. Contribute on GitHub and help us build the best
+              content organizer out there.
             </p>
           </div>
 
@@ -1061,7 +971,7 @@ function App() {
               <div className="space-y-6">
                 <div>
                   <h3 className="text-xl font-semibold text-foreground mb-3 flex items-center gap-2">
-                    <Github className="h-5 w-5 text-primary" />
+                    <GithubIcon className="h-5 w-5 text-primary" />
                     Why contribute?
                   </h3>
                   <ul className="space-y-3">
@@ -1108,9 +1018,7 @@ function App() {
                     </li>
                     <li className="flex items-start gap-3">
                       <div className="mt-1 w-1.5 h-1.5 bg-primary rounded-full shrink-0" />
-                      <span className="text-muted-foreground">
-                        API (Cloudflare Workers, Hono)
-                      </span>
+                      <span className="text-muted-foreground">API (Cloudflare Workers, Hono)</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <div className="mt-1 w-1.5 h-1.5 bg-primary rounded-full shrink-0" />
@@ -1121,8 +1029,7 @@ function App() {
                     <li className="flex items-start gap-3">
                       <div className="mt-1 w-1.5 h-1.5 bg-primary rounded-full shrink-0" />
                       <span className="text-muted-foreground">
-                        iOS and Android apps (native Swift & Kotlin - coming
-                        soon)
+                        iOS and Android apps (native Swift & Kotlin - coming soon)
                       </span>
                     </li>
                   </ul>
@@ -1142,7 +1049,7 @@ function App() {
                   rel="noopener noreferrer"
                   className="flex items-center gap-2"
                 >
-                  <Github className="h-5 w-5" />
+                  <GithubIcon className="h-5 w-5" />
                   View on GitHub
                   <ArrowRight className="h-4 w-4" />
                 </a>

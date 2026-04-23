@@ -1,36 +1,29 @@
-import { AppHeader } from '@/components/shared/app-header';
-import { AppFooter } from '@/components/shared/app-footer';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { useAuth } from '@/lib/auth/context';
-import { sendContactMessage } from '@/lib/api';
-import { createFileRoute } from '@tanstack/react-router';
-import { Image } from '@unpic/react';
-import {
-  MessageSquare,
-  Send,
-  Github,
-  Linkedin,
-  Twitter,
-  Sparkles,
-  CheckCircle2,
-} from 'lucide-react';
-import { useState } from 'react';
-import { toast } from 'sonner';
+import { AppHeader } from "@/components/shared/app-header";
+import { AppFooter } from "@/components/shared/app-footer";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@/lib/auth/context";
+import { sendContactMessage } from "@/lib/api";
+import { createFileRoute } from "@tanstack/react-router";
+import { Image } from "@unpic/react";
+import { MessageSquare, Send, Sparkles, CheckCircle2 } from "lucide-react";
+import { GithubIcon, LinkedinIcon, XIcon } from "@/components/shared/brand-icons";
+import { useState } from "react";
+import { toast } from "sonner";
 
-export const Route = createFileRoute('/contact')({ component: ContactPage });
+export const Route = createFileRoute("/contact")({ component: ContactPage });
 
 function ContactPage() {
   const { loading, user } = useAuth();
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: '',
-    website: '', // honeypot field
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+    website: "", // honeypot field
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -40,7 +33,7 @@ function ContactPage() {
 
     // Honeypot check - if filled, it's likely a bot
     if (formData.website) {
-      console.log('Bot detected - honeypot field filled');
+      console.log("Bot detected - honeypot field filled");
       return;
     }
 
@@ -51,27 +44,25 @@ function ContactPage() {
       const data = await sendContactMessage(dataToSend);
       setIsSuccess(true);
       setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        message: '',
-        website: '',
+        name: "",
+        email: "",
+        subject: "",
+        message: "",
+        website: "",
       });
-      toast.success(data.message || 'Message sent successfully!');
+      toast.success(data.message || "Message sent successfully!");
 
       // Reset success state after 5 seconds
       setTimeout(() => setIsSuccess(false), 5000);
     } catch (error) {
-      console.error('Error sending message:', error);
-      toast.error('Failed to send message. Please try again.');
+      console.error("Error sending message:", error);
+      toast.error("Failed to send message. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
@@ -95,17 +86,14 @@ function ContactPage() {
             <div className="flex items-center justify-center mb-4">
               <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
                 <MessageSquare className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium text-primary">
-                  Get in Touch
-                </span>
+                <span className="text-sm font-medium text-primary">Get in Touch</span>
               </div>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground tracking-tight">
               Let's chat!
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Questions? Feedback? Just want to say hi? I'd love to hear from
-              you.
+              Questions? Feedback? Just want to say hi? I'd love to hear from you.
             </p>
           </div>
 
@@ -118,22 +106,19 @@ function ContactPage() {
                     <div className="p-4 bg-green-500/10 rounded-full">
                       <CheckCircle2 className="h-12 w-12 text-green-500" />
                     </div>
-                    <h3 className="text-2xl font-semibold text-foreground">
-                      Message sent!
-                    </h3>
+                    <h3 className="text-2xl font-semibold text-foreground">Message sent!</h3>
                     <p className="text-muted-foreground text-center">
-                      Thanks for reaching out! I'll get back to you as soon as
-                      possible.
+                      Thanks for reaching out! I'll get back to you as soon as possible.
                     </p>
                     <Button
                       onClick={() => {
                         setIsSuccess(false);
                         setFormData({
-                          name: '',
-                          email: '',
-                          subject: '',
-                          message: '',
-                          website: '',
+                          name: "",
+                          email: "",
+                          subject: "",
+                          message: "",
+                          website: "",
                         });
                       }}
                       variant="outline"
@@ -256,12 +241,8 @@ function ContactPage() {
 
                     {/* Info */}
                     <div className="space-y-2">
-                      <h3 className="text-2xl font-bold text-foreground">
-                        Nico Botha
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        Creator of Turbodoc
-                      </p>
+                      <h3 className="text-2xl font-bold text-foreground">Nico Botha</h3>
+                      <p className="text-sm text-muted-foreground">Creator of Turbodoc</p>
                     </div>
 
                     {/* Bio */}
@@ -270,8 +251,8 @@ function ContactPage() {
                         Hey! 👋 I'm Nico, the human behind Turbodoc.
                       </p>
                       <p className="text-muted-foreground leading-relaxed">
-                        I love hearing from users - whether it's a bug report, a
-                        feature idea, or just to say hi. Feel free to reach out!
+                        I love hearing from users - whether it's a bug report, a feature idea, or
+                        just to say hi. Feel free to reach out!
                       </p>
                     </div>
 
@@ -280,11 +261,11 @@ function ContactPage() {
                       <a
                         href="https://x.com/nwbotha"
                         className="group text-muted-foreground hover:text-primary transition-all duration-200 p-3 hover:bg-primary/10 rounded-xl border border-transparent hover:border-primary/20"
-                        aria-label="Twitter"
+                        aria-label="X"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <Twitter className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+                        <XIcon className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
                       </a>
                       <a
                         href="https://www.linkedin.com/in/nico-botha/"
@@ -293,7 +274,7 @@ function ContactPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <Linkedin className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+                        <LinkedinIcon className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
                       </a>
                       <a
                         href="https://github.com/Ngineer101"
@@ -302,7 +283,7 @@ function ContactPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <Github className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+                        <GithubIcon className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
                       </a>
                     </div>
                   </div>
@@ -324,12 +305,10 @@ function ContactPage() {
                       className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors group"
                     >
                       <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
-                        <Github className="h-4 w-4 text-primary" />
+                        <GithubIcon className="h-4 w-4 text-primary" />
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-foreground">
-                          GitHub
-                        </div>
+                        <div className="text-sm font-medium text-foreground">GitHub</div>
                         <div className="text-xs text-muted-foreground">
                           Open source contributions welcome
                         </div>
@@ -353,17 +332,15 @@ function ContactPage() {
                     When will the mobile apps launch?
                   </h4>
                   <p className="text-sm text-muted-foreground">
-                    The iOS app is coming soon! Android will follow shortly
-                    after. Sign up to get notified.
+                    The iOS app is coming soon! Android will follow shortly after. Sign up to get
+                    notified.
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <h4 className="text-sm font-semibold text-foreground">
-                    Is Turbodoc free?
-                  </h4>
+                  <h4 className="text-sm font-semibold text-foreground">Is Turbodoc free?</h4>
                   <p className="text-sm text-muted-foreground">
-                    Yes! Turbodoc is currently free during beta. We'll announce
-                    any pricing changes well in advance.
+                    Yes! Turbodoc is currently free during beta. We'll announce any pricing changes
+                    well in advance.
                   </p>
                 </div>
                 <div className="space-y-2">
@@ -371,7 +348,7 @@ function ContactPage() {
                     Can I contribute to the project?
                   </h4>
                   <p className="text-sm text-muted-foreground">
-                    Absolutely! Turbodoc is open source. Check out our{' '}
+                    Absolutely! Turbodoc is open source. Check out our{" "}
                     <a
                       href="https://github.com/turbodoc-org"
                       target="_blank"
@@ -379,16 +356,14 @@ function ContactPage() {
                       className="text-primary hover:underline"
                     >
                       GitHub repos
-                    </a>{' '}
+                    </a>{" "}
                     and contribute.
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <h4 className="text-sm font-semibold text-foreground">
-                    How do I report a bug?
-                  </h4>
+                  <h4 className="text-sm font-semibold text-foreground">How do I report a bug?</h4>
                   <p className="text-sm text-muted-foreground">
-                    Use this contact form, open a{' '}
+                    Use this contact form, open a{" "}
                     <a
                       href="https://github.com/turbodoc-org"
                       target="_blank"
