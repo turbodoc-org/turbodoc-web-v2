@@ -130,21 +130,3 @@ export interface DiagramResponse {
 export interface DiagramListResponse {
   data: DiagramListItem[];
 }
-
-export interface PersonalAccessToken {
-  id: string;
-  name: string;
-  scopes: string[] | null;
-  created_at: string | null;
-  last_used_at: string | null;
-  expires_at: string | null;
-}
-
-export interface PersonalAccessTokensResponse {
-  data: PersonalAccessToken[];
-}
-
-export interface PersonalAccessTokenCreateResponse {
-  data: PersonalAccessToken;
-  token?: string;
-}

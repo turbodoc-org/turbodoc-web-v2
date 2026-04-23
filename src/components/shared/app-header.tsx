@@ -1,14 +1,8 @@
-import { Link, useRouterState } from '@tanstack/react-router';
-import {
-  BookmarkIcon,
-  Code2,
-  KeyRound,
-  StickyNote,
-  Workflow,
-} from 'lucide-react';
 import { AuthButton } from '@/components/auth/auth-button';
 import { Logo } from '@/components/shared/logo';
 import { ThemeSwitcher } from '@/components/shared/theme-switcher';
+import { Link, useRouterState } from '@tanstack/react-router';
+import { BookmarkIcon, Code2, StickyNote, Workflow } from 'lucide-react';
 
 interface AppHeaderProps {
   showNavLinks?: boolean;
@@ -72,17 +66,6 @@ export function AppHeader({ showNavLinks = true }: AppHeaderProps) {
               >
                 <Code2 className="h-4 w-4" />
                 Code
-              </Link>
-              <Link
-                to="/settings/personal-access-tokens"
-                className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive('/settings')
-                    ? 'bg-muted text-foreground'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                }`}
-              >
-                <KeyRound className="h-4 w-4" />
-                Tokens
               </Link>
             </div>
           )}
