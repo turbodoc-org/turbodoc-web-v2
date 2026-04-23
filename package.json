@@ -9,10 +9,7 @@
     "dev": "vite dev --port 3000",
     "build": "vite build",
     "serve": "vite preview",
-    "test": "vitest run",
-    "format": "biome format . --write",
-    "lint": "biome lint",
-    "check": "biome check"
+    "test": "vitest run"
   },
   "dependencies": {
     "@codemirror/autocomplete": "6.19.1",
@@ -78,7 +75,6 @@
     "zod": "4.1.12"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.4",
     "@cloudflare/vite-plugin": "1.13.15",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",
