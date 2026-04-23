@@ -11,3 +11,8 @@ name = "turbodoc-web-v2-dev"
 
 [env.prd]
 name = "turbodoc-web-v2"
+
+[observability]
+[observability.logs]
+enabled = true
+invocation_logs = true
