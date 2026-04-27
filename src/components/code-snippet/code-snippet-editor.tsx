@@ -1,23 +1,20 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { CodeEditor } from '@/components/code-snippet/code-editor';
-import {
-  createCodeSnippet,
-  getCodeSnippets,
-  updateCodeSnippet,
-} from '@/lib/api';
-import { Check, Download, Loader2, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useDebounce } from '@/lib/hooks/useDebounce';
-import { toPng, toSvg } from 'html-to-image';
-import { useAuth } from '@/lib/auth/context';
-import { LoginModal } from '@/components/auth/login-modal';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { CodeEditor } from "@/components/code-snippet/code-editor";
+import { createCodeSnippet, getCodeSnippets, updateCodeSnippet } from "@/lib/api";
+import { Check, Download, Loader2, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useDebounce } from "@/lib/hooks/useDebounce";
+import { toPng, toSvg } from "html-to-image";
+import { useAuth } from "@/lib/auth/context";
+import { LoginModal } from "@/components/auth/login-modal";
+import { toast } from "sonner";
 
-const LOCALSTORAGE_KEY = 'turbodoc-code-snippet-draft';
+const LOCALSTORAGE_KEY = "turbodoc-code-snippet-draft";
 
 interface CodeSnippetEditorProps {
   snippetId: string | null;
@@ -25,146 +22,135 @@ interface CodeSnippetEditorProps {
 }
 
 const LANGUAGES = [
-  'javascript',
-  'typescript',
-  'python',
-  'java',
-  'csharp',
-  'go',
-  'rust',
-  'ruby',
-  'php',
-  'swift',
-  'kotlin',
-  'html',
-  'css',
-  'sql',
-  'bash',
-  'json',
-  'yaml',
-  'markdown',
+  "javascript",
+  "typescript",
+  "python",
+  "java",
+  "csharp",
+  "go",
+  "rust",
+  "ruby",
+  "php",
+  "swift",
+  "kotlin",
+  "html",
+  "css",
+  "sql",
+  "bash",
+  "json",
+  "yaml",
+  "markdown",
 ];
 
 const THEMES = [
-  { value: 'dracula', label: 'Dracula', bg: '#282a36', fg: '#f8f8f2' },
-  { value: 'one-dark', label: 'One Dark', bg: '#282c34', fg: '#abb2bf' },
-  { value: 'github-dark', label: 'GitHub Dark', bg: '#0d1117', fg: '#c9d1d9' },
+  { value: "dracula", label: "Dracula", bg: "#282a36", fg: "#f8f8f2" },
+  { value: "one-dark", label: "One Dark", bg: "#282c34", fg: "#abb2bf" },
+  { value: "github-dark", label: "GitHub Dark", bg: "#0d1117", fg: "#c9d1d9" },
   {
-    value: 'github-light',
-    label: 'GitHub Light',
-    bg: '#ffffff',
-    fg: '#24292f',
+    value: "github-light",
+    label: "GitHub Light",
+    bg: "#ffffff",
+    fg: "#24292f",
   },
-  { value: 'monokai', label: 'Monokai', bg: '#272822', fg: '#f8f8f2' },
-  { value: 'nord', label: 'Nord', bg: '#2e3440', fg: '#d8dee9' },
+  { value: "monokai", label: "Monokai", bg: "#272822", fg: "#f8f8f2" },
+  { value: "nord", label: "Nord", bg: "#2e3440", fg: "#d8dee9" },
   {
-    value: 'solarized-dark',
-    label: 'Solarized Dark',
-    bg: '#002b36',
-    fg: '#839496',
+    value: "solarized-dark",
+    label: "Solarized Dark",
+    bg: "#002b36",
+    fg: "#839496",
   },
   {
-    value: 'solarized-light',
-    label: 'Solarized Light',
-    bg: '#fdf6e3',
-    fg: '#657b83',
+    value: "solarized-light",
+    label: "Solarized Light",
+    bg: "#fdf6e3",
+    fg: "#657b83",
   },
 ];
 
 const BACKGROUND_PRESETS = [
   {
-    type: 'gradient',
-    value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    label: 'Purple Dream',
+    type: "gradient",
+    value: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    label: "Purple Dream",
   },
   {
-    type: 'gradient',
-    value: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-    label: 'Pink Sunset',
+    type: "gradient",
+    value: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+    label: "Pink Sunset",
   },
   {
-    type: 'gradient',
-    value: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-    label: 'Ocean Blue',
+    type: "gradient",
+    value: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+    label: "Ocean Blue",
   },
   {
-    type: 'gradient',
-    value: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-    label: 'Mint Fresh',
+    type: "gradient",
+    value: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+    label: "Mint Fresh",
   },
   {
-    type: 'gradient',
-    value: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-    label: 'Sunrise',
+    type: "gradient",
+    value: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+    label: "Sunrise",
   },
   {
-    type: 'gradient',
-    value: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
-    label: 'Deep Ocean',
+    type: "gradient",
+    value: "linear-gradient(135deg, #30cfd0 0%, #330867 100%)",
+    label: "Deep Ocean",
   },
   {
-    type: 'gradient',
-    value: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
-    label: 'Pastel Dream',
+    type: "gradient",
+    value: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
+    label: "Pastel Dream",
   },
   {
-    type: 'gradient',
-    value: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 55%, #fecfef 100%)',
-    label: 'Cotton Candy',
+    type: "gradient",
+    value: "linear-gradient(135deg, #ff9a9e 0%, #fecfef 55%, #fecfef 100%)",
+    label: "Cotton Candy",
   },
 ];
 
-const FONTS = [
-  'Fira Code',
-  'JetBrains Mono',
-  'Monaco',
-  'Consolas',
-  'Courier New',
-];
+const FONTS = ["Fira Code", "JetBrains Mono", "Monaco", "Consolas", "Courier New"];
 
 const WINDOW_STYLES = [
-  { value: 'mac', label: 'macOS' },
-  { value: 'none', label: 'None' },
+  { value: "mac", label: "macOS" },
+  { value: "none", label: "None" },
 ];
 
-export function CodeSnippetEditor({
-  snippetId,
-  onClose,
-}: CodeSnippetEditorProps) {
+export function CodeSnippetEditor({ snippetId, onClose }: CodeSnippetEditorProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [isSaving, setIsSaving] = useState(false);
-  const [autoSaveStatus, setAutoSaveStatus] = useState<
-    'saved' | 'saving' | 'idle'
-  >('idle');
+  const [autoSaveStatus, setAutoSaveStatus] = useState<"saved" | "saving" | "idle">("idle");
   const [showLoginModal, setShowLoginModal] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
   const currentSnippetIdRef = useRef<string | null>(snippetId);
 
   const [formData, setFormData] = useState({
-    title: '',
-    code: '',
-    language: 'javascript',
-    theme: 'dracula',
-    background_type: 'gradient',
-    background_value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    title: "",
+    code: "",
+    language: "javascript",
+    theme: "dracula",
+    background_type: "gradient",
+    background_value: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
     padding: 64,
     show_line_numbers: true,
-    font_family: 'Fira Code',
+    font_family: "Fira Code",
     font_size: 14,
-    window_style: 'mac',
+    window_style: "mac",
   });
 
   // Load from localStorage on mount for new snippets (anonymous or logged in users)
   useEffect(() => {
-    if (!snippetId && typeof window !== 'undefined') {
+    if (!snippetId && typeof window !== "undefined") {
       const savedDraft = localStorage.getItem(LOCALSTORAGE_KEY);
       if (savedDraft) {
         try {
           const parsed = JSON.parse(savedDraft);
           setFormData(parsed);
         } catch (error) {
-          console.error('Failed to load draft from localStorage:', error);
+          console.error("Failed to load draft from localStorage:", error);
         }
       }
     }
@@ -172,11 +158,7 @@ export function CodeSnippetEditor({
 
   // Save to localStorage whenever formData changes (for non-saved snippets)
   useEffect(() => {
-    if (
-      !currentSnippetIdRef.current &&
-      formData.code.trim() &&
-      typeof window !== 'undefined'
-    ) {
+    if (!currentSnippetIdRef.current && formData.code.trim() && typeof window !== "undefined") {
       localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(formData));
     }
   }, [formData]);
@@ -186,7 +168,7 @@ export function CodeSnippetEditor({
 
   // Fetch snippet if editing
   const { data: snippets } = useQuery({
-    queryKey: ['codeSnippets'],
+    queryKey: ["codeSnippets"],
     queryFn: getCodeSnippets,
     enabled: !!snippetId,
   });
@@ -218,20 +200,16 @@ export function CodeSnippetEditor({
   const createSnippetMutation = useMutation({
     mutationFn: createCodeSnippet,
     onSuccess: (newSnippet) => {
-      queryClient.setQueryData(['codeSnippets'], (old: any[] = []) => [
-        newSnippet,
-        ...old,
-      ]);
+      queryClient.setQueryData(["codeSnippets"], (old: any[] = []) => [newSnippet, ...old]);
       currentSnippetIdRef.current = newSnippet.id;
     },
   });
 
   // Update snippet mutation
   const updateSnippetMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) =>
-      updateCodeSnippet(id, data),
+    mutationFn: ({ id, data }: { id: string; data: any }) => updateCodeSnippet(id, data),
     onSuccess: (updatedSnippet) => {
-      queryClient.setQueryData(['codeSnippets'], (old: any[] = []) =>
+      queryClient.setQueryData(["codeSnippets"], (old: any[] = []) =>
         old.map((s) => (s.id === updatedSnippet.id ? updatedSnippet : s)),
       );
     },
@@ -240,18 +218,17 @@ export function CodeSnippetEditor({
   // Auto-save effect (only for authenticated users)
   useEffect(() => {
     // Don't auto-save if not authenticated, no code, or if this is the initial load
-    if (!user || !debouncedFormData.code.trim() || autoSaveStatus === 'idle') {
+    if (!user || !debouncedFormData.code.trim() || autoSaveStatus === "idle") {
       return;
     }
 
     const autoSave = async () => {
       try {
-        setAutoSaveStatus('saving');
+        setAutoSaveStatus("saving");
 
         // Generate a title if empty
         const title =
-          debouncedFormData.title.trim() ||
-          `Untitled ${debouncedFormData.language} snippet`;
+          debouncedFormData.title.trim() || `Untitled ${debouncedFormData.language} snippet`;
         const dataToSave = { ...debouncedFormData, title };
 
         if (currentSnippetIdRef.current) {
@@ -262,42 +239,35 @@ export function CodeSnippetEditor({
           });
         } else {
           // Create new and store the ID
-          const newSnippet =
-            await createSnippetMutation.mutateAsync(dataToSave);
+          const newSnippet = await createSnippetMutation.mutateAsync(dataToSave);
           currentSnippetIdRef.current = newSnippet.id;
           // Clear localStorage after successful save
-          if (typeof window !== 'undefined') {
+          if (typeof window !== "undefined") {
             localStorage.removeItem(LOCALSTORAGE_KEY);
           }
         }
 
-        setAutoSaveStatus('saved');
-        setTimeout(() => setAutoSaveStatus('idle'), 2000);
+        setAutoSaveStatus("saved");
+        setTimeout(() => setAutoSaveStatus("idle"), 2000);
       } catch (error) {
-        console.error('Auto-save failed:', error);
-        setAutoSaveStatus('idle');
+        console.error("Auto-save failed:", error);
+        setAutoSaveStatus("idle");
       }
     };
 
     autoSave();
-  }, [
-    user,
-    debouncedFormData,
-    autoSaveStatus,
-    createSnippetMutation,
-    updateSnippetMutation,
-  ]);
+  }, [user, debouncedFormData, autoSaveStatus, createSnippetMutation, updateSnippetMutation]);
 
   // Mark as ready for auto-save after initial load
   useEffect(() => {
     if (formData.code.trim()) {
-      setAutoSaveStatus('idle');
+      setAutoSaveStatus("idle");
     }
   }, [formData.code]);
 
   const handleSave = async () => {
     if (!formData.code.trim()) {
-      alert('Please provide some code to save');
+      alert("Please provide some code to save");
       return;
     }
 
@@ -315,8 +285,7 @@ export function CodeSnippetEditor({
       setIsSaving(true);
 
       // Generate a title if empty
-      const title =
-        formData.title.trim() || `Untitled ${formData.language} snippet`;
+      const title = formData.title.trim() || `Untitled ${formData.language} snippet`;
       const dataToSave = { ...formData, title };
 
       if (currentSnippetIdRef.current) {
@@ -327,14 +296,14 @@ export function CodeSnippetEditor({
       } else {
         await createSnippetMutation.mutateAsync(dataToSave);
         // Clear localStorage after successful save
-        if (typeof window !== 'undefined') {
+        if (typeof window !== "undefined") {
           localStorage.removeItem(LOCALSTORAGE_KEY);
         }
       }
       onClose();
     } catch (error) {
-      console.error('Failed to save snippet:', error);
-      alert('Failed to save snippet. Please try again.');
+      console.error("Failed to save snippet:", error);
+      alert("Failed to save snippet. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -355,13 +324,14 @@ export function CodeSnippetEditor({
         pixelRatio: 2,
       });
 
-      const link = document.createElement('a');
-      link.download = `${formData.title.trim() || 'code-snippet'}.svg`;
+      const link = document.createElement("a");
+      link.download = `${formData.title.trim() || "code-snippet"}.svg`;
       link.href = dataUrl;
       link.click();
+      toast.success("SVG exported successfully");
     } catch (error) {
-      console.error('Failed to export SVG:', error);
-      alert('Failed to export SVG. Please try again.');
+      console.error("Failed to export SVG:", error);
+      toast.error("Failed to export SVG. Please try again.");
     }
   };
 
@@ -374,18 +344,18 @@ export function CodeSnippetEditor({
         pixelRatio: 2,
       });
 
-      const link = document.createElement('a');
-      link.download = `${formData.title.trim() || 'code-snippet'}.png`;
+      const link = document.createElement("a");
+      link.download = `${formData.title.trim() || "code-snippet"}.png`;
       link.href = dataUrl;
       link.click();
+      toast.success("PNG exported successfully");
     } catch (error) {
-      console.error('Failed to export PNG:', error);
-      alert('Failed to export PNG. Please try again.');
+      console.error("Failed to export PNG:", error);
+      toast.error("Failed to export PNG. Please try again.");
     }
   };
 
-  const selectedTheme =
-    THEMES.find((t) => t.value === formData.theme) || THEMES[0];
+  const selectedTheme = THEMES.find((t) => t.value === formData.theme) || THEMES[0];
 
   return (
     <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center">
@@ -394,20 +364,20 @@ export function CodeSnippetEditor({
         <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-semibold">
-              {snippetId ? 'Edit' : 'Create'} Code Screenshot
+              {snippetId ? "Edit" : "Create"} Code Screenshot
             </h2>
             {!user && (
               <span className="text-xs text-muted-foreground flex items-center gap-1">
                 Work saved locally
               </span>
             )}
-            {user && autoSaveStatus === 'saving' && (
+            {user && autoSaveStatus === "saving" && (
               <span className="text-xs text-muted-foreground flex items-center gap-1">
                 <Loader2 className="h-3 w-3 animate-spin" />
                 Saving...
               </span>
             )}
-            {user && autoSaveStatus === 'saved' && (
+            {user && autoSaveStatus === "saved" && (
               <span className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
                 <Check className="h-3 w-3" />
                 Saved
@@ -433,11 +403,7 @@ export function CodeSnippetEditor({
               <Download className="h-4 w-4 mr-2" />
               Export PNG
             </Button>
-            <Button
-              size="sm"
-              onClick={handleSave}
-              disabled={isSaving || !formData.code.trim()}
-            >
+            <Button size="sm" onClick={handleSave} disabled={isSaving || !formData.code.trim()}>
               {isSaving ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -478,10 +444,10 @@ export function CodeSnippetEditor({
                   className="rounded-lg overflow-hidden"
                   style={{
                     backgroundColor: selectedTheme.bg,
-                    padding: '20px',
+                    padding: "20px",
                   }}
                 >
-                  {formData.window_style !== 'none' && (
+                  {formData.window_style !== "none" && (
                     <div className="flex gap-2 mb-4">
                       <div className="w-3 h-3 rounded-full bg-red-500" />
                       <div className="w-3 h-3 rounded-full bg-yellow-500" />
@@ -513,9 +479,7 @@ export function CodeSnippetEditor({
                 <Input
                   id="title"
                   value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="My Awesome Code"
                   className="mt-1.5"
                 />
@@ -526,9 +490,7 @@ export function CodeSnippetEditor({
                 <select
                   id="language"
                   value={formData.language}
-                  onChange={(e) =>
-                    setFormData({ ...formData, language: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, language: e.target.value })}
                   className="mt-1.5 flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                 >
                   {LANGUAGES.map((lang) => (
@@ -544,9 +506,7 @@ export function CodeSnippetEditor({
                 <select
                   id="theme"
                   value={formData.theme}
-                  onChange={(e) =>
-                    setFormData({ ...formData, theme: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, theme: e.target.value })}
                   className="mt-1.5 flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                 >
                   {THEMES.map((theme) => (
@@ -573,8 +533,8 @@ export function CodeSnippetEditor({
                       }
                       className={`h-12 rounded border-2 transition-all ${
                         formData.background_value === preset.value
-                          ? 'border-primary ring-2 ring-primary/20'
-                          : 'border-border hover:border-primary/50'
+                          ? "border-primary ring-2 ring-primary/20"
+                          : "border-border hover:border-primary/50"
                       }`}
                       style={{ background: preset.value }}
                       title={preset.label}
@@ -588,9 +548,7 @@ export function CodeSnippetEditor({
                 <select
                   id="font"
                   value={formData.font_family}
-                  onChange={(e) =>
-                    setFormData({ ...formData, font_family: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, font_family: e.target.value })}
                   className="mt-1.5 flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                 >
                   {FONTS.map((font) => (
@@ -602,9 +560,7 @@ export function CodeSnippetEditor({
               </div>
 
               <div>
-                <Label htmlFor="fontSize">
-                  Font Size: {formData.font_size}px
-                </Label>
+                <Label htmlFor="fontSize">Font Size: {formData.font_size}px</Label>
                 <input
                   id="fontSize"
                   type="range"
@@ -645,9 +601,7 @@ export function CodeSnippetEditor({
                 <select
                   id="windowStyle"
                   value={formData.window_style}
-                  onChange={(e) =>
-                    setFormData({ ...formData, window_style: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, window_style: e.target.value })}
                   className="mt-1.5 flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                 >
                   {WINDOW_STYLES.map((style) => (
@@ -665,7 +619,7 @@ export function CodeSnippetEditor({
       {/* Login Modal */}
       <LoginModal
         open={showLoginModal}
-        search={{ redirect: '/code-snippets' }}
+        search={{ redirect: "/code-snippets" }}
         onOpenChange={setShowLoginModal}
         onSuccess={handleLoginSuccess}
       />

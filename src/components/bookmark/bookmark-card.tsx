@@ -1,16 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Bookmark } from '@/lib/types';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { useState, useEffect } from "react";
+import { Bookmark } from "@/lib/types";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,15 +16,15 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from "@/components/ui/alert-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Trash2,
   Edit,
@@ -39,34 +35,29 @@ import {
   ImageIcon,
   Check,
   Circle,
-} from 'lucide-react';
-import { deleteBookmark, updateBookmark, getOgImage } from '@/lib/api';
+} from "lucide-react";
+import { deleteBookmark, updateBookmark, getOgImage } from "@/lib/api";
+import { toast } from "sonner";
 
 interface BookmarkCardProps {
   bookmark: Bookmark;
   onUpdate: (bookmark: Bookmark) => void;
-  onDelete: (id: string) => void;
+  onDelete: (id: string, title: string) => void;
 }
 
-export function BookmarkCard({
-  bookmark,
-  onUpdate,
-  onDelete,
-}: BookmarkCardProps) {
+export function BookmarkCard({ bookmark, onUpdate, onDelete }: BookmarkCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [editTags, setEditTags] = useState(bookmark.tags || '');
+  const [editTags, setEditTags] = useState(bookmark.tags || "");
   const [editTitle, setEditTitle] = useState(bookmark.title);
-  const [ogImage, setOgImage] = useState<string | null>(
-    bookmark.ogImage || null,
-  );
+  const [ogImage, setOgImage] = useState<string | null>(bookmark.ogImage || null);
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
 
   const tags = bookmark.tags
     ? bookmark.tags
-        .split('|')
+        .split("|")
         .map((tag) => tag.trim())
         .filter(Boolean)
     : [];
@@ -84,7 +75,7 @@ export function BookmarkCard({
             setImageError(true);
           }
         } catch (error) {
-          console.error('Failed to fetch OG image:', error);
+          console.error("Failed to fetch OG image:", error);
           setImageError(true);
         } finally {
           setImageLoading(false);
@@ -99,10 +90,10 @@ export function BookmarkCard({
     setIsDeleting(true);
     try {
       await deleteBookmark(bookmark.id);
-      onDelete(bookmark.id);
+      onDelete(bookmark.id, bookmark.title);
     } catch (error) {
-      console.error('Failed to delete bookmark:', error);
-    } finally {
+      console.error("Failed to delete bookmark:", error);
+      toast.error("Failed to delete bookmark");
       setIsDeleting(false);
     }
   };
@@ -115,26 +106,30 @@ export function BookmarkCard({
       });
       onUpdate(updated);
       setIsEditing(false);
+      toast.success("Bookmark updated");
     } catch (error) {
-      console.error('Failed to update bookmark:', error);
+      console.error("Failed to update bookmark:", error);
+      toast.error("Failed to update bookmark");
     }
   };
 
   const handleToggleStatus = async () => {
     try {
-      const newStatus = bookmark.status === 'read' ? 'unread' : 'read';
+      const newStatus = bookmark.status === "read" ? "unread" : "read";
       const updated = await updateBookmark(bookmark.id, {
         status: newStatus,
       });
       onUpdate(updated);
+      toast.success(newStatus === "read" ? "Marked as read" : "Marked as unread");
     } catch (error) {
-      console.error('Failed to update bookmark status:', error);
+      console.error("Failed to update bookmark status:", error);
+      toast.error("Failed to update status");
     }
   };
 
   const formatDate = (timestamp: number) => {
     // Convert to number in case it comes as string
-    let ts = typeof timestamp === 'string' ? parseInt(timestamp) : timestamp;
+    let ts = typeof timestamp === "string" ? parseInt(timestamp) : timestamp;
 
     // If timestamp is in seconds (less than year 2000), convert to milliseconds
     if (ts < 946684800000) {
@@ -146,13 +141,13 @@ export function BookmarkCard({
 
     // Check if date is valid
     if (isNaN(date.getTime())) {
-      return 'Invalid date';
+      return "Invalid date";
     }
 
     return date.toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -165,28 +160,26 @@ export function BookmarkCard({
   };
 
   return (
-    <Card className="group h-full hover:shadow-lg transition-all duration-200 border border-border hover:border-primary/20 shadow-sm bg-card overflow-hidden dark:border-gray-400">
+    <Card className="group h-full hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border border-border hover:border-primary/20 shadow-sm bg-card overflow-hidden dark:border-gray-400">
       <CardContent className="p-0 flex flex-col h-full">
         {/* OG Image Header */}
         <a
           href={bookmark.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="relative h-32 sm:h-40 bg-secondary border-b border-border block hover:opacity-90 transition-opacity cursor-pointer"
+          className="relative h-32 sm:h-40 bg-secondary border-b border-border block hover:opacity-90 transition-opacity cursor-pointer overflow-hidden"
         >
           {ogImage && !imageError ? (
             <img
               src={ogImage}
               alt={bookmark.title}
-              className="object-cover w-full h-full"
+              className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
               onError={() => setImageError(true)}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               {imageLoading ? (
-                <div className="animate-pulse">
-                  <ImageIcon className="h-8 w-8 text-muted-foreground" />
-                </div>
+                <Skeleton className="absolute inset-0 rounded-none" />
               ) : (
                 <div className="flex flex-col items-center gap-2">
                   <ImageIcon className="h-8 w-8 text-muted-foreground" />
@@ -199,10 +192,7 @@ export function BookmarkCard({
           )}
 
           {/* Action Menu Overlay */}
-          <div
-            className="absolute top-2 right-2"
-            onClick={(e) => e.preventDefault()}
-          >
+          <div className="absolute top-2 right-2" onClick={(e) => e.preventDefault()}>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -219,11 +209,8 @@ export function BookmarkCard({
                   <Edit className="h-4 w-4 mr-2" />
                   Edit bookmark
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={handleToggleStatus}
-                  className="cursor-pointer"
-                >
-                  {bookmark.status === 'read' ? (
+                <DropdownMenuItem onClick={handleToggleStatus} className="cursor-pointer">
+                  {bookmark.status === "read" ? (
                     <>
                       <Circle className="h-4 w-4 mr-2" />
                       Mark as unread
@@ -236,7 +223,7 @@ export function BookmarkCard({
                   )}
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => window.open(bookmark.url, '_blank')}
+                  onClick={() => window.open(bookmark.url, "_blank")}
                   className="cursor-pointer"
                 >
                   <ExternalLink className="h-4 w-4 mr-2" />
@@ -310,14 +297,14 @@ export function BookmarkCard({
               <span>{formatDate(bookmark.time_added)}</span>
             </div>
             <Badge
-              variant={bookmark.status === 'read' ? 'default' : 'outline'}
+              variant={bookmark.status === "read" ? "default" : "outline"}
               className={`text-xs px-2.5 py-1 font-semibold ${
-                bookmark.status === 'read'
-                  ? 'bg-green-500/90 hover:bg-green-500 text-white border-green-600 dark:bg-green-600 dark:border-green-700'
-                  : 'bg-blue-500/10 text-blue-600 border-blue-500/30 hover:bg-blue-500/20 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/40'
+                bookmark.status === "read"
+                  ? "bg-green-500/90 hover:bg-green-500 text-white border-green-600 dark:bg-green-600 dark:border-green-700"
+                  : "bg-blue-500/10 text-blue-600 border-blue-500/30 hover:bg-blue-500/20 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/40"
               }`}
             >
-              {bookmark.status === 'read' ? (
+              {bookmark.status === "read" ? (
                 <span className="flex items-center gap-1">
                   <Check className="h-3 w-3" />
                   Read
@@ -335,18 +322,14 @@ export function BookmarkCard({
 
       {/* Edit Dialog */}
       <Dialog open={isEditing} onOpenChange={setIsEditing}>
-        <DialogContent>
+        <DialogContent className="animate-in zoom-in-95 fade-in duration-200">
           <DialogHeader>
             <DialogTitle>Edit Bookmark</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
               <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={editTitle}
-                onChange={(e) => setEditTitle(e.target.value)}
-              />
+              <Input id="title" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
             </div>
             <div>
               <Label htmlFor="tags">Tags (pipe-separated)</Label>
@@ -369,12 +352,12 @@ export function BookmarkCard({
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="animate-in zoom-in-95 fade-in duration-200">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Bookmark</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete &quot;{bookmark.title}&quot;? This
-              action cannot be undone.
+              Are you sure you want to delete &quot;{bookmark.title}&quot;? This action cannot be
+              undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -384,7 +367,7 @@ export function BookmarkCard({
               disabled={isDeleting}
               className="bg-destructive hover:bg-destructive/90"
             >
-              {isDeleting ? 'Deleting...' : 'Delete'}
+              {isDeleting ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

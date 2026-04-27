@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Note } from '@/lib/types';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { useState } from "react";
+import { Note } from "@/lib/types";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,28 +14,22 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from "@/components/ui/alert-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  Trash2,
-  Edit,
-  MoreVertical,
-  Clock,
-  StickyNote,
-  Loader2,
-} from 'lucide-react';
-import { deleteNote } from '@/lib/api';
-import { useNavigate } from '@tanstack/react-router';
-import ReactMarkdown from 'react-markdown';
+} from "@/components/ui/dropdown-menu";
+import { Trash2, Edit, MoreVertical, Clock, StickyNote, Loader2 } from "lucide-react";
+import { deleteNote } from "@/lib/api";
+import { useNavigate } from "@tanstack/react-router";
+import ReactMarkdown from "react-markdown";
+import { toast } from "sonner";
 
 interface NoteCardProps {
   note: Note;
-  onDelete: (id: string) => void;
+  onDelete: (id: string, title: string) => void;
 }
 
 export function NoteCard({ note, onDelete }: NoteCardProps) {
@@ -45,7 +39,7 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
 
   const tags = note.tags
     ? note.tags
-        .split('|')
+        .split("|")
         .map((tag) => tag.trim())
         .filter(Boolean)
     : [];
@@ -54,10 +48,10 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
     setIsDeleting(true);
     try {
       await deleteNote(note.id);
-      onDelete(note.id);
+      onDelete(note.id, note.title);
     } catch (error) {
-      console.error('Failed to delete note:', error);
-    } finally {
+      console.error("Failed to delete note:", error);
+      toast.error("Failed to delete note");
       setIsDeleting(false);
     }
   };
@@ -67,28 +61,28 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
   };
 
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'Unknown date';
+    if (!dateString) return "Unknown date";
 
     const date = new Date(dateString);
     if (isNaN(date.getTime())) {
-      return 'Invalid date';
+      return "Invalid date";
     }
 
     return date.toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
   const truncateText = (text: string, maxLength: number) => {
     if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
+    return text.substring(0, maxLength) + "...";
   };
 
   return (
     <Card
-      className="group h-80 hover:shadow-lg transition-all duration-200 border border-border hover:border-primary/20 shadow-sm bg-card overflow-hidden dark:border-gray-400 flex flex-col cursor-pointer"
+      className="group h-80 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border border-border hover:border-primary/30 shadow-sm bg-card overflow-hidden dark:border-gray-400 flex flex-col cursor-pointer"
       onClick={handleEdit}
     >
       <CardContent className="p-0 flex flex-col h-full">
@@ -97,15 +91,12 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
           <div className="flex items-center gap-2">
             <StickyNote className="h-4 w-4 text-primary shrink-0" />
             <h3 className="font-semibold text-sm leading-tight text-foreground flex-1 min-w-0">
-              {note.title ? truncateText(note.title, 30) : 'Untitled Note'}
+              {note.title ? truncateText(note.title, 30) : "Untitled Note"}
             </h3>
           </div>
 
           {/* Action Menu */}
-          <div
-            className="absolute top-2 right-2"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="absolute top-2 right-2" onClick={(e) => e.stopPropagation()}>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -146,26 +137,18 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
                   components={{
                     // Remove margins from elements to fit better in preview
                     p: ({ children }) => <p className="mb-1">{children}</p>,
-                    h1: ({ children }) => (
-                      <h1 className="text-sm font-bold mb-1">{children}</h1>
-                    ),
+                    h1: ({ children }) => <h1 className="text-sm font-bold mb-1">{children}</h1>,
                     h2: ({ children }) => (
                       <h2 className="text-sm font-semibold mb-1">{children}</h2>
                     ),
                     h3: ({ children }) => (
                       <h3 className="text-xs font-semibold mb-1">{children}</h3>
                     ),
-                    ul: ({ children }) => (
-                      <ul className="list-disc ml-3 mb-1">{children}</ul>
-                    ),
-                    ol: ({ children }) => (
-                      <ol className="list-decimal ml-3 mb-1">{children}</ol>
-                    ),
+                    ul: ({ children }) => <ul className="list-disc ml-3 mb-1">{children}</ul>,
+                    ol: ({ children }) => <ol className="list-decimal ml-3 mb-1">{children}</ol>,
                     li: ({ children }) => <li className="mb-0">{children}</li>,
                     code: ({ children }) => (
-                      <code className="text-xs bg-muted px-1 rounded">
-                        {children}
-                      </code>
+                      <code className="text-xs bg-muted px-1 rounded">{children}</code>
                     ),
                     pre: ({ children }) => (
                       <pre className="text-xs bg-muted p-1 rounded mb-1 overflow-hidden">
@@ -231,12 +214,14 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+        <AlertDialogContent
+          onClick={(e) => e.stopPropagation()}
+          className="animate-in zoom-in-95 fade-in duration-200"
+        >
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Note</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this note? This action cannot be
-              undone.
+              Are you sure you want to delete this note? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -252,7 +237,7 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
                   Deleting...
                 </>
               ) : (
-                'Delete'
+                "Delete"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

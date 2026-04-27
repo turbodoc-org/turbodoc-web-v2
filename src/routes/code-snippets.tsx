@@ -1,14 +1,14 @@
-import { AppHeader } from '@/components/shared/app-header';
-import { AppFooter } from '@/components/shared/app-footer';
-import { CodeSnippetEditor } from '@/components/code-snippet/code-snippet-editor';
-import { CodeSnippetGrid } from '@/components/code-snippet/code-snippet-grid';
-import { Button } from '@/components/ui/button';
-import { createFileRoute } from '@tanstack/react-router';
-import { Plus } from 'lucide-react';
-import { useState } from 'react';
-import { useAuth } from '@/lib/auth/context';
+import { AppHeader } from "@/components/shared/app-header";
+import { AppFooter } from "@/components/shared/app-footer";
+import { CodeSnippetEditor } from "@/components/code-snippet/code-snippet-editor";
+import { CodeSnippetGrid } from "@/components/code-snippet/code-snippet-grid";
+import { Button } from "@/components/ui/button";
+import { createFileRoute } from "@tanstack/react-router";
+import { Plus } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/lib/auth/context";
 
-export const Route = createFileRoute('/code-snippets')({
+export const Route = createFileRoute("/code-snippets")({
   component: CodeSnippets,
 });
 
@@ -35,6 +35,13 @@ function CodeSnippets() {
     setRefreshKey((prev) => prev + 1);
   };
 
+  // Listen for custom event from empty state in CodeSnippetGrid
+  useEffect(() => {
+    const handleOpenEditor = () => handleCreateNew();
+    window.addEventListener("openCodeEditor", handleOpenEditor);
+    return () => window.removeEventListener("openCodeEditor", handleOpenEditor);
+  }, []);
+
   return (
     <main className="min-h-screen flex flex-col bg-background">
       <AppHeader />
@@ -44,22 +51,15 @@ function CodeSnippets() {
         <div className="flex-1 w-full max-w-7xl mx-auto p-3 md:p-6 pt-4 md:pt-8 mobile-safe-area">
           <div className="mb-6 md:mb-8">
             <div className="flex items-center justify-between mb-2">
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-                Code Screenshots
-              </h1>
-              <Button
-                onClick={handleCreateNew}
-                className="flex items-center gap-2"
-                size="sm"
-              >
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">Code Screenshots</h1>
+              <Button onClick={handleCreateNew} className="flex items-center gap-2" size="sm">
                 <Plus className="h-4 w-4" />
                 <span className="hidden sm:inline">New Screenshot</span>
                 <span className="sm:hidden">New</span>
               </Button>
             </div>
             <p className="text-muted-foreground text-sm">
-              Create beautiful code screenshots with syntax highlighting and
-              custom styling
+              Create beautiful code screenshots with syntax highlighting and custom styling
             </p>
           </div>
 
@@ -72,18 +72,15 @@ function CodeSnippets() {
       {/* Show message for anonymous users when editor is closed */}
       {!user && !isEditorOpen && (
         <div className="flex-1 flex items-center justify-center p-6">
-          <div className="text-center space-y-4">
+          <div className="text-center space-y-4 animate-in fade-in zoom-in-95 duration-300">
             <h1 className="text-2xl md:text-3xl font-bold text-foreground">
               Create Beautiful Code Screenshots
             </h1>
             <p className="text-muted-foreground max-w-md">
-              Create stunning code screenshots with syntax highlighting and
-              custom styling. Login to save your work!
+              Create stunning code screenshots with syntax highlighting and custom styling. Login to
+              save your work!
             </p>
-            <Button
-              onClick={handleCreateNew}
-              className="flex items-center gap-2 mx-auto"
-            >
+            <Button onClick={handleCreateNew} className="flex items-center gap-2 mx-auto">
               <Plus className="h-4 w-4" />
               Create Screenshot
             </Button>
@@ -91,9 +88,7 @@ function CodeSnippets() {
         </div>
       )}
 
-      {isEditorOpen && (
-        <CodeSnippetEditor snippetId={editingSnippet} onClose={handleClose} />
-      )}
+      {isEditorOpen && <CodeSnippetEditor snippetId={editingSnippet} onClose={handleClose} />}
 
       <AppFooter />
     </main>
