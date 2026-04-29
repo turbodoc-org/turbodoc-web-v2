@@ -1,4 +1,4 @@
-import { supabase } from './clients/supabase/client';
+import { supabase } from "./clients/supabase/client";
 import {
   Bookmark,
   BookmarkResponse,
@@ -15,9 +15,9 @@ import {
   DiagramResponse,
   Tag,
   TagsResponse,
-} from './types';
+} from "./types";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.turbodoc.ai';
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://api.turbodoc.ai";
 
 export async function getBookmarks(): Promise<Bookmark[]> {
   const {
@@ -25,18 +25,18 @@ export async function getBookmarks(): Promise<Bookmark[]> {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error('No session found');
+    throw new Error("No session found");
   }
 
   const response = await fetch(`${API_BASE_URL}/v1/bookmarks`, {
     headers: {
       Authorization: `Bearer ${session.access_token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch bookmarks');
+    throw new Error("Failed to fetch bookmarks");
   }
 
   const result: BookmarkResponse = await response.json();
@@ -49,7 +49,7 @@ export async function searchBookmarks(query: string): Promise<Bookmark[]> {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error('No session found');
+    throw new Error("No session found");
   }
 
   const response = await fetch(
@@ -57,13 +57,13 @@ export async function searchBookmarks(query: string): Promise<Bookmark[]> {
     {
       headers: {
         Authorization: `Bearer ${session.access_token}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     },
   );
 
   if (!response.ok) {
-    throw new Error('Failed to search bookmarks');
+    throw new Error("Failed to search bookmarks");
   }
 
   const result: BookmarkSearchResponse = await response.json();
@@ -76,7 +76,7 @@ export async function getOgImage(url: string): Promise<OgImageResponse> {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error('No session found');
+    throw new Error("No session found");
   }
 
   const response = await fetch(
@@ -84,7 +84,7 @@ export async function getOgImage(url: string): Promise<OgImageResponse> {
     {
       headers: {
         Authorization: `Bearer ${session.access_token}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     },
   );
@@ -102,45 +102,42 @@ export async function deleteBookmark(id: string): Promise<void> {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error('No session found');
+    throw new Error("No session found");
   }
 
   const response = await fetch(`${API_BASE_URL}/v1/bookmarks/${id}`, {
-    method: 'DELETE',
+    method: "DELETE",
     headers: {
       Authorization: `Bearer ${session.access_token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
   });
 
   if (!response.ok) {
-    throw new Error('Failed to delete bookmark');
+    throw new Error("Failed to delete bookmark");
   }
 }
 
-export async function updateBookmark(
-  id: string,
-  updates: Partial<Bookmark>,
-): Promise<Bookmark> {
+export async function updateBookmark(id: string, updates: Partial<Bookmark>): Promise<Bookmark> {
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error('No session found');
+    throw new Error("No session found");
   }
 
   const response = await fetch(`${API_BASE_URL}/v1/bookmarks/${id}`, {
-    method: 'PUT',
+    method: "PUT",
     headers: {
       Authorization: `Bearer ${session.access_token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(updates),
   });
 
   if (!response.ok) {
-    throw new Error('Failed to update bookmark');
+    throw new Error("Failed to update bookmark");
   }
 
   const result = await response.json();
@@ -158,20 +155,20 @@ export async function createBookmark(bookmark: {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error('No session found');
+    throw new Error("No session found");
   }
 
   const response = await fetch(`${API_BASE_URL}/v1/bookmarks`, {
-    method: 'POST',
+    method: "POST",
     headers: {
       Authorization: `Bearer ${session.access_token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(bookmark),
   });
 
   if (!response.ok) {
-    throw new Error('Failed to create bookmark');
+    throw new Error("Failed to create bookmark");
   }
 
   const result = await response.json();
@@ -185,18 +182,18 @@ export async function getNotes(): Promise<Note[]> {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error('No session found');
+    throw new Error("No session found");
   }
 
   const response = await fetch(`${API_BASE_URL}/v1/notes`, {
     headers: {
       Authorization: `Bearer ${session.access_token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch notes');
+    throw new Error("Failed to fetch notes");
   }
 
   const result: NotesResponse = await response.json();
@@ -209,18 +206,18 @@ export async function getNote(id: string): Promise<Note> {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error('No session found');
+    throw new Error("No session found");
   }
 
   const response = await fetch(`${API_BASE_URL}/v1/notes/${id}`, {
     headers: {
       Authorization: `Bearer ${session.access_token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch note');
+    throw new Error("Failed to fetch note");
   }
 
   const result: NoteResponse = await response.json();
@@ -237,43 +234,40 @@ export async function createNote(note: {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error('No session found');
+    throw new Error("No session found");
   }
 
   const response = await fetch(`${API_BASE_URL}/v1/notes`, {
-    method: 'POST',
+    method: "POST",
     headers: {
       Authorization: `Bearer ${session.access_token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(note),
   });
 
   if (!response.ok) {
-    throw new Error('Failed to create note');
+    throw new Error("Failed to create note");
   }
 
   const result = await response.json();
   return result.data;
 }
 
-export async function updateNote(
-  id: string,
-  updates: Partial<Note>,
-): Promise<Note> {
+export async function updateNote(id: string, updates: Partial<Note>): Promise<Note> {
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error('No session found');
+    throw new Error("No session found");
   }
 
   const response = await fetch(`${API_BASE_URL}/v1/notes/${id}`, {
-    method: 'PUT',
+    method: "PUT",
     headers: {
       Authorization: `Bearer ${session.access_token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(updates),
   });
@@ -281,14 +275,14 @@ export async function updateNote(
   // Handle version conflict (409)
   if (response.status === 409) {
     const conflictData = await response.json();
-    const error: any = new Error('Version conflict detected');
+    const error: any = new Error("Version conflict detected");
     error.conflict = true;
     error.serverNote = conflictData.data;
     throw error;
   }
 
   if (!response.ok) {
-    throw new Error('Failed to update note');
+    throw new Error("Failed to update note");
   }
 
   const result = await response.json();
@@ -301,19 +295,19 @@ export async function deleteNote(id: string): Promise<void> {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error('No session found');
+    throw new Error("No session found");
   }
 
   const response = await fetch(`${API_BASE_URL}/v1/notes/${id}`, {
-    method: 'DELETE',
+    method: "DELETE",
     headers: {
       Authorization: `Bearer ${session.access_token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
   });
 
   if (!response.ok) {
-    throw new Error('Failed to delete note');
+    throw new Error("Failed to delete note");
   }
 }
 
@@ -324,18 +318,18 @@ export async function getCodeSnippets(): Promise<CodeSnippet[]> {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error('No session found');
+    throw new Error("No session found");
   }
 
   const response = await fetch(`${API_BASE_URL}/v1/code-snippets`, {
     headers: {
       Authorization: `Bearer ${session.access_token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch code snippets');
+    throw new Error("Failed to fetch code snippets");
   }
 
   const result: CodeSnippetsResponse = await response.json();
@@ -360,20 +354,20 @@ export async function createCodeSnippet(snippet: {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error('No session found');
+    throw new Error("No session found");
   }
 
   const response = await fetch(`${API_BASE_URL}/v1/code-snippets`, {
-    method: 'POST',
+    method: "POST",
     headers: {
       Authorization: `Bearer ${session.access_token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(snippet),
   });
 
   if (!response.ok) {
-    throw new Error('Failed to create code snippet');
+    throw new Error("Failed to create code snippet");
   }
 
   const result: CodeSnippetResponse = await response.json();
@@ -389,20 +383,20 @@ export async function updateCodeSnippet(
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error('No session found');
+    throw new Error("No session found");
   }
 
   const response = await fetch(`${API_BASE_URL}/v1/code-snippets/${id}`, {
-    method: 'PUT',
+    method: "PUT",
     headers: {
       Authorization: `Bearer ${session.access_token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(updates),
   });
 
   if (!response.ok) {
-    throw new Error('Failed to update code snippet');
+    throw new Error("Failed to update code snippet");
   }
 
   const result: CodeSnippetResponse = await response.json();
@@ -415,19 +409,19 @@ export async function deleteCodeSnippet(id: string): Promise<void> {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error('No session found');
+    throw new Error("No session found");
   }
 
   const response = await fetch(`${API_BASE_URL}/v1/code-snippets/${id}`, {
-    method: 'DELETE',
+    method: "DELETE",
     headers: {
       Authorization: `Bearer ${session.access_token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
   });
 
   if (!response.ok) {
-    throw new Error('Failed to delete code snippet');
+    throw new Error("Failed to delete code snippet");
   }
 }
 
@@ -438,18 +432,18 @@ export async function getDiagrams(): Promise<Diagram[]> {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error('No session found');
+    throw new Error("No session found");
   }
 
   const response = await fetch(`${API_BASE_URL}/v1/diagrams`, {
     headers: {
       Authorization: `Bearer ${session.access_token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch diagrams');
+    throw new Error("Failed to fetch diagrams");
   }
 
   const result: DiagramsResponse = await response.json();
@@ -462,18 +456,18 @@ export async function getDiagram(id: string): Promise<Diagram> {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error('No session found');
+    throw new Error("No session found");
   }
 
   const response = await fetch(`${API_BASE_URL}/v1/diagrams/${id}`, {
     headers: {
       Authorization: `Bearer ${session.access_token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch diagram');
+    throw new Error("Failed to fetch diagram");
   }
 
   const result: DiagramResponse = await response.json();
@@ -491,49 +485,46 @@ export async function createDiagram(diagram: {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error('No session found');
+    throw new Error("No session found");
   }
 
   const response = await fetch(`${API_BASE_URL}/v1/diagrams`, {
-    method: 'POST',
+    method: "POST",
     headers: {
       Authorization: `Bearer ${session.access_token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(diagram),
   });
 
   if (!response.ok) {
-    throw new Error('Failed to create diagram');
+    throw new Error("Failed to create diagram");
   }
 
   const result: DiagramResponse = await response.json();
   return result.data;
 }
 
-export async function updateDiagram(
-  id: string,
-  updates: Partial<Diagram>,
-): Promise<Diagram> {
+export async function updateDiagram(id: string, updates: Partial<Diagram>): Promise<Diagram> {
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error('No session found');
+    throw new Error("No session found");
   }
 
   const response = await fetch(`${API_BASE_URL}/v1/diagrams/${id}`, {
-    method: 'PUT',
+    method: "PUT",
     headers: {
       Authorization: `Bearer ${session.access_token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(updates),
   });
 
   if (!response.ok) {
-    throw new Error('Failed to update diagram');
+    throw new Error("Failed to update diagram");
   }
 
   const result: DiagramResponse = await response.json();
@@ -546,19 +537,19 @@ export async function deleteDiagram(id: string): Promise<void> {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error('No session found');
+    throw new Error("No session found");
   }
 
   const response = await fetch(`${API_BASE_URL}/v1/diagrams/${id}`, {
-    method: 'DELETE',
+    method: "DELETE",
     headers: {
       Authorization: `Bearer ${session.access_token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
   });
 
   if (!response.ok) {
-    throw new Error('Failed to delete diagram');
+    throw new Error("Failed to delete diagram");
   }
 }
 
@@ -568,19 +559,19 @@ export async function duplicateDiagram(id: string): Promise<Diagram> {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error('No session found');
+    throw new Error("No session found");
   }
 
   const response = await fetch(`${API_BASE_URL}/v1/diagrams/${id}/duplicate`, {
-    method: 'POST',
+    method: "POST",
     headers: {
       Authorization: `Bearer ${session.access_token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
   });
 
   if (!response.ok) {
-    throw new Error('Failed to duplicate diagram');
+    throw new Error("Failed to duplicate diagram");
   }
 
   const result: DiagramResponse = await response.json();
@@ -595,18 +586,83 @@ export async function sendContactMessage(contactData: {
   message: string;
 }): Promise<{ success: boolean; message: string }> {
   const response = await fetch(`${API_BASE_URL}/v1/contact`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(contactData),
   });
 
   if (!response.ok) {
-    throw new Error('Failed to send message');
+    throw new Error("Failed to send message");
   }
 
   return await response.json();
+}
+
+// Digest preferences
+export interface DigestPreferences {
+  user_id: string;
+  enabled: boolean;
+  day_of_week: number;
+  /** Local send time in HH:MM:SS (Postgres TIME). */
+  send_time: string;
+  timezone: string;
+  last_sent_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function getDigestPreferences(): Promise<DigestPreferences> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    throw new Error("No session found");
+  }
+
+  const response = await fetch(`${API_BASE_URL}/v1/digest/preferences`, {
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch digest preferences");
+  }
+
+  const result = await response.json();
+  return result.data;
+}
+
+export async function updateDigestPreferences(
+  updates: Partial<Pick<DigestPreferences, "enabled" | "day_of_week" | "send_time" | "timezone">>,
+): Promise<DigestPreferences> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    throw new Error("No session found");
+  }
+
+  const response = await fetch(`${API_BASE_URL}/v1/digest/preferences`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(updates),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update digest preferences");
+  }
+
+  const result = await response.json();
+  return result.data;
 }
 
 export async function getTags(): Promise<Tag[]> {
@@ -615,18 +671,18 @@ export async function getTags(): Promise<Tag[]> {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error('No session found');
+    throw new Error("No session found");
   }
 
   const response = await fetch(`${API_BASE_URL}/v1/tags`, {
     headers: {
       Authorization: `Bearer ${session.access_token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch tags');
+    throw new Error("Failed to fetch tags");
   }
 
   const result: TagsResponse = await response.json();
