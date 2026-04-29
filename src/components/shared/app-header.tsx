@@ -1,8 +1,8 @@
-import { AuthButton } from '@/components/auth/auth-button';
-import { Logo } from '@/components/shared/logo';
-import { ThemeSwitcher } from '@/components/shared/theme-switcher';
-import { Link, useRouterState } from '@tanstack/react-router';
-import { BookmarkIcon, Code2, StickyNote, Workflow } from 'lucide-react';
+import { AuthButton } from "@/components/auth/auth-button";
+import { Logo } from "@/components/shared/logo";
+import { ThemeSwitcher } from "@/components/shared/theme-switcher";
+import { Link, useRouterState } from "@tanstack/react-router";
+import { LayoutDashboard } from "lucide-react";
 
 interface AppHeaderProps {
   showNavLinks?: boolean;
@@ -24,48 +24,15 @@ export function AppHeader({ showNavLinks = true }: AppHeaderProps) {
           {showNavLinks && (
             <div className="hidden sm:flex items-center gap-1">
               <Link
-                to="/bookmarks"
+                to="/dashboard"
                 className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive('/bookmarks')
-                    ? 'bg-muted text-foreground'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  isActive("/dashboard")
+                    ? "bg-muted text-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 }`}
               >
-                <BookmarkIcon className="h-4 w-4" />
-                Bookmarks
-              </Link>
-              <Link
-                to="/notes"
-                className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive('/notes')
-                    ? 'bg-muted text-foreground'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                }`}
-              >
-                <StickyNote className="h-4 w-4" />
-                Notes
-              </Link>
-              <Link
-                to="/diagrams"
-                className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive('/diagrams')
-                    ? 'bg-muted text-foreground'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                }`}
-              >
-                <Workflow className="h-4 w-4" />
-                Diagrams
-              </Link>
-              <Link
-                to="/code-snippets"
-                className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive('/code-snippets')
-                    ? 'bg-muted text-foreground'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                }`}
-              >
-                <Code2 className="h-4 w-4" />
-                Code
+                <LayoutDashboard className="h-4 w-4" />
+                Dashboard
               </Link>
             </div>
           )}

@@ -61,7 +61,7 @@ function App() {
                 className="text-base px-8 py-6 bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg shadow-primary/25 transition-all duration-200 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5"
               >
                 <Link
-                  to={user ? "/bookmarks" : "/auth/sign-up"}
+                  to={user ? "/dashboard" : "/auth/sign-up"}
                   className="flex items-center gap-2"
                 >
                   Get Started

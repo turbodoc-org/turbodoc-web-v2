@@ -23,8 +23,10 @@ import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-pas
 import { Route as AuthErrorRouteImport } from './routes/auth/error'
 import { Route as AuthedNotesRouteImport } from './routes/_authed/notes'
 import { Route as AuthedDiagramsRouteImport } from './routes/_authed/diagrams'
+import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
 import { Route as AuthedBookmarksRouteImport } from './routes/_authed/bookmarks'
 import { Route as ApiAuthConfirmRouteImport } from './routes/api/auth/confirm'
+import { Route as AuthedSettingsDigestRouteImport } from './routes/_authed/settings.digest'
 import { Route as AuthedNoteNoteIdRouteImport } from './routes/_authed/note.$noteId'
 import { Route as AuthedDiagramDiagramIdRouteImport } from './routes/_authed/diagram.$diagramId'
 
@@ -97,6 +99,11 @@ const AuthedDiagramsRoute = AuthedDiagramsRouteImport.update({
   path: '/diagrams',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedDashboardRoute = AuthedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedBookmarksRoute = AuthedBookmarksRouteImport.update({
   id: '/bookmarks',
   path: '/bookmarks',
@@ -106,6 +113,11 @@ const ApiAuthConfirmRoute = ApiAuthConfirmRouteImport.update({
   id: '/api/auth/confirm',
   path: '/api/auth/confirm',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthedSettingsDigestRoute = AuthedSettingsDigestRouteImport.update({
+  id: '/settings/digest',
+  path: '/settings/digest',
+  getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedNoteNoteIdRoute = AuthedNoteNoteIdRouteImport.update({
   id: '/note/$noteId',
@@ -125,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/bookmarks': typeof AuthedBookmarksRoute
+  '/dashboard': typeof AuthedDashboardRoute
   '/diagrams': typeof AuthedDiagramsRoute
   '/notes': typeof AuthedNotesRoute
   '/auth/error': typeof AuthErrorRoute
@@ -135,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/auth/update-password': typeof AuthUpdatePasswordRoute
   '/diagram/$diagramId': typeof AuthedDiagramDiagramIdRoute
   '/note/$noteId': typeof AuthedNoteNoteIdRoute
+  '/settings/digest': typeof AuthedSettingsDigestRoute
   '/api/auth/confirm': typeof ApiAuthConfirmRoute
 }
 export interface FileRoutesByTo {
@@ -144,6 +158,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/bookmarks': typeof AuthedBookmarksRoute
+  '/dashboard': typeof AuthedDashboardRoute
   '/diagrams': typeof AuthedDiagramsRoute
   '/notes': typeof AuthedNotesRoute
   '/auth/error': typeof AuthErrorRoute
@@ -154,6 +169,7 @@ export interface FileRoutesByTo {
   '/auth/update-password': typeof AuthUpdatePasswordRoute
   '/diagram/$diagramId': typeof AuthedDiagramDiagramIdRoute
   '/note/$noteId': typeof AuthedNoteNoteIdRoute
+  '/settings/digest': typeof AuthedSettingsDigestRoute
   '/api/auth/confirm': typeof ApiAuthConfirmRoute
 }
 export interface FileRoutesById {
@@ -165,6 +181,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/_authed/bookmarks': typeof AuthedBookmarksRoute
+  '/_authed/dashboard': typeof AuthedDashboardRoute
   '/_authed/diagrams': typeof AuthedDiagramsRoute
   '/_authed/notes': typeof AuthedNotesRoute
   '/auth/error': typeof AuthErrorRoute
@@ -175,6 +192,7 @@ export interface FileRoutesById {
   '/auth/update-password': typeof AuthUpdatePasswordRoute
   '/_authed/diagram/$diagramId': typeof AuthedDiagramDiagramIdRoute
   '/_authed/note/$noteId': typeof AuthedNoteNoteIdRoute
+  '/_authed/settings/digest': typeof AuthedSettingsDigestRoute
   '/api/auth/confirm': typeof ApiAuthConfirmRoute
 }
 export interface FileRouteTypes {
@@ -186,6 +204,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/bookmarks'
+    | '/dashboard'
     | '/diagrams'
     | '/notes'
     | '/auth/error'
@@ -196,6 +215,7 @@ export interface FileRouteTypes {
     | '/auth/update-password'
     | '/diagram/$diagramId'
     | '/note/$noteId'
+    | '/settings/digest'
     | '/api/auth/confirm'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -205,6 +225,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/bookmarks'
+    | '/dashboard'
     | '/diagrams'
     | '/notes'
     | '/auth/error'
@@ -215,6 +236,7 @@ export interface FileRouteTypes {
     | '/auth/update-password'
     | '/diagram/$diagramId'
     | '/note/$noteId'
+    | '/settings/digest'
     | '/api/auth/confirm'
   id:
     | '__root__'
@@ -225,6 +247,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/_authed/bookmarks'
+    | '/_authed/dashboard'
     | '/_authed/diagrams'
     | '/_authed/notes'
     | '/auth/error'
@@ -235,6 +258,7 @@ export interface FileRouteTypes {
     | '/auth/update-password'
     | '/_authed/diagram/$diagramId'
     | '/_authed/note/$noteId'
+    | '/_authed/settings/digest'
     | '/api/auth/confirm'
   fileRoutesById: FileRoutesById
 }
@@ -354,6 +378,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedDiagramsRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/dashboard': {
+      id: '/_authed/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthedDashboardRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/bookmarks': {
       id: '/_authed/bookmarks'
       path: '/bookmarks'
@@ -367,6 +398,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/auth/confirm'
       preLoaderRoute: typeof ApiAuthConfirmRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authed/settings/digest': {
+      id: '/_authed/settings/digest'
+      path: '/settings/digest'
+      fullPath: '/settings/digest'
+      preLoaderRoute: typeof AuthedSettingsDigestRouteImport
+      parentRoute: typeof AuthedRoute
     }
     '/_authed/note/$noteId': {
       id: '/_authed/note/$noteId'
@@ -387,18 +425,22 @@ declare module '@tanstack/react-router' {
 
 interface AuthedRouteChildren {
   AuthedBookmarksRoute: typeof AuthedBookmarksRoute
+  AuthedDashboardRoute: typeof AuthedDashboardRoute
   AuthedDiagramsRoute: typeof AuthedDiagramsRoute
   AuthedNotesRoute: typeof AuthedNotesRoute
   AuthedDiagramDiagramIdRoute: typeof AuthedDiagramDiagramIdRoute
   AuthedNoteNoteIdRoute: typeof AuthedNoteNoteIdRoute
+  AuthedSettingsDigestRoute: typeof AuthedSettingsDigestRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedBookmarksRoute: AuthedBookmarksRoute,
+  AuthedDashboardRoute: AuthedDashboardRoute,
   AuthedDiagramsRoute: AuthedDiagramsRoute,
   AuthedNotesRoute: AuthedNotesRoute,
   AuthedDiagramDiagramIdRoute: AuthedDiagramDiagramIdRoute,
   AuthedNoteNoteIdRoute: AuthedNoteNoteIdRoute,
+  AuthedSettingsDigestRoute: AuthedSettingsDigestRoute,
 }
 
 const AuthedRouteWithChildren =
