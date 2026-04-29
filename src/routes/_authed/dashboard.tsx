@@ -88,8 +88,7 @@ const DashboardCard = React.memo(function DashboardCard({ module }: DashboardCar
     <Link
       key={module.id}
       to={module.to}
-      className={`group relative overflow-hidden rounded-2xl border border-border bg-card p-6 md:p-8 transition-all duration-300 hover:shadow-lg ${module.shadowHover} hover:-translate-y-1 ${module.borderHover} animate-in fade-in slide-in-from-bottom-5 duration-500 fill-mode-forwards`}
-      style={{ animationDelay: "150ms" }}
+      className={`group relative overflow-hidden rounded-2xl border border-border bg-card p-6 md:p-8 transition-all duration-300 hover:shadow-lg ${module.shadowHover} hover:-translate-y-1 ${module.borderHover} fill-mode-forwards`}
     >
       {/* Background gradient blob */}
       <div
