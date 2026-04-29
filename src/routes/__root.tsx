@@ -1,9 +1,10 @@
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider } from 'next-themes';
-import { AuthProvider } from '@/lib/auth/context';
-import appCss from '../styles.css?url';
-import { Toaster } from '@/components/ui/sonner';
+import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ThemeProvider } from "next-themes";
+import { AuthProvider } from "@/lib/auth/context";
+import { NotFoundPage } from "@/components/shared/not-found";
+import appCss from "../styles.css?url";
+import { Toaster } from "@/components/ui/sonner";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,28 +18,28 @@ const queryClient = new QueryClient({
 });
 
 export const Route = createRootRoute({
+  notFoundComponent: NotFoundPage,
   head: () => ({
     meta: [
       {
-        charSet: 'utf-8',
+        charSet: "utf-8",
       },
       {
-        name: 'viewport',
+        name: "viewport",
+        content: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
+      },
+      {
+        title: "Turbodoc - Save and organize your content",
+      },
+      {
+        name: "description",
         content:
-          'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
-      },
-      {
-        title: 'Turbodoc - Save and organize your content',
-      },
-      {
-        name: 'description',
-        content:
-          'A fast, beautiful bookmark manager for iOS and web. Save, organize, and search through your favorite links from anywhere.',
+          "A fast, beautiful bookmark manager for iOS and web. Save, organize, and search through your favorite links from anywhere.",
       },
     ],
     links: [
       {
-        rel: 'stylesheet',
+        rel: "stylesheet",
         href: appCss,
       },
     ],
