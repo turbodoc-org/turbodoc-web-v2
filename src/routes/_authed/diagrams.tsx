@@ -21,8 +21,6 @@ function Diagrams() {
       const timestamp = new Date().toLocaleDateString();
       const newDiagram = await createDiagramMutation.mutateAsync({
         title: `Diagram ${timestamp}`,
-        diagram_type: "mermaid",
-        mermaid_source: "flowchart TD\n    A[Start] --> B[New Diagram]",
         shapes: [],
         connections: [],
       });
@@ -69,7 +67,7 @@ function Diagrams() {
             </Button>
           </div>
           <p className="text-muted-foreground text-sm">
-            Create and manage Mermaid diagrams. Canvas diagrams are still supported for older diagrams
+            Create and manage your diagrams with powerful drawing tools
           </p>
         </div>
 
