@@ -476,6 +476,8 @@ export async function getDiagram(id: string): Promise<Diagram> {
 
 export async function createDiagram(diagram: {
   title: string;
+  diagram_type?: 'canvas' | 'mermaid';
+  mermaid_source?: string | null;
   shapes?: any[];
   connections?: any[];
   thumbnail?: string;

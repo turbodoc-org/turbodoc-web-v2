@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useDiagram } from '@/lib/hooks/use-diagrams';
 import DiagramCanvas from '@/components/diagram/diagram-canvas';
+import { MermaidDiagramEditor } from '@/components/diagram/mermaid-diagram-editor';
 import { Loader2 } from 'lucide-react';
 
 export const Route = createFileRoute('/_authed/diagram/$diagramId')({
@@ -28,6 +29,10 @@ function DiagramEditorPage() {
     // Navigate back to diagrams list if diagram not found
     navigate({ to: '/diagrams' });
     return null;
+  }
+
+  if (diagram.diagram_type === 'mermaid') {
+    return <MermaidDiagramEditor diagram={diagram} />;
   }
 
   return (

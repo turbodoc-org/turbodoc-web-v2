@@ -24,7 +24,7 @@ import {
 import { Trash2, Edit, MoreVertical, Clock, StickyNote, Loader2 } from "lucide-react";
 import { deleteNote } from "@/lib/api";
 import { useNavigate } from "@tanstack/react-router";
-import ReactMarkdown from "react-markdown";
+import { MarkdownRenderer } from "@/components/markdown/markdown-renderer";
 import { toast } from "sonner";
 
 interface NoteCardProps {
@@ -133,42 +133,7 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
           <div className="h-full overflow-hidden">
             {note.content ? (
               <div className="text-xs text-muted-foreground line-clamp-6 overflow-hidden prose prose-xs max-w-none dark:prose-invert">
-                <ReactMarkdown
-                  components={{
-                    // Remove margins from elements to fit better in preview
-                    p: ({ children }) => <p className="mb-1">{children}</p>,
-                    h1: ({ children }) => <h1 className="text-sm font-bold mb-1">{children}</h1>,
-                    h2: ({ children }) => (
-                      <h2 className="text-sm font-semibold mb-1">{children}</h2>
-                    ),
-                    h3: ({ children }) => (
-                      <h3 className="text-xs font-semibold mb-1">{children}</h3>
-                    ),
-                    ul: ({ children }) => <ul className="list-disc ml-3 mb-1">{children}</ul>,
-                    ol: ({ children }) => <ol className="list-decimal ml-3 mb-1">{children}</ol>,
-                    li: ({ children }) => <li className="mb-0">{children}</li>,
-                    code: ({ children }) => (
-                      <code className="text-xs bg-muted px-1 rounded">{children}</code>
-                    ),
-                    pre: ({ children }) => (
-                      <pre className="text-xs bg-muted p-1 rounded mb-1 overflow-hidden">
-                        {children}
-                      </pre>
-                    ),
-                    blockquote: ({ children }) => (
-                      <blockquote className="border-l-2 border-primary pl-2 italic mb-1">
-                        {children}
-                      </blockquote>
-                    ),
-                    a: ({ children, href }) => (
-                      <a href={href} className="text-primary underline">
-                        {children}
-                      </a>
-                    ),
-                  }}
-                >
-                  {truncateText(note.content, 300)}
-                </ReactMarkdown>
+                <MarkdownRenderer preview>{truncateText(note.content, 300)}</MarkdownRenderer>
               </div>
             ) : (
               <div className="flex items-center justify-center h-full text-muted-foreground text-xs">
