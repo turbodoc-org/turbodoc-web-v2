@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Trash2, Edit, MoreVertical, Clock, StickyNote, Loader2 } from "lucide-react";
 import { deleteNote } from "@/lib/api";
+import { parseTags } from "@/lib/utils";
 import { useNavigate } from "@tanstack/react-router";
 import { MarkdownRenderer } from "@/components/markdown/markdown-renderer";
 import { toast } from "sonner";
@@ -37,12 +38,7 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const tags = note.tags
-    ? note.tags
-        .split("|")
-        .map((tag) => tag.trim())
-        .filter(Boolean)
-    : [];
+  const tags = parseTags(note.tags);
 
   const handleDelete = async () => {
     setIsDeleting(true);

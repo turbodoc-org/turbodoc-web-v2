@@ -202,8 +202,7 @@ export function DiagramGrid({}: DiagramGridProps) {
           {visibleDiagrams.map((diagram, index) => (
             <Card
               key={diagram.id}
-              className="overflow-hidden group hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 animate-in fade-in slide-in-from-bottom-4 duration-300 fill-mode-forwards"
-              style={{ animationDelay: `${Math.min(index * 40, 400)}ms` }}
+              className="overflow-hidden group hover:shadow-lg hover:-translate-y-0.5 transition-all duration-600 animate-in fade-in slide-in-from-bottom-4 fill-mode-forwards"
             >
               <CardHeader className="pb-3">
                 {editingId === diagram.id ? (
