@@ -156,8 +156,7 @@ export function CodeSnippetGrid({ onEdit }: CodeSnippetGridProps) {
       {visibleSnippets.map((snippet, index) => (
         <div
           key={snippet.id}
-          className="animate-in fade-in slide-in-from-bottom-4 duration-300 fill-mode-forwards"
-          style={{ animationDelay: `${Math.min(index * 40, 400)}ms` }}
+          className="animate-in fade-in slide-in-from-bottom-4 duration-600 fill-mode-forwards"
         >
           <CodeSnippetCard
             snippet={snippet}
