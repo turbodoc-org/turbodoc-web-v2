@@ -84,6 +84,7 @@ export const MDXEditorWrapper = forwardRef<MDXEditorMethods, MDXEditorWrapperPro
               html: "HTML",
               json: "JSON",
               md: "Markdown",
+              mermaid: "Mermaid",
               python: "Python",
               bash: "Bash",
               sql: "SQL",

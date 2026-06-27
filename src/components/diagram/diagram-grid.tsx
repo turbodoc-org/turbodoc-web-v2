@@ -7,6 +7,7 @@ import {
   useUpdateDiagram,
 } from "@/lib/hooks/use-diagrams";
 import { Button } from "@/components/ui/button";
+import { MermaidDiagram } from "@/components/markdown/mermaid-diagram";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Card,
@@ -261,7 +262,14 @@ export function DiagramGrid({}: DiagramGridProps) {
                 </CardDescription>
               </CardHeader>
               <CardContent className="pb-3">
-                {diagram.thumbnail ? (
+                {diagram.diagram_type === "mermaid" && diagram.mermaid_source ? (
+                  <div className="aspect-video overflow-hidden rounded-md bg-muted p-2">
+                    <MermaidDiagram
+                      chart={diagram.mermaid_source}
+                      className="m-0 flex h-full items-center justify-center border-0 bg-background p-2 [&_svg]:max-h-full"
+                    />
+                  </div>
+                ) : diagram.thumbnail ? (
                   <div className="aspect-video overflow-hidden rounded-md bg-muted">
                     <img
                       src={diagram.thumbnail}

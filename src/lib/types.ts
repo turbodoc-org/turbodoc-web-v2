@@ -105,6 +105,8 @@ export interface Diagram {
   id: string;
   user_id: string;
   title: string;
+  diagram_type?: 'canvas' | 'mermaid';
+  mermaid_source?: string | null;
   shapes: DiagramShape[];
   connections: DiagramConnection[];
   thumbnail?: string | null;
@@ -115,6 +117,8 @@ export interface Diagram {
 export interface DiagramListItem {
   id: string;
   title: string;
+  diagram_type?: 'canvas' | 'mermaid';
+  mermaid_source?: string | null;
   thumbnail?: string | null;
   updated_at: string;
 }
