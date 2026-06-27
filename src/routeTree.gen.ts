@@ -15,6 +15,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CodeSnippetsRouteImport } from './routes/code-snippets'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OauthConsentRouteImport } from './routes/oauth/consent'
 import { Route as AuthUpdatePasswordRouteImport } from './routes/auth/update-password'
 import { Route as AuthSignUpSuccessRouteImport } from './routes/auth/sign-up-success'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
@@ -57,6 +58,11 @@ const AuthedRoute = AuthedRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OauthConsentRoute = OauthConsentRouteImport.update({
+  id: '/oauth/consent',
+  path: '/oauth/consent',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthUpdatePasswordRoute = AuthUpdatePasswordRouteImport.update({
@@ -146,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/sign-up-success': typeof AuthSignUpSuccessRoute
   '/auth/update-password': typeof AuthUpdatePasswordRoute
+  '/oauth/consent': typeof OauthConsentRoute
   '/diagram/$diagramId': typeof AuthedDiagramDiagramIdRoute
   '/note/$noteId': typeof AuthedNoteNoteIdRoute
   '/settings/digest': typeof AuthedSettingsDigestRoute
@@ -167,6 +174,7 @@ export interface FileRoutesByTo {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/sign-up-success': typeof AuthSignUpSuccessRoute
   '/auth/update-password': typeof AuthUpdatePasswordRoute
+  '/oauth/consent': typeof OauthConsentRoute
   '/diagram/$diagramId': typeof AuthedDiagramDiagramIdRoute
   '/note/$noteId': typeof AuthedNoteNoteIdRoute
   '/settings/digest': typeof AuthedSettingsDigestRoute
@@ -190,6 +198,7 @@ export interface FileRoutesById {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/sign-up-success': typeof AuthSignUpSuccessRoute
   '/auth/update-password': typeof AuthUpdatePasswordRoute
+  '/oauth/consent': typeof OauthConsentRoute
   '/_authed/diagram/$diagramId': typeof AuthedDiagramDiagramIdRoute
   '/_authed/note/$noteId': typeof AuthedNoteNoteIdRoute
   '/_authed/settings/digest': typeof AuthedSettingsDigestRoute
@@ -213,6 +222,7 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/auth/sign-up-success'
     | '/auth/update-password'
+    | '/oauth/consent'
     | '/diagram/$diagramId'
     | '/note/$noteId'
     | '/settings/digest'
@@ -234,6 +244,7 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/auth/sign-up-success'
     | '/auth/update-password'
+    | '/oauth/consent'
     | '/diagram/$diagramId'
     | '/note/$noteId'
     | '/settings/digest'
@@ -256,6 +267,7 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/auth/sign-up-success'
     | '/auth/update-password'
+    | '/oauth/consent'
     | '/_authed/diagram/$diagramId'
     | '/_authed/note/$noteId'
     | '/_authed/settings/digest'
@@ -275,6 +287,7 @@ export interface RootRouteChildren {
   AuthSignUpRoute: typeof AuthSignUpRoute
   AuthSignUpSuccessRoute: typeof AuthSignUpSuccessRoute
   AuthUpdatePasswordRoute: typeof AuthUpdatePasswordRoute
+  OauthConsentRoute: typeof OauthConsentRoute
   ApiAuthConfirmRoute: typeof ApiAuthConfirmRoute
 }
 
@@ -320,6 +333,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oauth/consent': {
+      id: '/oauth/consent'
+      path: '/oauth/consent'
+      fullPath: '/oauth/consent'
+      preLoaderRoute: typeof OauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/update-password': {
@@ -459,6 +479,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthSignUpRoute: AuthSignUpRoute,
   AuthSignUpSuccessRoute: AuthSignUpSuccessRoute,
   AuthUpdatePasswordRoute: AuthUpdatePasswordRoute,
+  OauthConsentRoute: OauthConsentRoute,
   ApiAuthConfirmRoute: ApiAuthConfirmRoute,
 }
 export const routeTree = rootRouteImport

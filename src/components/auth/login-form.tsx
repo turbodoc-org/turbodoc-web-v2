@@ -7,9 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { supabase } from "@/lib/clients/supabase/client";
-import { Link, useNavigate } from "@tanstack/react-router";
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://api.turbodoc.ai";
+import { Link } from "@tanstack/react-router";
+import { safeInternalRedirect } from "@/lib/auth/redirect";
 
 export function LoginForm({
   className,
@@ -24,7 +23,6 @@ export function LoginForm({
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,36 +30,14 @@ export function LoginForm({
     setError(null);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       if (error) throw error;
-      const redirectTo = search?.redirect || "/bookmarks";
-
-      if (redirectTo.startsWith(`${API_BASE_URL}/oauth/authorize`)) {
-        const accessToken = data.session?.access_token;
-        if (!accessToken) throw new Error("No session found");
-
-        const response = await fetch(redirectTo, {
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${accessToken}`,
-            "X-Requested-With": "fetch",
-          },
-        });
-
-        if (!response.ok) throw new Error("Could not authorize MCP client");
-
-        const result = (await response.json()) as { redirect_to?: string };
-        if (!result.redirect_to) throw new Error("Missing MCP redirect URL");
-
-        window.location.assign(result.redirect_to);
-        return;
-      }
-
-      navigate({ to: redirectTo });
+      const redirectTo = safeInternalRedirect(search?.redirect);
       onSuccess?.();
+      window.location.assign(redirectTo);
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
