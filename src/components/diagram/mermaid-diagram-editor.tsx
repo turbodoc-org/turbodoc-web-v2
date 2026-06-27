@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { FolderOpen, Loader2, Save } from "lucide-react";
+import { Image as UnpicImage } from "@unpic/react";
 import { useDebounce } from "use-debounce";
 import { toast } from "sonner";
-import { AppHeader } from "@/components/shared/app-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -76,21 +76,37 @@ export function MermaidDiagramEditor({ diagram }: MermaidDiagramEditorProps) {
   };
 
   return (
-    <main className="min-h-screen flex flex-col bg-background">
-      <AppHeader />
-
-      <header className="border-b border-border bg-card">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/diagrams" })}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Diagrams
+    <main className="h-screen flex flex-col bg-background">
+      <header className="h-16 flex shrink-0 items-center justify-between border-b border-border bg-card px-4">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <UnpicImage
+              src="/logo.png"
+              alt="Turbodoc Logo"
+              width={32}
+              height={32}
+              className="rounded-md"
+            />
+            <h1 className="text-lg font-bold text-black dark:text-white">Turbodoc</h1>
+          </div>
+          <div className="flex items-center gap-1 border-l border-border pl-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate({ to: "/diagrams" })}
+              className="h-8 gap-1.5"
+            >
+              <FolderOpen className="h-4 w-4" />
+              <span className="text-sm">My Diagrams</span>
             </Button>
-            <div className="min-w-0">
+          </div>
+          <div className="flex min-w-0 flex-1 items-center gap-3 border-l border-border pl-3">
+            <div className="min-w-0 flex-1">
               <Input
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
-                className="h-8 border-0 bg-transparent px-0 text-lg font-semibold shadow-none focus-visible:ring-0"
+                size={Math.max(20, title.length)}
+                className="h-8 w-full border-0 bg-transparent px-0 text-lg font-semibold shadow-none focus-visible:ring-0"
                 placeholder="Untitled Diagram"
               />
               <p className="text-xs text-muted-foreground">
@@ -102,15 +118,21 @@ export function MermaidDiagramEditor({ diagram }: MermaidDiagramEditorProps) {
               </p>
             </div>
           </div>
+        </div>
+        <div className="flex items-center gap-2">
           <Button size="sm" onClick={handleManualSave} disabled={isSaving}>
-            {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+            {isSaving ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4 mr-2" />
+            )}
             Save
           </Button>
         </div>
       </header>
 
-      <section className="flex-1 grid gap-4 p-4 md:grid-cols-2 md:p-6 max-w-7xl w-full mx-auto">
-        <div className="flex min-h-[500px] flex-col rounded-lg border border-border bg-card p-4 shadow-sm">
+      <section className="flex-1 min-h-0 overflow-auto grid gap-4 p-4 md:grid-cols-2 md:p-6 max-w-7xl w-full mx-auto">
+        <div className="flex h-full min-h-0 flex-col rounded-lg bg-muted/30 p-4">
           <Label htmlFor="mermaid-source" className="mb-3 text-sm font-medium">
             Mermaid source
           </Label>
@@ -119,17 +141,17 @@ export function MermaidDiagramEditor({ diagram }: MermaidDiagramEditorProps) {
             value={source}
             onChange={(event) => setSource(event.target.value)}
             spellCheck={false}
-            className="flex-1 resize-none font-mono text-sm"
+            className="flex-1 min-h-0 resize-none border-0 bg-card font-mono text-sm shadow-sm focus-visible:ring-1"
             placeholder="flowchart TD\n    A[Start] --> B[End]"
           />
         </div>
 
-        <div className="min-h-[500px] rounded-lg border border-border bg-card p-4 shadow-sm">
+        <div className="flex h-full min-h-0 flex-col rounded-lg bg-muted/30 p-4 overflow-auto">
           <h2 className="mb-3 text-sm font-medium text-foreground">Preview</h2>
           {source.trim() ? (
             <MermaidDiagram chart={source} className="min-h-[420px]" />
           ) : (
-            <div className="flex h-full min-h-[420px] items-center justify-center rounded-md bg-muted text-sm text-muted-foreground">
+            <div className="flex h-full min-h-[420px] items-center justify-center rounded-md bg-card text-sm text-muted-foreground">
               Add Mermaid source to preview your diagram.
             </div>
           )}
