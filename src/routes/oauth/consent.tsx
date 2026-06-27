@@ -34,6 +34,7 @@ export const Route = createFileRoute("/oauth/consent")({
 function OAuthConsent() {
   const { authorization_id: authorizationId } = Route.useSearch();
   const { loading: authLoading, user } = useAuth();
+  const userId = user?.id;
   const [authorization, setAuthorization] = useState<OAuthAuthorizationDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [decision, setDecision] = useState<"approve" | "deny" | null>(null);
@@ -46,13 +47,11 @@ function OAuthConsent() {
       return;
     }
 
-    if (!user) {
+    if (!userId) {
       const returnTo = `/oauth/consent?authorization_id=${encodeURIComponent(authorizationId)}`;
       window.location.replace(`/auth/login?redirect=${encodeURIComponent(returnTo)}`);
       return;
     }
-
-    let cancelled = false;
 
     const loadAuthorization = async () => {
       const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
@@ -64,8 +63,6 @@ function OAuthConsent() {
 
       const { data, error: authorizationError } =
         await supabase.auth.oauth.getAuthorizationDetails(authorizationId);
-
-      if (cancelled) return;
 
       if (authorizationError || !data) {
         setError(authorizationError?.message ?? "Could not load this authorization request.");
@@ -81,11 +78,7 @@ function OAuthConsent() {
     };
 
     void loadAuthorization();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [authLoading, authorizationId, user]);
+  }, [authLoading, authorizationId, userId]);
 
   const submitDecision = async (action: "approve" | "deny") => {
     if (!authorizationId || decision) return;
