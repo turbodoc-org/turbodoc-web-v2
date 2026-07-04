@@ -8,449 +8,449 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root";
-import { Route as TermsRouteImport } from "./routes/terms";
-import { Route as PrivacyRouteImport } from "./routes/privacy";
-import { Route as ContactRouteImport } from "./routes/contact";
-import { Route as CodeSnippetsRouteImport } from "./routes/code-snippets";
-import { Route as AuthedRouteImport } from "./routes/_authed";
-import { Route as IndexRouteImport } from "./routes/index";
-import { Route as OauthConsentRouteImport } from "./routes/oauth/consent";
-import { Route as AuthUpdatePasswordRouteImport } from "./routes/auth/update-password";
-import { Route as AuthSignUpSuccessRouteImport } from "./routes/auth/sign-up-success";
-import { Route as AuthSignUpRouteImport } from "./routes/auth/sign-up";
-import { Route as AuthLoginRouteImport } from "./routes/auth/login";
-import { Route as AuthForgotPasswordRouteImport } from "./routes/auth/forgot-password";
-import { Route as AuthErrorRouteImport } from "./routes/auth/error";
-import { Route as AuthedNotesRouteImport } from "./routes/_authed/notes";
-import { Route as AuthedDiagramsRouteImport } from "./routes/_authed/diagrams";
-import { Route as AuthedDashboardRouteImport } from "./routes/_authed/dashboard";
-import { Route as AuthedBookmarksRouteImport } from "./routes/_authed/bookmarks";
-import { Route as ApiAuthConfirmRouteImport } from "./routes/api/auth/confirm";
-import { Route as AuthedSettingsDigestRouteImport } from "./routes/_authed/settings.digest";
-import { Route as AuthedNoteNoteIdRouteImport } from "./routes/_authed/note.$noteId";
-import { Route as AuthedDiagramDiagramIdRouteImport } from "./routes/_authed/diagram.$diagramId";
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CodeSnippetsRouteImport } from './routes/code-snippets'
+import { Route as AuthedRouteImport } from './routes/_authed'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as OauthConsentRouteImport } from './routes/oauth/consent'
+import { Route as AuthUpdatePasswordRouteImport } from './routes/auth/update-password'
+import { Route as AuthSignUpSuccessRouteImport } from './routes/auth/sign-up-success'
+import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
+import { Route as AuthLoginRouteImport } from './routes/auth/login'
+import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
+import { Route as AuthErrorRouteImport } from './routes/auth/error'
+import { Route as AuthedNotesRouteImport } from './routes/_authed/notes'
+import { Route as AuthedDiagramsRouteImport } from './routes/_authed/diagrams'
+import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
+import { Route as AuthedBookmarksRouteImport } from './routes/_authed/bookmarks'
+import { Route as ApiAuthConfirmRouteImport } from './routes/api/auth/confirm'
+import { Route as AuthedSettingsDigestRouteImport } from './routes/_authed/settings.digest'
+import { Route as AuthedNoteNoteIdRouteImport } from './routes/_authed/note.$noteId'
+import { Route as AuthedDiagramDiagramIdRouteImport } from './routes/_authed/diagram.$diagramId'
 
 const TermsRoute = TermsRouteImport.update({
-  id: "/terms",
-  path: "/terms",
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
-  id: "/privacy",
-  path: "/privacy",
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ContactRoute = ContactRouteImport.update({
-  id: "/contact",
-  path: "/contact",
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const CodeSnippetsRoute = CodeSnippetsRouteImport.update({
-  id: "/code-snippets",
-  path: "/code-snippets",
+  id: '/code-snippets',
+  path: '/code-snippets',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthedRoute = AuthedRouteImport.update({
-  id: "/_authed",
+  id: '/_authed',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const IndexRoute = IndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const OauthConsentRoute = OauthConsentRouteImport.update({
-  id: "/oauth/consent",
-  path: "/oauth/consent",
+  id: '/oauth/consent',
+  path: '/oauth/consent',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthUpdatePasswordRoute = AuthUpdatePasswordRouteImport.update({
-  id: "/auth/update-password",
-  path: "/auth/update-password",
+  id: '/auth/update-password',
+  path: '/auth/update-password',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthSignUpSuccessRoute = AuthSignUpSuccessRouteImport.update({
-  id: "/auth/sign-up-success",
-  path: "/auth/sign-up-success",
+  id: '/auth/sign-up-success',
+  path: '/auth/sign-up-success',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthSignUpRoute = AuthSignUpRouteImport.update({
-  id: "/auth/sign-up",
-  path: "/auth/sign-up",
+  id: '/auth/sign-up',
+  path: '/auth/sign-up',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
-  id: "/auth/login",
-  path: "/auth/login",
+  id: '/auth/login',
+  path: '/auth/login',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
-  id: "/auth/forgot-password",
-  path: "/auth/forgot-password",
+  id: '/auth/forgot-password',
+  path: '/auth/forgot-password',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthErrorRoute = AuthErrorRouteImport.update({
-  id: "/auth/error",
-  path: "/auth/error",
+  id: '/auth/error',
+  path: '/auth/error',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthedNotesRoute = AuthedNotesRouteImport.update({
-  id: "/notes",
-  path: "/notes",
+  id: '/notes',
+  path: '/notes',
   getParentRoute: () => AuthedRoute,
-} as any);
+} as any)
 const AuthedDiagramsRoute = AuthedDiagramsRouteImport.update({
-  id: "/diagrams",
-  path: "/diagrams",
+  id: '/diagrams',
+  path: '/diagrams',
   getParentRoute: () => AuthedRoute,
-} as any);
+} as any)
 const AuthedDashboardRoute = AuthedDashboardRouteImport.update({
-  id: "/dashboard",
-  path: "/dashboard",
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => AuthedRoute,
-} as any);
+} as any)
 const AuthedBookmarksRoute = AuthedBookmarksRouteImport.update({
-  id: "/bookmarks",
-  path: "/bookmarks",
+  id: '/bookmarks',
+  path: '/bookmarks',
   getParentRoute: () => AuthedRoute,
-} as any);
+} as any)
 const ApiAuthConfirmRoute = ApiAuthConfirmRouteImport.update({
-  id: "/api/auth/confirm",
-  path: "/api/auth/confirm",
+  id: '/api/auth/confirm',
+  path: '/api/auth/confirm',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthedSettingsDigestRoute = AuthedSettingsDigestRouteImport.update({
-  id: "/settings/digest",
-  path: "/settings/digest",
+  id: '/settings/digest',
+  path: '/settings/digest',
   getParentRoute: () => AuthedRoute,
-} as any);
+} as any)
 const AuthedNoteNoteIdRoute = AuthedNoteNoteIdRouteImport.update({
-  id: "/note/$noteId",
-  path: "/note/$noteId",
+  id: '/note/$noteId',
+  path: '/note/$noteId',
   getParentRoute: () => AuthedRoute,
-} as any);
+} as any)
 const AuthedDiagramDiagramIdRoute = AuthedDiagramDiagramIdRouteImport.update({
-  id: "/diagram/$diagramId",
-  path: "/diagram/$diagramId",
+  id: '/diagram/$diagramId',
+  path: '/diagram/$diagramId',
   getParentRoute: () => AuthedRoute,
-} as any);
+} as any)
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute;
-  "/code-snippets": typeof CodeSnippetsRoute;
-  "/contact": typeof ContactRoute;
-  "/privacy": typeof PrivacyRoute;
-  "/terms": typeof TermsRoute;
-  "/bookmarks": typeof AuthedBookmarksRoute;
-  "/dashboard": typeof AuthedDashboardRoute;
-  "/diagrams": typeof AuthedDiagramsRoute;
-  "/notes": typeof AuthedNotesRoute;
-  "/auth/error": typeof AuthErrorRoute;
-  "/auth/forgot-password": typeof AuthForgotPasswordRoute;
-  "/auth/login": typeof AuthLoginRoute;
-  "/auth/sign-up": typeof AuthSignUpRoute;
-  "/auth/sign-up-success": typeof AuthSignUpSuccessRoute;
-  "/auth/update-password": typeof AuthUpdatePasswordRoute;
-  "/oauth/consent": typeof OauthConsentRoute;
-  "/diagram/$diagramId": typeof AuthedDiagramDiagramIdRoute;
-  "/note/$noteId": typeof AuthedNoteNoteIdRoute;
-  "/settings/digest": typeof AuthedSettingsDigestRoute;
-  "/api/auth/confirm": typeof ApiAuthConfirmRoute;
+  '/': typeof IndexRoute
+  '/code-snippets': typeof CodeSnippetsRoute
+  '/contact': typeof ContactRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/bookmarks': typeof AuthedBookmarksRoute
+  '/dashboard': typeof AuthedDashboardRoute
+  '/diagrams': typeof AuthedDiagramsRoute
+  '/notes': typeof AuthedNotesRoute
+  '/auth/error': typeof AuthErrorRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/sign-up': typeof AuthSignUpRoute
+  '/auth/sign-up-success': typeof AuthSignUpSuccessRoute
+  '/auth/update-password': typeof AuthUpdatePasswordRoute
+  '/oauth/consent': typeof OauthConsentRoute
+  '/diagram/$diagramId': typeof AuthedDiagramDiagramIdRoute
+  '/note/$noteId': typeof AuthedNoteNoteIdRoute
+  '/settings/digest': typeof AuthedSettingsDigestRoute
+  '/api/auth/confirm': typeof ApiAuthConfirmRoute
 }
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute;
-  "/code-snippets": typeof CodeSnippetsRoute;
-  "/contact": typeof ContactRoute;
-  "/privacy": typeof PrivacyRoute;
-  "/terms": typeof TermsRoute;
-  "/bookmarks": typeof AuthedBookmarksRoute;
-  "/dashboard": typeof AuthedDashboardRoute;
-  "/diagrams": typeof AuthedDiagramsRoute;
-  "/notes": typeof AuthedNotesRoute;
-  "/auth/error": typeof AuthErrorRoute;
-  "/auth/forgot-password": typeof AuthForgotPasswordRoute;
-  "/auth/login": typeof AuthLoginRoute;
-  "/auth/sign-up": typeof AuthSignUpRoute;
-  "/auth/sign-up-success": typeof AuthSignUpSuccessRoute;
-  "/auth/update-password": typeof AuthUpdatePasswordRoute;
-  "/oauth/consent": typeof OauthConsentRoute;
-  "/diagram/$diagramId": typeof AuthedDiagramDiagramIdRoute;
-  "/note/$noteId": typeof AuthedNoteNoteIdRoute;
-  "/settings/digest": typeof AuthedSettingsDigestRoute;
-  "/api/auth/confirm": typeof ApiAuthConfirmRoute;
+  '/': typeof IndexRoute
+  '/code-snippets': typeof CodeSnippetsRoute
+  '/contact': typeof ContactRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/bookmarks': typeof AuthedBookmarksRoute
+  '/dashboard': typeof AuthedDashboardRoute
+  '/diagrams': typeof AuthedDiagramsRoute
+  '/notes': typeof AuthedNotesRoute
+  '/auth/error': typeof AuthErrorRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/sign-up': typeof AuthSignUpRoute
+  '/auth/sign-up-success': typeof AuthSignUpSuccessRoute
+  '/auth/update-password': typeof AuthUpdatePasswordRoute
+  '/oauth/consent': typeof OauthConsentRoute
+  '/diagram/$diagramId': typeof AuthedDiagramDiagramIdRoute
+  '/note/$noteId': typeof AuthedNoteNoteIdRoute
+  '/settings/digest': typeof AuthedSettingsDigestRoute
+  '/api/auth/confirm': typeof ApiAuthConfirmRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  "/": typeof IndexRoute;
-  "/_authed": typeof AuthedRouteWithChildren;
-  "/code-snippets": typeof CodeSnippetsRoute;
-  "/contact": typeof ContactRoute;
-  "/privacy": typeof PrivacyRoute;
-  "/terms": typeof TermsRoute;
-  "/_authed/bookmarks": typeof AuthedBookmarksRoute;
-  "/_authed/dashboard": typeof AuthedDashboardRoute;
-  "/_authed/diagrams": typeof AuthedDiagramsRoute;
-  "/_authed/notes": typeof AuthedNotesRoute;
-  "/auth/error": typeof AuthErrorRoute;
-  "/auth/forgot-password": typeof AuthForgotPasswordRoute;
-  "/auth/login": typeof AuthLoginRoute;
-  "/auth/sign-up": typeof AuthSignUpRoute;
-  "/auth/sign-up-success": typeof AuthSignUpSuccessRoute;
-  "/auth/update-password": typeof AuthUpdatePasswordRoute;
-  "/oauth/consent": typeof OauthConsentRoute;
-  "/_authed/diagram/$diagramId": typeof AuthedDiagramDiagramIdRoute;
-  "/_authed/note/$noteId": typeof AuthedNoteNoteIdRoute;
-  "/_authed/settings/digest": typeof AuthedSettingsDigestRoute;
-  "/api/auth/confirm": typeof ApiAuthConfirmRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/_authed': typeof AuthedRouteWithChildren
+  '/code-snippets': typeof CodeSnippetsRoute
+  '/contact': typeof ContactRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/_authed/bookmarks': typeof AuthedBookmarksRoute
+  '/_authed/dashboard': typeof AuthedDashboardRoute
+  '/_authed/diagrams': typeof AuthedDiagramsRoute
+  '/_authed/notes': typeof AuthedNotesRoute
+  '/auth/error': typeof AuthErrorRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/sign-up': typeof AuthSignUpRoute
+  '/auth/sign-up-success': typeof AuthSignUpSuccessRoute
+  '/auth/update-password': typeof AuthUpdatePasswordRoute
+  '/oauth/consent': typeof OauthConsentRoute
+  '/_authed/diagram/$diagramId': typeof AuthedDiagramDiagramIdRoute
+  '/_authed/note/$noteId': typeof AuthedNoteNoteIdRoute
+  '/_authed/settings/digest': typeof AuthedSettingsDigestRoute
+  '/api/auth/confirm': typeof ApiAuthConfirmRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
+  fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | "/"
-    | "/code-snippets"
-    | "/contact"
-    | "/privacy"
-    | "/terms"
-    | "/bookmarks"
-    | "/dashboard"
-    | "/diagrams"
-    | "/notes"
-    | "/auth/error"
-    | "/auth/forgot-password"
-    | "/auth/login"
-    | "/auth/sign-up"
-    | "/auth/sign-up-success"
-    | "/auth/update-password"
-    | "/oauth/consent"
-    | "/diagram/$diagramId"
-    | "/note/$noteId"
-    | "/settings/digest"
-    | "/api/auth/confirm";
-  fileRoutesByTo: FileRoutesByTo;
+    | '/'
+    | '/code-snippets'
+    | '/contact'
+    | '/privacy'
+    | '/terms'
+    | '/bookmarks'
+    | '/dashboard'
+    | '/diagrams'
+    | '/notes'
+    | '/auth/error'
+    | '/auth/forgot-password'
+    | '/auth/login'
+    | '/auth/sign-up'
+    | '/auth/sign-up-success'
+    | '/auth/update-password'
+    | '/oauth/consent'
+    | '/diagram/$diagramId'
+    | '/note/$noteId'
+    | '/settings/digest'
+    | '/api/auth/confirm'
+  fileRoutesByTo: FileRoutesByTo
   to:
-    | "/"
-    | "/code-snippets"
-    | "/contact"
-    | "/privacy"
-    | "/terms"
-    | "/bookmarks"
-    | "/dashboard"
-    | "/diagrams"
-    | "/notes"
-    | "/auth/error"
-    | "/auth/forgot-password"
-    | "/auth/login"
-    | "/auth/sign-up"
-    | "/auth/sign-up-success"
-    | "/auth/update-password"
-    | "/oauth/consent"
-    | "/diagram/$diagramId"
-    | "/note/$noteId"
-    | "/settings/digest"
-    | "/api/auth/confirm";
+    | '/'
+    | '/code-snippets'
+    | '/contact'
+    | '/privacy'
+    | '/terms'
+    | '/bookmarks'
+    | '/dashboard'
+    | '/diagrams'
+    | '/notes'
+    | '/auth/error'
+    | '/auth/forgot-password'
+    | '/auth/login'
+    | '/auth/sign-up'
+    | '/auth/sign-up-success'
+    | '/auth/update-password'
+    | '/oauth/consent'
+    | '/diagram/$diagramId'
+    | '/note/$noteId'
+    | '/settings/digest'
+    | '/api/auth/confirm'
   id:
-    | "__root__"
-    | "/"
-    | "/_authed"
-    | "/code-snippets"
-    | "/contact"
-    | "/privacy"
-    | "/terms"
-    | "/_authed/bookmarks"
-    | "/_authed/dashboard"
-    | "/_authed/diagrams"
-    | "/_authed/notes"
-    | "/auth/error"
-    | "/auth/forgot-password"
-    | "/auth/login"
-    | "/auth/sign-up"
-    | "/auth/sign-up-success"
-    | "/auth/update-password"
-    | "/oauth/consent"
-    | "/_authed/diagram/$diagramId"
-    | "/_authed/note/$noteId"
-    | "/_authed/settings/digest"
-    | "/api/auth/confirm";
-  fileRoutesById: FileRoutesById;
+    | '__root__'
+    | '/'
+    | '/_authed'
+    | '/code-snippets'
+    | '/contact'
+    | '/privacy'
+    | '/terms'
+    | '/_authed/bookmarks'
+    | '/_authed/dashboard'
+    | '/_authed/diagrams'
+    | '/_authed/notes'
+    | '/auth/error'
+    | '/auth/forgot-password'
+    | '/auth/login'
+    | '/auth/sign-up'
+    | '/auth/sign-up-success'
+    | '/auth/update-password'
+    | '/oauth/consent'
+    | '/_authed/diagram/$diagramId'
+    | '/_authed/note/$noteId'
+    | '/_authed/settings/digest'
+    | '/api/auth/confirm'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  AuthedRoute: typeof AuthedRouteWithChildren;
-  CodeSnippetsRoute: typeof CodeSnippetsRoute;
-  ContactRoute: typeof ContactRoute;
-  PrivacyRoute: typeof PrivacyRoute;
-  TermsRoute: typeof TermsRoute;
-  AuthErrorRoute: typeof AuthErrorRoute;
-  AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute;
-  AuthLoginRoute: typeof AuthLoginRoute;
-  AuthSignUpRoute: typeof AuthSignUpRoute;
-  AuthSignUpSuccessRoute: typeof AuthSignUpSuccessRoute;
-  AuthUpdatePasswordRoute: typeof AuthUpdatePasswordRoute;
-  OauthConsentRoute: typeof OauthConsentRoute;
-  ApiAuthConfirmRoute: typeof ApiAuthConfirmRoute;
+  IndexRoute: typeof IndexRoute
+  AuthedRoute: typeof AuthedRouteWithChildren
+  CodeSnippetsRoute: typeof CodeSnippetsRoute
+  ContactRoute: typeof ContactRoute
+  PrivacyRoute: typeof PrivacyRoute
+  TermsRoute: typeof TermsRoute
+  AuthErrorRoute: typeof AuthErrorRoute
+  AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
+  AuthLoginRoute: typeof AuthLoginRoute
+  AuthSignUpRoute: typeof AuthSignUpRoute
+  AuthSignUpSuccessRoute: typeof AuthSignUpSuccessRoute
+  AuthUpdatePasswordRoute: typeof AuthUpdatePasswordRoute
+  OauthConsentRoute: typeof OauthConsentRoute
+  ApiAuthConfirmRoute: typeof ApiAuthConfirmRoute
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/terms": {
-      id: "/terms";
-      path: "/terms";
-      fullPath: "/terms";
-      preLoaderRoute: typeof TermsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/privacy": {
-      id: "/privacy";
-      path: "/privacy";
-      fullPath: "/privacy";
-      preLoaderRoute: typeof PrivacyRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/contact": {
-      id: "/contact";
-      path: "/contact";
-      fullPath: "/contact";
-      preLoaderRoute: typeof ContactRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/code-snippets": {
-      id: "/code-snippets";
-      path: "/code-snippets";
-      fullPath: "/code-snippets";
-      preLoaderRoute: typeof CodeSnippetsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/_authed": {
-      id: "/_authed";
-      path: "";
-      fullPath: "/";
-      preLoaderRoute: typeof AuthedRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/": {
-      id: "/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof IndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/oauth/consent": {
-      id: "/oauth/consent";
-      path: "/oauth/consent";
-      fullPath: "/oauth/consent";
-      preLoaderRoute: typeof OauthConsentRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/auth/update-password": {
-      id: "/auth/update-password";
-      path: "/auth/update-password";
-      fullPath: "/auth/update-password";
-      preLoaderRoute: typeof AuthUpdatePasswordRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/auth/sign-up-success": {
-      id: "/auth/sign-up-success";
-      path: "/auth/sign-up-success";
-      fullPath: "/auth/sign-up-success";
-      preLoaderRoute: typeof AuthSignUpSuccessRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/auth/sign-up": {
-      id: "/auth/sign-up";
-      path: "/auth/sign-up";
-      fullPath: "/auth/sign-up";
-      preLoaderRoute: typeof AuthSignUpRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/auth/login": {
-      id: "/auth/login";
-      path: "/auth/login";
-      fullPath: "/auth/login";
-      preLoaderRoute: typeof AuthLoginRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/auth/forgot-password": {
-      id: "/auth/forgot-password";
-      path: "/auth/forgot-password";
-      fullPath: "/auth/forgot-password";
-      preLoaderRoute: typeof AuthForgotPasswordRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/auth/error": {
-      id: "/auth/error";
-      path: "/auth/error";
-      fullPath: "/auth/error";
-      preLoaderRoute: typeof AuthErrorRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/_authed/notes": {
-      id: "/_authed/notes";
-      path: "/notes";
-      fullPath: "/notes";
-      preLoaderRoute: typeof AuthedNotesRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/_authed/diagrams": {
-      id: "/_authed/diagrams";
-      path: "/diagrams";
-      fullPath: "/diagrams";
-      preLoaderRoute: typeof AuthedDiagramsRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/_authed/dashboard": {
-      id: "/_authed/dashboard";
-      path: "/dashboard";
-      fullPath: "/dashboard";
-      preLoaderRoute: typeof AuthedDashboardRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/_authed/bookmarks": {
-      id: "/_authed/bookmarks";
-      path: "/bookmarks";
-      fullPath: "/bookmarks";
-      preLoaderRoute: typeof AuthedBookmarksRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/api/auth/confirm": {
-      id: "/api/auth/confirm";
-      path: "/api/auth/confirm";
-      fullPath: "/api/auth/confirm";
-      preLoaderRoute: typeof ApiAuthConfirmRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/_authed/settings/digest": {
-      id: "/_authed/settings/digest";
-      path: "/settings/digest";
-      fullPath: "/settings/digest";
-      preLoaderRoute: typeof AuthedSettingsDigestRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/_authed/note/$noteId": {
-      id: "/_authed/note/$noteId";
-      path: "/note/$noteId";
-      fullPath: "/note/$noteId";
-      preLoaderRoute: typeof AuthedNoteNoteIdRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/_authed/diagram/$diagramId": {
-      id: "/_authed/diagram/$diagramId";
-      path: "/diagram/$diagramId";
-      fullPath: "/diagram/$diagramId";
-      preLoaderRoute: typeof AuthedDiagramDiagramIdRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/code-snippets': {
+      id: '/code-snippets'
+      path: '/code-snippets'
+      fullPath: '/code-snippets'
+      preLoaderRoute: typeof CodeSnippetsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authed': {
+      id: '/_authed'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oauth/consent': {
+      id: '/oauth/consent'
+      path: '/oauth/consent'
+      fullPath: '/oauth/consent'
+      preLoaderRoute: typeof OauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/update-password': {
+      id: '/auth/update-password'
+      path: '/auth/update-password'
+      fullPath: '/auth/update-password'
+      preLoaderRoute: typeof AuthUpdatePasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/sign-up-success': {
+      id: '/auth/sign-up-success'
+      path: '/auth/sign-up-success'
+      fullPath: '/auth/sign-up-success'
+      preLoaderRoute: typeof AuthSignUpSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/sign-up': {
+      id: '/auth/sign-up'
+      path: '/auth/sign-up'
+      fullPath: '/auth/sign-up'
+      preLoaderRoute: typeof AuthSignUpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/login': {
+      id: '/auth/login'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/forgot-password': {
+      id: '/auth/forgot-password'
+      path: '/auth/forgot-password'
+      fullPath: '/auth/forgot-password'
+      preLoaderRoute: typeof AuthForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/error': {
+      id: '/auth/error'
+      path: '/auth/error'
+      fullPath: '/auth/error'
+      preLoaderRoute: typeof AuthErrorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authed/notes': {
+      id: '/_authed/notes'
+      path: '/notes'
+      fullPath: '/notes'
+      preLoaderRoute: typeof AuthedNotesRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/diagrams': {
+      id: '/_authed/diagrams'
+      path: '/diagrams'
+      fullPath: '/diagrams'
+      preLoaderRoute: typeof AuthedDiagramsRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/dashboard': {
+      id: '/_authed/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthedDashboardRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/bookmarks': {
+      id: '/_authed/bookmarks'
+      path: '/bookmarks'
+      fullPath: '/bookmarks'
+      preLoaderRoute: typeof AuthedBookmarksRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/api/auth/confirm': {
+      id: '/api/auth/confirm'
+      path: '/api/auth/confirm'
+      fullPath: '/api/auth/confirm'
+      preLoaderRoute: typeof ApiAuthConfirmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authed/settings/digest': {
+      id: '/_authed/settings/digest'
+      path: '/settings/digest'
+      fullPath: '/settings/digest'
+      preLoaderRoute: typeof AuthedSettingsDigestRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/note/$noteId': {
+      id: '/_authed/note/$noteId'
+      path: '/note/$noteId'
+      fullPath: '/note/$noteId'
+      preLoaderRoute: typeof AuthedNoteNoteIdRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/diagram/$diagramId': {
+      id: '/_authed/diagram/$diagramId'
+      path: '/diagram/$diagramId'
+      fullPath: '/diagram/$diagramId'
+      preLoaderRoute: typeof AuthedDiagramDiagramIdRouteImport
+      parentRoute: typeof AuthedRoute
+    }
   }
 }
 
 interface AuthedRouteChildren {
-  AuthedBookmarksRoute: typeof AuthedBookmarksRoute;
-  AuthedDashboardRoute: typeof AuthedDashboardRoute;
-  AuthedDiagramsRoute: typeof AuthedDiagramsRoute;
-  AuthedNotesRoute: typeof AuthedNotesRoute;
-  AuthedDiagramDiagramIdRoute: typeof AuthedDiagramDiagramIdRoute;
-  AuthedNoteNoteIdRoute: typeof AuthedNoteNoteIdRoute;
-  AuthedSettingsDigestRoute: typeof AuthedSettingsDigestRoute;
+  AuthedBookmarksRoute: typeof AuthedBookmarksRoute
+  AuthedDashboardRoute: typeof AuthedDashboardRoute
+  AuthedDiagramsRoute: typeof AuthedDiagramsRoute
+  AuthedNotesRoute: typeof AuthedNotesRoute
+  AuthedDiagramDiagramIdRoute: typeof AuthedDiagramDiagramIdRoute
+  AuthedNoteNoteIdRoute: typeof AuthedNoteNoteIdRoute
+  AuthedSettingsDigestRoute: typeof AuthedSettingsDigestRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
@@ -461,9 +461,10 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedDiagramDiagramIdRoute: AuthedDiagramDiagramIdRoute,
   AuthedNoteNoteIdRoute: AuthedNoteNoteIdRoute,
   AuthedSettingsDigestRoute: AuthedSettingsDigestRoute,
-};
+}
 
-const AuthedRouteWithChildren = AuthedRoute._addFileChildren(AuthedRouteChildren);
+const AuthedRouteWithChildren =
+  AuthedRoute._addFileChildren(AuthedRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -480,16 +481,16 @@ const rootRouteChildren: RootRouteChildren = {
   AuthUpdatePasswordRoute: AuthUpdatePasswordRoute,
   OauthConsentRoute: OauthConsentRoute,
   ApiAuthConfirmRoute: ApiAuthConfirmRoute,
-};
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()
 
-import type { getRouter } from "./router.tsx";
-import type { createStart } from "@tanstack/react-start";
-declare module "@tanstack/react-start" {
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
   interface Register {
-    ssr: true;
-    router: Awaited<ReturnType<typeof getRouter>>;
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
   }
 }

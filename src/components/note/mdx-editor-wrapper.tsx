@@ -16,16 +16,26 @@ import {
   codeBlockPlugin,
   codeMirrorPlugin,
   diffSourcePlugin,
+  toolbarPlugin,
+  UndoRedo,
+  Separator,
+  BlockTypeSelect,
+  BoldItalicUnderlineToggles,
+  CodeToggle,
+  CreateLink,
+  ListsToggle,
+  InsertCodeBlock,
 } from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
 import { toEditorMarkdown, toStoredMarkdown } from "@/lib/mdx-blanklines";
 
 interface MDXEditorWrapperProps extends Omit<MDXEditorProps, "plugins"> {
   editorRef?: React.Ref<MDXEditorMethods>;
+  showToolbar?: boolean;
 }
 
 export const MDXEditorWrapper = forwardRef<MDXEditorMethods, MDXEditorWrapperProps>(
-  ({ editorRef, markdown = "", onChange, ...props }, ref) => {
+  ({ editorRef, markdown = "", onChange, showToolbar = false, ...props }, ref) => {
     const innerRef = useRef<MDXEditorMethods>(null);
 
     // Wrap the imperative handle so every markdown in/out boundary runs through
@@ -96,6 +106,28 @@ export const MDXEditorWrapper = forwardRef<MDXEditorMethods, MDXEditorWrapperPro
 
           // Diff/Source view toggle
           diffSourcePlugin({ viewMode: "rich-text", diffMarkdown: "" }),
+
+          ...(showToolbar
+            ? [
+                toolbarPlugin({
+                  toolbarClassName: "note-format-toolbar",
+                  toolbarContents: () => (
+                    <>
+                      <UndoRedo />
+                      <Separator />
+                      <BlockTypeSelect />
+                      <Separator />
+                      <BoldItalicUnderlineToggles options={["Bold", "Italic"]} />
+                      <CodeToggle />
+                      <CreateLink />
+                      <Separator />
+                      <ListsToggle />
+                      <InsertCodeBlock />
+                    </>
+                  ),
+                }),
+              ]
+            : []),
         ]}
         contentEditableClassName="prose prose-sm sm:prose lg:prose-lg max-w-none dark:prose-invert"
       />

@@ -144,6 +144,11 @@ code {
   --accentBg: var(--accent);
   --accentBgHover: var(--accent);
   --accentBgActive: var(--accent);
+  --accentLine: color-mix(in oklch, var(--primary) 22%, var(--border));
+  --accentBorder: color-mix(in oklch, var(--primary) 48%, var(--border));
+  --accentBorderHover: var(--primary);
+  --accentSolid: var(--primary);
+  --accentSolidHover: color-mix(in oklch, var(--primary) 88%, var(--foreground));
   --accentText: var(--primary);
   --accentTextContrast: var(--foreground);
   --basePageBg: var(--background);
@@ -576,4 +581,303 @@ code {
   box-shadow:
     0 10px 15px -3px rgb(255 255 255 / 0.1),
     0 4px 6px -4px rgb(255 255 255 / 0.1) !important;
+}
+
+/* Note editor: a single, document-first writing surface. */
+.note-editor-page {
+  background-image: radial-gradient(
+    circle at 50% -8rem,
+    color-mix(in oklch, var(--primary) 5%, transparent),
+    transparent 34rem
+  );
+}
+
+.note-title-field {
+  font-family: inherit;
+  caret-color: var(--primary);
+}
+
+.mdxeditor.note-editor-mdx {
+  --accentBase: var(--background);
+  --accentBgSubtle: color-mix(in oklch, var(--primary) 7%, var(--background));
+  --accentBg: color-mix(in oklch, var(--primary) 11%, var(--background));
+  --accentBgHover: color-mix(in oklch, var(--primary) 15%, var(--background));
+  --accentBgActive: color-mix(in oklch, var(--primary) 19%, var(--background));
+  --accentLine: color-mix(in oklch, var(--primary) 26%, var(--border));
+  --accentBorder: color-mix(in oklch, var(--primary) 48%, var(--border));
+  --accentBorderHover: var(--primary);
+  --accentSolid: var(--primary);
+  --accentSolidHover: color-mix(in oklch, var(--primary) 88%, var(--foreground));
+  --accentText: color-mix(in oklch, var(--primary) 76%, var(--foreground));
+  --accentTextContrast: var(--foreground);
+  --basePageBg: var(--background);
+  --baseBase: var(--card);
+  --baseBgSubtle: color-mix(in oklch, var(--foreground) 3%, var(--background));
+  --baseBg: color-mix(in oklch, var(--foreground) 6%, var(--background));
+  --baseBgHover: color-mix(in oklch, var(--foreground) 9%, var(--background));
+  --baseBgActive: color-mix(in oklch, var(--foreground) 12%, var(--background));
+  --baseLine: var(--border);
+  --baseBorder: var(--border);
+  --baseBorderHover: var(--muted-foreground);
+  --baseSolid: var(--muted-foreground);
+  --baseSolidHover: var(--foreground);
+  --baseText: var(--muted-foreground);
+  --baseTextContrast: var(--foreground);
+  overflow: visible;
+}
+
+.note-editor-mdx .note-format-toolbar {
+  position: sticky;
+  top: 4rem;
+  z-index: 40;
+  display: flex;
+  width: 100%;
+  min-height: 3.25rem;
+  align-items: center;
+  gap: 0.125rem;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0;
+  overflow-x: auto;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: color-mix(in oklch, var(--background) 88%, transparent) !important;
+  box-shadow: 0 1px 0 color-mix(in oklch, var(--border) 65%, transparent);
+  backdrop-filter: blur(18px);
+  scrollbar-width: none;
+}
+
+.note-editor-mdx .note-format-toolbar::-webkit-scrollbar {
+  display: none;
+}
+
+.note-editor-mdx .note-format-toolbar button,
+.note-editor-mdx .note-format-toolbar [role="combobox"] {
+  min-width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  border-radius: 0.5rem !important;
+  color: var(--muted-foreground) !important;
+}
+
+.note-editor-mdx .note-format-toolbar [role="combobox"] {
+  width: 9rem;
+  margin: 0 0.25rem;
+  padding: 0 0.625rem;
+  border: 1px solid var(--border) !important;
+  background: color-mix(in oklch, var(--foreground) 5%, var(--background)) !important;
+  color: var(--foreground) !important;
+  box-shadow: none !important;
+}
+
+.note-editor-mdx .note-format-toolbar [role="combobox"] > span:first-child {
+  color: inherit !important;
+}
+
+.dark
+  .mdxeditor.note-editor-mdx
+  .note-format-toolbar
+  [role="combobox"][data-placeholder]
+  > span:first-child {
+  display: block;
+  visibility: visible;
+  color: var(--muted-foreground) !important;
+  -webkit-text-fill-color: var(--muted-foreground);
+  opacity: 1;
+}
+
+.note-editor-mdx .note-format-toolbar button svg,
+.note-editor-mdx .note-format-toolbar [role="combobox"] svg {
+  color: currentColor !important;
+}
+
+.note-editor-mdx .note-format-toolbar button[data-disabled] {
+  color: var(--muted-foreground) !important;
+  opacity: 0.38;
+}
+
+.note-editor-mdx .note-format-toolbar button:hover,
+.note-editor-mdx .note-format-toolbar [role="combobox"]:hover {
+  background: var(--muted) !important;
+  color: var(--foreground) !important;
+}
+
+.note-editor-mdx .note-format-toolbar [data-state="on"],
+.note-editor-mdx .note-format-toolbar [aria-pressed="true"] {
+  background: color-mix(in oklch, var(--primary) 14%, transparent) !important;
+  color: var(--primary) !important;
+}
+
+.note-editor-mdx .note-format-toolbar [role="separator"] {
+  width: 1px;
+  height: 1.25rem;
+  margin: 0 0.25rem;
+  border: 0 !important;
+  background: var(--border);
+}
+
+.note-editor-mdx .mdxeditor-root-contenteditable {
+  min-height: max(32rem, calc(100svh - 18rem)) !important;
+  padding: 0.75rem 0 0 !important;
+  color: color-mix(in oklch, var(--foreground) 92%, transparent) !important;
+  font-size: 1.0625rem !important;
+  line-height: 1.78 !important;
+  letter-spacing: -0.008em;
+  caret-color: var(--primary);
+  outline: none;
+}
+
+.note-editor-mdx .mdxeditor-root-contenteditable > :first-child {
+  margin-top: 0 !important;
+}
+
+.note-editor-mdx .mdxeditor-root-contenteditable p {
+  margin: 0.65em 0 !important;
+}
+
+.note-editor-mdx .mdxeditor-root-contenteditable h1 {
+  margin: 1.8em 0 0.55em !important;
+  font-size: 2rem !important;
+  line-height: 1.18 !important;
+  letter-spacing: -0.03em;
+}
+
+.note-editor-mdx .mdxeditor-root-contenteditable h2 {
+  margin: 1.65em 0 0.5em !important;
+  font-size: 1.55rem !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.025em;
+}
+
+.note-editor-mdx .mdxeditor-root-contenteditable h3 {
+  margin: 1.45em 0 0.45em !important;
+  font-size: 1.25rem !important;
+  line-height: 1.3 !important;
+  letter-spacing: -0.015em;
+}
+
+.note-editor-mdx .mdxeditor-root-contenteditable ul,
+.note-editor-mdx .mdxeditor-root-contenteditable ol {
+  margin: 0.75em 0 !important;
+  padding-left: 1.6rem !important;
+}
+
+.note-editor-mdx
+  .mdxeditor-root-contenteditable
+  li:not([class*="_listItemChecked_"]):not([class*="_listItemUnchecked_"]) {
+  margin-bottom: 0.25em !important;
+  padding-left: 0.25rem;
+}
+
+.note-editor-mdx .mdxeditor-root-contenteditable li[class*="_listItemChecked_"],
+.note-editor-mdx .mdxeditor-root-contenteditable li[class*="_listItemUnchecked_"] {
+  min-height: 1.6em;
+  margin: 0.55em 0 !important;
+  padding: 0 0 0 1.75rem !important;
+  list-style: none !important;
+  line-height: inherit;
+}
+
+.note-editor-mdx .mdxeditor-root-contenteditable li[class*="_listItemChecked_"]::before,
+.note-editor-mdx .mdxeditor-root-contenteditable li[class*="_listItemUnchecked_"]::before {
+  box-sizing: border-box;
+  top: 0.34em !important;
+  left: 0 !important;
+  width: 1.05rem !important;
+  height: 1.05rem !important;
+  border-width: 1.5px !important;
+  border-color: color-mix(in oklch, var(--muted-foreground) 68%, var(--border)) !important;
+  border-radius: 0.3rem !important;
+  background-color: transparent;
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.note-editor-mdx .mdxeditor-root-contenteditable li[class*="_listItemChecked_"]::before {
+  border-color: var(--primary) !important;
+  background-color: var(--primary) !important;
+}
+
+.note-editor-mdx .mdxeditor-root-contenteditable li[class*="_listItemChecked_"]::after {
+  top: 0.48em !important;
+  left: 0.36rem !important;
+  width: 0.3rem !important;
+  height: 0.58rem !important;
+  border-color: var(--primary-foreground) !important;
+  border-width: 0 0.125rem 0.125rem 0 !important;
+}
+
+.note-editor-mdx .mdxeditor-root-contenteditable li[class*="_listItemChecked_"]:focus::before,
+.note-editor-mdx .mdxeditor-root-contenteditable li[class*="_listItemUnchecked_"]:focus::before {
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 18%, transparent);
+}
+
+.note-editor-mdx .mdxeditor-root-contenteditable code:not(pre code) {
+  padding: 0.12em 0.38em !important;
+  border: 1px solid color-mix(in oklch, var(--primary) 18%, var(--border));
+  border-radius: 0.35rem !important;
+  background: color-mix(in oklch, var(--primary) 7%, var(--background)) !important;
+  color: color-mix(in oklch, var(--primary) 58%, var(--foreground)) !important;
+  box-decoration-break: clone;
+  font-size: 0.9em !important;
+  font-weight: 500;
+  white-space: break-spaces;
+}
+
+.dark .note-editor-mdx .mdxeditor-root-contenteditable code:not(pre code) {
+  border-color: color-mix(in oklch, var(--primary) 24%, var(--border));
+  background: color-mix(in oklch, var(--primary) 13%, var(--background)) !important;
+  color: color-mix(in oklch, var(--primary) 34%, var(--foreground)) !important;
+}
+
+.note-editor-mdx .mdxeditor-root-contenteditable pre code {
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: inherit !important;
+}
+
+.note-editor-mdx .mdxeditor-root-contenteditable blockquote {
+  margin: 1.25rem 0 !important;
+  border-left-width: 2px !important;
+  border-left-color: color-mix(in oklch, var(--primary) 55%, var(--border)) !important;
+  padding: 0.125rem 0 0.125rem 1rem !important;
+}
+
+.note-editor-mdx .mdxeditor-root-contenteditable pre,
+.note-editor-mdx [class*="_codeMirrorWrapper_"] {
+  margin: 1.25rem 0 !important;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem !important;
+}
+
+.note-editor-mdx .mdxeditor-root-contenteditable ::selection {
+  background: color-mix(in oklch, var(--primary) 24%, transparent);
+}
+
+@media (max-width: 639px) {
+  .note-editor-page {
+    background-image: none;
+  }
+
+  .note-editor-mdx .note-format-toolbar {
+    margin-inline: -0.25rem;
+    padding-inline: 0.25rem;
+  }
+
+  .note-editor-mdx .mdxeditor-root-contenteditable {
+    min-height: calc(100svh - 15rem) !important;
+    padding-top: 0.5rem !important;
+    font-size: 1rem !important;
+    line-height: 1.72 !important;
+  }
+
+  .note-editor-mdx .mdxeditor-root-contenteditable h1 {
+    font-size: 1.75rem !important;
+  }
+
+  .note-editor-mdx .mdxeditor-root-contenteditable h2 {
+    font-size: 1.4rem !important;
+  }
 }

@@ -1,13 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Note } from '@/lib/types';
-import { getNote, updateNote, deleteNote } from '@/lib/api';
-import { useDebounce } from '@/lib/hooks/useDebounce';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Note } from "@/lib/types";
+import { getNote, updateNote, deleteNote } from "@/lib/api";
+import { useDebounce } from "@/lib/hooks/useDebounce";
+import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,11 +15,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { ArrowLeft, Trash2, Loader2, Clock, StickyNote } from 'lucide-react';
-import { Link, useNavigate } from '@tanstack/react-router';
-import { MDXEditorWrapper } from './mdx-editor-wrapper';
-import type { MDXEditorMethods } from '@mdxeditor/editor';
+} from "@/components/ui/alert-dialog";
+import { ArrowLeft, Trash2, Loader2, Clock, StickyNote, PencilLine } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { MDXEditorWrapper } from "./mdx-editor-wrapper";
+import type { MDXEditorMethods } from "@mdxeditor/editor";
 
 interface NoteEditorProps {
   noteId: string;
@@ -31,24 +29,33 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const editorRef = useRef<MDXEditorMethods>(null);
+  const titleRef = useRef<HTMLTextAreaElement>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [autoSaving, setAutoSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [tags, setTags] = useState('');
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [tags, setTags] = useState("");
 
   // Debounced values for auto-save
   const debouncedTitle = useDebounce(title, 1000);
   const debouncedContent = useDebounce(content, 1000);
   const debouncedTags = useDebounce(tags, 1000);
 
+  useLayoutEffect(() => {
+    const titleElement = titleRef.current;
+    if (!titleElement) return;
+
+    titleElement.style.height = "auto";
+    titleElement.style.height = `${titleElement.scrollHeight}px`;
+  }, [title]);
+
   // Invalidate notes query when component unmounts to ensure fresh data on notes page
   useEffect(() => {
     return () => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
     };
   }, [queryClient]);
 
@@ -58,7 +65,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
     isLoading: loading,
     isError,
   } = useQuery({
-    queryKey: ['note', noteId],
+    queryKey: ["note", noteId],
     queryFn: () => getNote(noteId),
     retry: 1,
   });
@@ -66,14 +73,14 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
   // Initialize form when note loads
   useEffect(() => {
     if (note) {
-      setTitle(note.title || '');
-      setContent(note.content || '');
-      setTags(note.tags || '');
+      setTitle(note.title || "");
+      setContent(note.content || "");
+      setTags(note.tags || "");
       setLastSaved(new Date());
 
       // Update editor content via ref if it exists and content changed
       if (editorRef.current && note.content !== content) {
-        editorRef.current.setMarkdown(note.content || '');
+        editorRef.current.setMarkdown(note.content || "");
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -82,8 +89,8 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
   // Navigate away if note fails to load
   useEffect(() => {
     if (isError) {
-      console.error('Failed to load note');
-      navigate({ to: '/notes' });
+      console.error("Failed to load note");
+      navigate({ to: "/notes" });
     }
   }, [isError, navigate]);
 
@@ -91,8 +98,8 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
   const updateNoteMutation = useMutation({
     mutationFn: (data: Partial<Note>) => updateNote(noteId, data),
     onSuccess: (updatedNote) => {
-      queryClient.setQueryData(['note', noteId], updatedNote);
-      queryClient.setQueryData<Note[]>(['notes'], (old = []) =>
+      queryClient.setQueryData(["note", noteId], updatedNote);
+      queryClient.setQueryData<Note[]>(["notes"], (old = []) =>
         old.map((n) => (n.id === noteId ? updatedNote : n)),
       );
       setHasChanges(false);
@@ -104,11 +111,9 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
   const deleteNoteMutation = useMutation({
     mutationFn: () => deleteNote(noteId),
     onSuccess: () => {
-      queryClient.setQueryData<Note[]>(['notes'], (old = []) =>
-        old.filter((n) => n.id !== noteId),
-      );
-      console.log('Note deleted successfully');
-      navigate({ to: '/notes' });
+      queryClient.setQueryData<Note[]>(["notes"], (old = []) => old.filter((n) => n.id !== noteId));
+      console.log("Note deleted successfully");
+      navigate({ to: "/notes" });
     },
   });
 
@@ -117,14 +122,11 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
     if (!note) return;
 
     const hasDataChanges =
-      debouncedTitle !== (note.title || '') ||
-      debouncedContent !== (note.content || '') ||
-      debouncedTags !== (note.tags || '');
+      debouncedTitle !== (note.title || "") ||
+      debouncedContent !== (note.content || "") ||
+      debouncedTags !== (note.tags || "");
 
-    if (
-      hasDataChanges &&
-      (debouncedTitle || debouncedContent || debouncedTags)
-    ) {
+    if (hasDataChanges && (debouncedTitle || debouncedContent || debouncedTags)) {
       const autoSave = async () => {
         try {
           setAutoSaving(true);
@@ -134,7 +136,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
             tags: debouncedTags || null,
           });
         } catch (error) {
-          console.error('Failed to auto-save note:', error);
+          console.error("Failed to auto-save note:", error);
         } finally {
           setAutoSaving(false);
         }
@@ -143,14 +145,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
       autoSave();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    debouncedTitle,
-    debouncedContent,
-    debouncedTags,
-    note?.title,
-    note?.content,
-    note?.tags,
-  ]);
+  }, [debouncedTitle, debouncedContent, debouncedTags, note?.title, note?.content, note?.tags]);
 
   const handleDelete = async () => {
     if (!note) return;
@@ -158,8 +153,8 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
     try {
       await deleteNoteMutation.mutateAsync();
     } catch (error) {
-      console.error('Failed to delete note:', error);
-      console.error('Failed to delete note');
+      console.error("Failed to delete note:", error);
+      console.error("Failed to delete note");
     }
   };
 
@@ -177,15 +172,15 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
   };
 
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'Unknown date';
+    if (!dateString) return "Unknown date";
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) return 'Invalid date';
+    if (isNaN(date.getTime())) return "Invalid date";
     return date.toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -204,12 +199,9 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-foreground mb-2">
-            Note not found
-          </h2>
+          <h2 className="text-xl font-semibold text-foreground mb-2">Note not found</h2>
           <p className="text-muted-foreground mb-4">
-            The note you&apos;re looking for doesn&apos;t exist or has been
-            deleted.
+            The note you&apos;re looking for doesn&apos;t exist or has been deleted.
           </p>
           <Button asChild>
             <Link to="/notes">
@@ -223,55 +215,59 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="note-editor-page min-h-screen flex flex-col bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full bg-background/90 backdrop-blur-lg border-b border-border shadow-sm">
-        <div className="w-full max-w-5xl mx-auto flex justify-between items-center p-3 md:p-4 px-4 md:px-6">
-          <div className="flex items-center gap-4">
+      <header className="sticky top-0 z-50 w-full border-b border-border/70 bg-background/80 backdrop-blur-xl">
+        <div className="w-full max-w-6xl mx-auto flex justify-between items-center h-16 px-3 sm:px-6">
+          <div className="flex min-w-0 items-center gap-1 sm:gap-3">
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
               asChild
-              className="flex items-center gap-2"
+              className="shrink-0 rounded-full text-muted-foreground hover:text-foreground"
             >
-              <Link to="/notes">
-                <ArrowLeft className="h-4 w-4" />
-                <span className="hidden sm:inline">Back to Notes</span>
+              <Link to="/notes" aria-label="Back to notes">
+                <ArrowLeft className="h-5 w-5" />
               </Link>
             </Button>
-            <div className="flex items-center gap-2">
-              <StickyNote className="h-5 w-5 text-primary" />
-              <h1 className="text-lg font-semibold text-foreground truncate max-w-[200px] sm:max-w-none">
-                {title || 'Untitled Note'}
-              </h1>
-              {autoSaving ? (
-                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded flex items-center gap-1">
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  Saving...
-                </span>
-              ) : hasChanges ? (
-                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-                  Unsaved changes
-                </span>
-              ) : lastSaved ? (
-                <span className="text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950 px-2 py-1 rounded">
-                  Saved
-                </span>
-              ) : null}
+            <div className="hidden min-w-0 items-center gap-2 sm:flex">
+              <StickyNote className="h-4 w-4 shrink-0 text-primary" />
+              <span className="truncate text-sm font-medium text-foreground/80 max-w-[18rem] lg:max-w-[30rem]">
+                {title || "Untitled Note"}
+              </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="hidden sm:flex items-center gap-1 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="hidden md:flex items-center gap-1.5 text-xs text-muted-foreground">
               <Clock className="h-3 w-3" />
               <span>Updated {formatDate(note.updated_at)}</span>
             </div>
+            <div
+              className="inline-flex h-7 items-center rounded-full border border-border/70 bg-muted/40 px-2.5 text-xs text-muted-foreground"
+              role="status"
+              aria-live="polite"
+            >
+              {autoSaving ? (
+                <>
+                  <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+                  Saving
+                </>
+              ) : hasChanges ? (
+                "Unsaved"
+              ) : lastSaved ? (
+                <span className="text-emerald-600 dark:text-emerald-400">Saved</span>
+              ) : (
+                "Ready"
+              )}
+            </div>
             <Button
-              variant="outline"
-              size="sm"
+              variant="ghost"
+              size="icon"
               onClick={() => setShowDeleteDialog(true)}
               disabled={deleteNoteMutation.isPending}
-              className="text-destructive hover:text-destructive"
+              className="rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+              aria-label="Delete note"
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -280,43 +276,41 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
       </header>
 
       {/* Editor Content */}
-      <main className="flex-1 w-full max-w-3xl mx-auto p-4 md:p-6">
-        <div className="space-y-8 bg-card rounded-lg border border-border shadow-sm my-6 p-6 md:p-8">
+      <main className="flex-1 w-full">
+        <article className="note-writing-surface mx-auto w-full max-w-3xl px-5 pb-24 pt-10 sm:px-8 sm:pt-14 md:pt-20">
           {/* Title Input */}
-          <div>
-            <Label
-              htmlFor="title"
-              className="text-sm font-medium text-foreground mb-3 block sr-only"
-            >
-              Title
-            </Label>
-            <Input
+          <div className="group relative mb-4">
+            <label htmlFor="title" className="sr-only">
+              Note title
+            </label>
+            <textarea
+              ref={titleRef}
               id="title"
+              rows={1}
               value={title}
               onChange={(e) => handleTitleChange(e.target.value)}
-              placeholder="Enter note title..."
-              className="text-xl font-semibold border-0 shadow-none px-0 focus-visible:ring-0 bg-transparent placeholder:text-muted-foreground/60"
+              placeholder="Untitled"
+              className="note-title-field block w-full resize-none overflow-hidden rounded-xl border border-transparent bg-transparent py-2 px-4 pr-10 text-3xl font-semibold leading-[1.15] tracking-[-0.035em] text-foreground outline-none transition-colors placeholder:text-muted-foreground/45 hover:bg-muted/25 focus:border-border/60 focus:bg-muted/20 sm:text-4xl"
+            />
+            <PencilLine
+              aria-hidden="true"
+              className="pointer-events-none absolute right-3 top-4 h-4 w-4 text-muted-foreground opacity-40 transition-opacity sm:opacity-0 sm:group-hover:opacity-50 sm:group-focus-within:opacity-70"
             />
           </div>
 
           {/* Content Editor */}
-          <div className="flex-1">
-            <Label
-              htmlFor="content"
-              className="text-sm font-medium text-foreground mb-3 block"
-            >
-              Content
-            </Label>
-            <div className="border border-border/50 rounded-md overflow-hidden bg-background/50 focus-within:border-primary/50 transition-colors">
-              <MDXEditorWrapper
-                key={noteId}
-                ref={editorRef}
-                markdown={note?.content || ''}
-                onChange={handleContentChange}
-              />
-            </div>
+          <div className="note-body-editor">
+            <MDXEditorWrapper
+              key={noteId}
+              ref={editorRef}
+              markdown={note?.content || ""}
+              onChange={handleContentChange}
+              className="note-editor-mdx"
+              placeholder="Start writing, or type # for a heading…"
+              showToolbar
+            />
           </div>
-        </div>
+        </article>
       </main>
 
       {/* Delete Confirmation Dialog */}
@@ -325,7 +319,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Note</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete &quot;{title || 'this note'}
+              Are you sure you want to delete &quot;{title || "this note"}
               &quot;? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -342,7 +336,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
                   Deleting...
                 </>
               ) : (
-                'Delete'
+                "Delete"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

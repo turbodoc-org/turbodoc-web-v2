@@ -4,7 +4,6 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Bookmark } from "@/lib/types";
 import { BookmarkCard } from "@/components/bookmark/bookmark-card";
-import { DragDropZone } from "@/components/bookmark/drag-drop-zone";
 import { TagFilter } from "@/components/bookmark/tag-filter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +20,8 @@ import { Plus, Search, Loader2, X, Globe, Link as LinkIcon } from "lucide-react"
 import { getBookmarks, createBookmark, searchBookmarks } from "@/lib/api";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { toast } from "sonner";
+
+const EMPTY_BOOKMARKS: Bookmark[] = [];
 
 function BookmarkCardSkeleton() {
   return (
@@ -61,7 +62,7 @@ export function BookmarkGrid() {
   });
 
   // Fetch bookmarks with React Query
-  const { data: bookmarks = [], isLoading } = useQuery({
+  const { data: bookmarks = EMPTY_BOOKMARKS, isLoading } = useQuery({
     queryKey: ["bookmarks"],
     queryFn: getBookmarks,
   });
@@ -360,9 +361,6 @@ export function BookmarkGrid() {
           </DialogContent>
         </Dialog>
       </div>
-
-      {/* Drag and Drop Zone */}
-      <DragDropZone onBookmarkCreated={handleDragDropBookmark} />
 
       {visibleBookmarks.length === 0 ? (
         <div className="text-center py-16 animate-in fade-in zoom-in-95 duration-300">
