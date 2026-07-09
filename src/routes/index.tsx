@@ -12,15 +12,38 @@ import {
   Smartphone,
   Code2,
   Workflow,
+  Bot,
 } from "lucide-react";
 import { GithubIcon, LinkedinIcon, XIcon } from "@/components/shared/brand-icons";
+import { JsonLd, organizationSchema, softwareApplicationSchema } from "@/components/shared/json-ld";
 
-export const Route = createFileRoute("/")({ component: App });
+export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      {
+        title: "Turbodoc - Bookmarks, notes, code & diagrams for you and your AI agents",
+      },
+      {
+        name: "description",
+        content:
+          "Turbodoc is a fast, open-source knowledge base: save bookmarks, markdown notes, code snippets, and diagrams across web, iOS, and browser extensions. Connect Claude, Cursor, or any MCP client to read and write your library.",
+      },
+      {
+        property: "og:title",
+        content: "Turbodoc - Bookmarks, notes, code & diagrams for you and your AI agents",
+      },
+    ],
+    links: [{ rel: "canonical", href: "https://turbodoc.ai/" }],
+  }),
+  component: App,
+});
 
 function App() {
   const { loading, user } = useAuth();
   return (
     <main className="min-h-screen flex flex-col bg-linear-to-br from-background via-background to-muted/20">
+      <JsonLd data={softwareApplicationSchema} />
+      <JsonLd data={organizationSchema} />
       <AppHeader showNavLinks={!loading && !!user} />
 
       {/* Hero Section */}
@@ -363,6 +386,79 @@ function App() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* AI Tools / MCP Section */}
+      <section className="py-16 md:py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-linear-to-b from-background via-primary/5 to-background" />
+        <div className="absolute top-1/3 left-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
+
+        <div className="relative max-w-5xl mx-auto px-4">
+          <div className="text-center space-y-4 mb-12">
+            <div className="flex items-center justify-center mb-4">
+              <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
+                <Bot className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-primary">Built for the agent era</span>
+              </div>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+              Works with your AI tools
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Turbodoc ships a hosted MCP server, so Claude, Cursor, and any MCP-compatible
+              assistant can save, search, and organize your library for you. Your knowledge base
+              becomes your agent&apos;s memory.
+            </p>
+          </div>
+
+          <div className="relative bg-linear-to-br from-background via-background to-muted/10 border border-border/50 rounded-2xl p-8 md:p-12 shadow-xl backdrop-blur-sm">
+            <div className="grid md:grid-cols-3 gap-8 mb-8">
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold text-foreground">22 tools, zero setup</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Create, search, and update bookmarks, notes, code snippets, and diagrams straight
+                  from a conversation with your assistant.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold text-foreground">Any MCP client</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Works with Claude, Claude Code, Cursor, VS Code, Windsurf, and anything else that
+                  speaks the Model Context Protocol.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold text-foreground">Secure by default</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  OAuth 2.0 — sign in with your Turbodoc account. No API keys to create, paste, or
+                  leak.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-muted/40 border border-border/40 rounded-xl p-4 mb-8 overflow-x-auto">
+              <code className="text-sm text-foreground whitespace-nowrap">
+                claude mcp add --transport http turbodoc https://api.turbodoc.ai/mcp
+              </code>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button
+                asChild
+                size="lg"
+                className="bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg shadow-primary/20"
+              >
+                <Link to="/mcp" className="flex items-center gap-2">
+                  Connect your assistant
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <p className="text-sm text-muted-foreground">
+                Plus a weekly email digest that resurfaces what you saved.
+              </p>
             </div>
           </div>
         </div>

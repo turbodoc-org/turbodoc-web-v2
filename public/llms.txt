@@ -1,0 +1,39 @@
+# Turbodoc
+
+> Turbodoc is a fast, open-source knowledge base for humans and AI agents: bookmarks, markdown notes, code snippets, and diagrams, synced across web, iOS, and browser extensions. AI assistants can read and write a user's Turbodoc library through a hosted MCP (Model Context Protocol) server with 22 tools, authenticated via OAuth 2.0.
+
+Turbodoc is free while in beta. Made by Classic Apps Co. All source code is open source at https://github.com/turbodoc-org.
+
+## Connect an AI assistant (MCP)
+
+- [MCP overview and setup](https://turbodoc.ai/mcp): Connect Claude, Claude Code, Cursor, VS Code, Windsurf, or any MCP client
+- MCP endpoint (Streamable HTTP): https://api.turbodoc.ai/mcp
+- Auth: OAuth 2.0 Protected Resource (RFC 9728) — users sign in with their Turbodoc account; no API keys needed
+- Tools: full CRUD + search for bookmarks, notes, code snippets, and diagrams, plus batch operations and tag listing
+
+## Docs
+
+- [Documentation hub](https://turbodoc.ai/docs): Guides for the app, MCP, and API
+- [MCP setup guide](https://turbodoc.ai/docs/mcp): Step-by-step setup for each MCP client, with example prompts
+- [REST API](https://turbodoc.ai/docs/api): API overview and authentication
+- [OpenAPI spec](https://api.turbodoc.ai/swagger.json): Machine-readable API reference
+- [Interactive API docs](https://api.turbodoc.ai/swagger): Swagger UI
+
+## Use cases
+
+- [Agent memory](https://turbodoc.ai/use-cases/agent-memory): Give AI agents a persistent, user-owned memory store via MCP
+- [Personal knowledge base](https://turbodoc.ai/use-cases/knowledge-base): One searchable library for links, notes, code, and diagrams
+- [Save from AI chats](https://turbodoc.ai/use-cases/save-from-ai-chats): Capture links, notes, and code directly from Claude or ChatGPT conversations
+
+## Apps
+
+- [Web app](https://turbodoc.ai): Sign up and use Turbodoc in the browser
+- [iOS app](https://apps.apple.com/nl/app/turbodoc/id6749333065): Native app with share extension, widgets, voice-to-text, and OCR
+- [Chrome extension](https://chromewebstore.google.com/detail/turbodoc/fjncckldanedaaaoeapkponpplkahbdg): One-click bookmarking
+- [Firefox add-on](https://addons.mozilla.org/en-US/firefox/addon/turbodoc/): One-click bookmarking
+
+## Optional
+
+- [Privacy policy](https://turbodoc.ai/privacy)
+- [Terms of service](https://turbodoc.ai/terms)
+- [Contact](https://turbodoc.ai/contact)

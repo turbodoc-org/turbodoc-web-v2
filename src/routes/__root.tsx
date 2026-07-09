@@ -26,7 +26,7 @@ export const Route = createRootRoute({
       },
       {
         name: "viewport",
-        content: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
+        content: "width=device-width, initial-scale=1",
       },
       {
         title: "Turbodoc - Save and organize your content",
@@ -36,6 +36,27 @@ export const Route = createRootRoute({
         content:
           "A fast, beautiful bookmark manager for iOS and web. Save, organize, and search through your favorite links from anywhere.",
       },
+      { name: "theme-color", content: "#0a0a0a" },
+      { property: "og:site_name", content: "Turbodoc" },
+      { property: "og:type", content: "website" },
+      { property: "og:title", content: "Turbodoc - Save and organize your content" },
+      {
+        property: "og:description",
+        content:
+          "One place for bookmarks, notes, code, and diagrams — for you and your AI agents. Fast, open source, and always in sync.",
+      },
+      { property: "og:url", content: "https://turbodoc.ai/" },
+      { property: "og:image", content: "https://turbodoc.ai/og.png" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Turbodoc - Save and organize your content" },
+      {
+        name: "twitter:description",
+        content:
+          "One place for bookmarks, notes, code, and diagrams — for you and your AI agents. Fast, open source, and always in sync.",
+      },
+      { name: "twitter:image", content: "https://turbodoc.ai/og.png" },
     ],
     links: [
       {
@@ -43,6 +64,17 @@ export const Route = createRootRoute({
         href: appCss,
       },
     ],
+    scripts: import.meta.env.VITE_CF_ANALYTICS_TOKEN
+      ? [
+          {
+            src: "https://static.cloudflareinsights.com/beacon.min.js",
+            defer: true,
+            "data-cf-beacon": JSON.stringify({
+              token: import.meta.env.VITE_CF_ANALYTICS_TOKEN,
+            }),
+          },
+        ]
+      : [],
   }),
 
   shellComponent: RootDocument,
