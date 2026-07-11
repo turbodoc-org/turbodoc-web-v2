@@ -50,8 +50,8 @@ function App() {
       <section className="relative flex-1 flex flex-col items-center justify-center px-4 py-12 md:py-24 overflow-hidden">
         {/* Background decoration */}
         <div className="absolute inset-0 bg-linear-to-r from-primary/5 via-transparent to-primary/5 blur-3xl" />
-        <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-primary/10 rounded-full blur-2xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-24 h-24 bg-primary/5 rounded-full blur-xl animate-pulse delay-1000" />
+        <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-primary/10 rounded-full blur-2xl animate-pulse motion-reduce:animate-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-24 h-24 bg-primary/5 rounded-full blur-xl animate-pulse [animation-delay:1.2s] motion-reduce:animate-none" />
 
         <div className="relative text-center space-y-8 max-w-4xl mx-auto">
           <div className="space-y-6">
@@ -71,8 +71,8 @@ function App() {
               </span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              One place for bookmarks, notes, code, and diagrams. Fast, beautiful, and always in
-              sync.
+              One place for bookmarks, notes, code, and diagrams — for you and your AI tools. Fast,
+              beautiful, and always in sync.
             </p>
           </div>
 
@@ -112,8 +112,8 @@ function App() {
               Everything you need to stay organized
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Powerful features designed to help you save, organize, and access your content
-              effortlessly.
+              Capture anything in one click, keep it organized without effort, and find it the
+              moment you need it.
             </p>
           </div>
 
@@ -127,8 +127,8 @@ function App() {
                 <h3 className="text-xl font-semibold text-foreground">Smart Bookmarks</h3>
               </div>
               <p className="text-muted-foreground leading-relaxed">
-                Save links with auto titles, descriptions, and thumbnails. Find anything fast with
-                full-text search.
+                Save links with automatic titles, descriptions, and thumbnails. Find them again in
+                seconds by title, tag, or URL.
               </p>
             </div>
 
@@ -197,7 +197,12 @@ function App() {
               </div>
               <p className="text-muted-foreground leading-relaxed">
                 Open source and privacy-first. Your data, your control. Join us on{" "}
-                <a href="https://github.com/turbodoc-org" target="_blank" rel="noopener noreferrer">
+                <a
+                  href="https://github.com/turbodoc-org"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
                   GitHub
                 </a>
                 .
@@ -263,7 +268,7 @@ function App() {
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 bg-blue-500 rounded-full" />
                     <span className="text-sm text-muted-foreground">
-                      Full-text search across everything
+                      One search across bookmarks and notes
                     </span>
                   </div>
                 </div>
@@ -322,7 +327,7 @@ function App() {
                     <h3 className="text-xl font-semibold text-foreground mb-2">Visual Diagrams</h3>
                     <p className="text-muted-foreground">
                       Think visually, work faster. Create flowcharts, wireframes, and architecture
-                      diagrams with an intuitive editor. Export high-quality PNG/PDF when
+                      diagrams with an intuitive editor. Export a high-quality PNG or PDF when
                       you&apos;re ready to share.
                     </p>
                   </div>
@@ -362,28 +367,180 @@ function App() {
                 </Button>
               </div>
 
-              {/* Visual representation */}
+              {/* Visual representation: mini flowchart */}
               <div className="flex-1 lg:max-w-md">
-                <div className="relative bg-muted/30 rounded-xl p-6 border border-border/30">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-16 h-12 bg-blue-500/20 border-2 border-blue-500/40 rounded-lg flex items-center justify-center">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                      </div>
-                      <div className="flex-1 h-px bg-border" />
-                      <div className="w-16 h-12 bg-green-500/20 border-2 border-green-500/40 rounded-lg flex items-center justify-center">
-                        <div className="w-2 h-2 bg-green-500 rounded-full" />
-                      </div>
-                    </div>
-                    <div className="flex justify-center">
-                      <div className="w-px h-8 bg-border" />
-                    </div>
-                    <div className="flex justify-center">
-                      <div className="w-20 h-14 bg-orange-500/20 border-2 border-orange-500/40 rounded-lg flex items-center justify-center transform rotate-45">
-                        <div className="w-2 h-2 bg-orange-500 rounded-full" />
-                      </div>
-                    </div>
-                  </div>
+                <div className="relative bg-muted/30 rounded-xl p-4 border border-border/30">
+                  <svg
+                    viewBox="0 0 360 270"
+                    className="w-full h-auto"
+                    role="img"
+                    aria-label="Example flowchart with start, process, and decision nodes"
+                  >
+                    <defs>
+                      <marker
+                        id="flow-arrow"
+                        markerWidth="8"
+                        markerHeight="8"
+                        refX="7"
+                        refY="4"
+                        orient="auto"
+                      >
+                        <path d="M0,0 L8,4 L0,8 Z" className="fill-muted-foreground/50" />
+                      </marker>
+                      <pattern id="flow-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                        <circle cx="1.5" cy="1.5" r="1" className="fill-border/70" />
+                      </pattern>
+                    </defs>
+
+                    <rect width="360" height="270" fill="url(#flow-grid)" />
+
+                    {/* connectors */}
+                    <line
+                      x1="120"
+                      y1="52"
+                      x2="234"
+                      y2="52"
+                      className="stroke-muted-foreground/40"
+                      strokeWidth="1.5"
+                      markerEnd="url(#flow-arrow)"
+                    />
+                    <line
+                      x1="290"
+                      y1="74"
+                      x2="290"
+                      y2="104"
+                      className="stroke-muted-foreground/40"
+                      strokeWidth="1.5"
+                      markerEnd="url(#flow-arrow)"
+                    />
+                    <line
+                      x1="246"
+                      y1="150"
+                      x2="126"
+                      y2="150"
+                      className="stroke-muted-foreground/40"
+                      strokeWidth="1.5"
+                      markerEnd="url(#flow-arrow)"
+                    />
+                    <line
+                      x1="70"
+                      y1="128"
+                      x2="70"
+                      y2="80"
+                      className="stroke-muted-foreground/40"
+                      strokeWidth="1.5"
+                      markerEnd="url(#flow-arrow)"
+                    />
+                    <line
+                      x1="290"
+                      y1="192"
+                      x2="290"
+                      y2="216"
+                      className="stroke-muted-foreground/40"
+                      strokeWidth="1.5"
+                      markerEnd="url(#flow-arrow)"
+                    />
+
+                    {/* branch labels */}
+                    <text
+                      x="180"
+                      y="142"
+                      textAnchor="middle"
+                      className="fill-muted-foreground text-[11px]"
+                    >
+                      no
+                    </text>
+                    <text x="302" y="208" className="fill-muted-foreground text-[11px]">
+                      yes
+                    </text>
+
+                    {/* nodes */}
+                    <rect
+                      x="20"
+                      y="30"
+                      width="100"
+                      height="44"
+                      rx="10"
+                      className="fill-blue-500/15 stroke-blue-500/50"
+                      strokeWidth="1.5"
+                    />
+                    <text
+                      x="70"
+                      y="56"
+                      textAnchor="middle"
+                      className="fill-foreground/80 text-xs font-medium"
+                    >
+                      Start
+                    </text>
+
+                    <rect
+                      x="240"
+                      y="30"
+                      width="100"
+                      height="44"
+                      rx="10"
+                      className="fill-green-500/15 stroke-green-500/50"
+                      strokeWidth="1.5"
+                    />
+                    <text
+                      x="290"
+                      y="56"
+                      textAnchor="middle"
+                      className="fill-foreground/80 text-xs font-medium"
+                    >
+                      Process
+                    </text>
+
+                    <polygon
+                      points="290,108 334,150 290,192 246,150"
+                      className="fill-orange-500/15 stroke-orange-500/50"
+                      strokeWidth="1.5"
+                    />
+                    <text
+                      x="290"
+                      y="154"
+                      textAnchor="middle"
+                      className="fill-foreground/80 text-xs font-medium"
+                    >
+                      OK?
+                    </text>
+
+                    <rect
+                      x="20"
+                      y="128"
+                      width="100"
+                      height="44"
+                      rx="10"
+                      className="fill-muted stroke-border"
+                      strokeWidth="1.5"
+                    />
+                    <text
+                      x="70"
+                      y="154"
+                      textAnchor="middle"
+                      className="fill-foreground/80 text-xs font-medium"
+                    >
+                      Revise
+                    </text>
+
+                    <rect
+                      x="252"
+                      y="218"
+                      width="76"
+                      height="36"
+                      rx="18"
+                      className="fill-primary/15 stroke-primary/50"
+                      strokeWidth="1.5"
+                    />
+                    <text
+                      x="290"
+                      y="241"
+                      textAnchor="middle"
+                      className="fill-foreground/80 text-xs font-medium"
+                    >
+                      Done
+                    </text>
+                  </svg>
                 </div>
               </div>
             </div>
@@ -417,7 +574,7 @@ function App() {
           <div className="relative bg-linear-to-br from-background via-background to-muted/10 border border-border/50 rounded-2xl p-8 md:p-12 shadow-xl backdrop-blur-sm">
             <div className="grid md:grid-cols-3 gap-8 mb-8">
               <div className="space-y-2">
-                <h3 className="text-lg font-semibold text-foreground">22 tools, zero setup</h3>
+                <h3 className="text-lg font-semibold text-foreground">22 tools, one endpoint</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Create, search, and update bookmarks, notes, code snippets, and diagrams straight
                   from a conversation with your assistant.
@@ -924,7 +1081,7 @@ function App() {
                 </div>
               </div>
               <div className="flex items-center gap-2 px-4 py-2 bg-green-500/10 rounded-full border border-green-500/20">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse motion-reduce:animate-none" />
                 <span className="text-sm font-medium text-green-700 dark:text-green-400">
                   In Development
                 </span>
