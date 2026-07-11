@@ -11,11 +11,18 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CodeSnippetsRouteImport } from './routes/code-snippets'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DocsIndexRouteImport } from './routes/docs/index'
+import { Route as UseCasesSaveFromAiChatsRouteImport } from './routes/use-cases/save-from-ai-chats'
+import { Route as UseCasesKnowledgeBaseRouteImport } from './routes/use-cases/knowledge-base'
+import { Route as UseCasesAgentMemoryRouteImport } from './routes/use-cases/agent-memory'
 import { Route as OauthConsentRouteImport } from './routes/oauth/consent'
+import { Route as DocsMcpRouteImport } from './routes/docs/mcp'
+import { Route as DocsApiRouteImport } from './routes/docs/api'
 import { Route as AuthUpdatePasswordRouteImport } from './routes/auth/update-password'
 import { Route as AuthSignUpSuccessRouteImport } from './routes/auth/sign-up-success'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
@@ -41,6 +48,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -60,9 +72,39 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DocsIndexRoute = DocsIndexRouteImport.update({
+  id: '/docs/',
+  path: '/docs/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UseCasesSaveFromAiChatsRoute = UseCasesSaveFromAiChatsRouteImport.update({
+  id: '/use-cases/save-from-ai-chats',
+  path: '/use-cases/save-from-ai-chats',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UseCasesKnowledgeBaseRoute = UseCasesKnowledgeBaseRouteImport.update({
+  id: '/use-cases/knowledge-base',
+  path: '/use-cases/knowledge-base',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UseCasesAgentMemoryRoute = UseCasesAgentMemoryRouteImport.update({
+  id: '/use-cases/agent-memory',
+  path: '/use-cases/agent-memory',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OauthConsentRoute = OauthConsentRouteImport.update({
   id: '/oauth/consent',
   path: '/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsMcpRoute = DocsMcpRouteImport.update({
+  id: '/docs/mcp',
+  path: '/docs/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsApiRoute = DocsApiRouteImport.update({
+  id: '/docs/api',
+  path: '/docs/api',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthUpdatePasswordRoute = AuthUpdatePasswordRouteImport.update({
@@ -140,6 +182,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/code-snippets': typeof CodeSnippetsRoute
   '/contact': typeof ContactRoute
+  '/mcp': typeof McpRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/bookmarks': typeof AuthedBookmarksRoute
@@ -152,7 +195,13 @@ export interface FileRoutesByFullPath {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/sign-up-success': typeof AuthSignUpSuccessRoute
   '/auth/update-password': typeof AuthUpdatePasswordRoute
+  '/docs/api': typeof DocsApiRoute
+  '/docs/mcp': typeof DocsMcpRoute
   '/oauth/consent': typeof OauthConsentRoute
+  '/use-cases/agent-memory': typeof UseCasesAgentMemoryRoute
+  '/use-cases/knowledge-base': typeof UseCasesKnowledgeBaseRoute
+  '/use-cases/save-from-ai-chats': typeof UseCasesSaveFromAiChatsRoute
+  '/docs/': typeof DocsIndexRoute
   '/diagram/$diagramId': typeof AuthedDiagramDiagramIdRoute
   '/note/$noteId': typeof AuthedNoteNoteIdRoute
   '/settings/digest': typeof AuthedSettingsDigestRoute
@@ -162,6 +211,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/code-snippets': typeof CodeSnippetsRoute
   '/contact': typeof ContactRoute
+  '/mcp': typeof McpRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/bookmarks': typeof AuthedBookmarksRoute
@@ -174,7 +224,13 @@ export interface FileRoutesByTo {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/sign-up-success': typeof AuthSignUpSuccessRoute
   '/auth/update-password': typeof AuthUpdatePasswordRoute
+  '/docs/api': typeof DocsApiRoute
+  '/docs/mcp': typeof DocsMcpRoute
   '/oauth/consent': typeof OauthConsentRoute
+  '/use-cases/agent-memory': typeof UseCasesAgentMemoryRoute
+  '/use-cases/knowledge-base': typeof UseCasesKnowledgeBaseRoute
+  '/use-cases/save-from-ai-chats': typeof UseCasesSaveFromAiChatsRoute
+  '/docs': typeof DocsIndexRoute
   '/diagram/$diagramId': typeof AuthedDiagramDiagramIdRoute
   '/note/$noteId': typeof AuthedNoteNoteIdRoute
   '/settings/digest': typeof AuthedSettingsDigestRoute
@@ -186,6 +242,7 @@ export interface FileRoutesById {
   '/_authed': typeof AuthedRouteWithChildren
   '/code-snippets': typeof CodeSnippetsRoute
   '/contact': typeof ContactRoute
+  '/mcp': typeof McpRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/_authed/bookmarks': typeof AuthedBookmarksRoute
@@ -198,7 +255,13 @@ export interface FileRoutesById {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/sign-up-success': typeof AuthSignUpSuccessRoute
   '/auth/update-password': typeof AuthUpdatePasswordRoute
+  '/docs/api': typeof DocsApiRoute
+  '/docs/mcp': typeof DocsMcpRoute
   '/oauth/consent': typeof OauthConsentRoute
+  '/use-cases/agent-memory': typeof UseCasesAgentMemoryRoute
+  '/use-cases/knowledge-base': typeof UseCasesKnowledgeBaseRoute
+  '/use-cases/save-from-ai-chats': typeof UseCasesSaveFromAiChatsRoute
+  '/docs/': typeof DocsIndexRoute
   '/_authed/diagram/$diagramId': typeof AuthedDiagramDiagramIdRoute
   '/_authed/note/$noteId': typeof AuthedNoteNoteIdRoute
   '/_authed/settings/digest': typeof AuthedSettingsDigestRoute
@@ -210,6 +273,7 @@ export interface FileRouteTypes {
     | '/'
     | '/code-snippets'
     | '/contact'
+    | '/mcp'
     | '/privacy'
     | '/terms'
     | '/bookmarks'
@@ -222,7 +286,13 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/auth/sign-up-success'
     | '/auth/update-password'
+    | '/docs/api'
+    | '/docs/mcp'
     | '/oauth/consent'
+    | '/use-cases/agent-memory'
+    | '/use-cases/knowledge-base'
+    | '/use-cases/save-from-ai-chats'
+    | '/docs/'
     | '/diagram/$diagramId'
     | '/note/$noteId'
     | '/settings/digest'
@@ -232,6 +302,7 @@ export interface FileRouteTypes {
     | '/'
     | '/code-snippets'
     | '/contact'
+    | '/mcp'
     | '/privacy'
     | '/terms'
     | '/bookmarks'
@@ -244,7 +315,13 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/auth/sign-up-success'
     | '/auth/update-password'
+    | '/docs/api'
+    | '/docs/mcp'
     | '/oauth/consent'
+    | '/use-cases/agent-memory'
+    | '/use-cases/knowledge-base'
+    | '/use-cases/save-from-ai-chats'
+    | '/docs'
     | '/diagram/$diagramId'
     | '/note/$noteId'
     | '/settings/digest'
@@ -255,6 +332,7 @@ export interface FileRouteTypes {
     | '/_authed'
     | '/code-snippets'
     | '/contact'
+    | '/mcp'
     | '/privacy'
     | '/terms'
     | '/_authed/bookmarks'
@@ -267,7 +345,13 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/auth/sign-up-success'
     | '/auth/update-password'
+    | '/docs/api'
+    | '/docs/mcp'
     | '/oauth/consent'
+    | '/use-cases/agent-memory'
+    | '/use-cases/knowledge-base'
+    | '/use-cases/save-from-ai-chats'
+    | '/docs/'
     | '/_authed/diagram/$diagramId'
     | '/_authed/note/$noteId'
     | '/_authed/settings/digest'
@@ -279,6 +363,7 @@ export interface RootRouteChildren {
   AuthedRoute: typeof AuthedRouteWithChildren
   CodeSnippetsRoute: typeof CodeSnippetsRoute
   ContactRoute: typeof ContactRoute
+  McpRoute: typeof McpRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
   AuthErrorRoute: typeof AuthErrorRoute
@@ -287,7 +372,13 @@ export interface RootRouteChildren {
   AuthSignUpRoute: typeof AuthSignUpRoute
   AuthSignUpSuccessRoute: typeof AuthSignUpSuccessRoute
   AuthUpdatePasswordRoute: typeof AuthUpdatePasswordRoute
+  DocsApiRoute: typeof DocsApiRoute
+  DocsMcpRoute: typeof DocsMcpRoute
   OauthConsentRoute: typeof OauthConsentRoute
+  UseCasesAgentMemoryRoute: typeof UseCasesAgentMemoryRoute
+  UseCasesKnowledgeBaseRoute: typeof UseCasesKnowledgeBaseRoute
+  UseCasesSaveFromAiChatsRoute: typeof UseCasesSaveFromAiChatsRoute
+  DocsIndexRoute: typeof DocsIndexRoute
   ApiAuthConfirmRoute: typeof ApiAuthConfirmRoute
 }
 
@@ -305,6 +396,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -335,11 +433,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/docs/': {
+      id: '/docs/'
+      path: '/docs'
+      fullPath: '/docs/'
+      preLoaderRoute: typeof DocsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/use-cases/save-from-ai-chats': {
+      id: '/use-cases/save-from-ai-chats'
+      path: '/use-cases/save-from-ai-chats'
+      fullPath: '/use-cases/save-from-ai-chats'
+      preLoaderRoute: typeof UseCasesSaveFromAiChatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/use-cases/knowledge-base': {
+      id: '/use-cases/knowledge-base'
+      path: '/use-cases/knowledge-base'
+      fullPath: '/use-cases/knowledge-base'
+      preLoaderRoute: typeof UseCasesKnowledgeBaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/use-cases/agent-memory': {
+      id: '/use-cases/agent-memory'
+      path: '/use-cases/agent-memory'
+      fullPath: '/use-cases/agent-memory'
+      preLoaderRoute: typeof UseCasesAgentMemoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/oauth/consent': {
       id: '/oauth/consent'
       path: '/oauth/consent'
       fullPath: '/oauth/consent'
       preLoaderRoute: typeof OauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs/mcp': {
+      id: '/docs/mcp'
+      path: '/docs/mcp'
+      fullPath: '/docs/mcp'
+      preLoaderRoute: typeof DocsMcpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs/api': {
+      id: '/docs/api'
+      path: '/docs/api'
+      fullPath: '/docs/api'
+      preLoaderRoute: typeof DocsApiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/update-password': {
@@ -471,6 +611,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthedRoute: AuthedRouteWithChildren,
   CodeSnippetsRoute: CodeSnippetsRoute,
   ContactRoute: ContactRoute,
+  McpRoute: McpRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
   AuthErrorRoute: AuthErrorRoute,
@@ -479,7 +620,13 @@ const rootRouteChildren: RootRouteChildren = {
   AuthSignUpRoute: AuthSignUpRoute,
   AuthSignUpSuccessRoute: AuthSignUpSuccessRoute,
   AuthUpdatePasswordRoute: AuthUpdatePasswordRoute,
+  DocsApiRoute: DocsApiRoute,
+  DocsMcpRoute: DocsMcpRoute,
   OauthConsentRoute: OauthConsentRoute,
+  UseCasesAgentMemoryRoute: UseCasesAgentMemoryRoute,
+  UseCasesKnowledgeBaseRoute: UseCasesKnowledgeBaseRoute,
+  UseCasesSaveFromAiChatsRoute: UseCasesSaveFromAiChatsRoute,
+  DocsIndexRoute: DocsIndexRoute,
   ApiAuthConfirmRoute: ApiAuthConfirmRoute,
 }
 export const routeTree = rootRouteImport

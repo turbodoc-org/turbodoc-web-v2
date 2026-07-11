@@ -1,0 +1,45 @@
+# turbodoc.ai — all crawlers welcome
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /bookmarks
+Disallow: /notes
+Disallow: /code-snippets
+Disallow: /diagrams
+Disallow: /diagram/
+Disallow: /settings/
+Disallow: /oauth/
+Disallow: /auth/
+
+# AI assistants and LLM crawlers are explicitly welcome
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://turbodoc.ai/sitemap.xml
