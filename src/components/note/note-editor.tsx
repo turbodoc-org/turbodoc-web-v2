@@ -20,6 +20,7 @@ import { ArrowLeft, Trash2, Loader2, Clock, StickyNote, PencilLine } from "lucid
 import { Link, useNavigate } from "@tanstack/react-router";
 import { MDXEditorWrapper } from "./mdx-editor-wrapper";
 import type { MDXEditorMethods } from "@mdxeditor/editor";
+import { NoteHistory } from "./note-history";
 
 interface NoteEditorProps {
   noteId: string;
@@ -31,6 +32,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
   const editorRef = useRef<MDXEditorMethods>(null);
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [autoSaving, setAutoSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -134,6 +136,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
             title: debouncedTitle || undefined,
             content: debouncedContent || undefined,
             tags: debouncedTags || null,
+            head_revision_id: note.head_revision_id,
           });
         } catch (error) {
           console.error("Failed to auto-save note:", error);
@@ -264,6 +267,15 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
             <Button
               variant="ghost"
               size="icon"
+              className="rounded-full text-muted-foreground"
+              onClick={() => setShowHistory(true)}
+              aria-label="Version history"
+            >
+              <Clock className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setShowDeleteDialog(true)}
               disabled={deleteNoteMutation.isPending}
               className="rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
@@ -274,6 +286,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
           </div>
         </div>
       </header>
+      {showHistory ? <NoteHistory note={note} onClose={() => setShowHistory(false)} /> : null}
 
       {/* Editor Content */}
       <main className="flex-1 w-full">
