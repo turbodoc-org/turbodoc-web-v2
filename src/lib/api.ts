@@ -7,6 +7,7 @@ import {
   Note,
   NotesResponse,
   NoteResponse,
+  DocumentRevision,
   CodeSnippet,
   CodeSnippetsResponse,
   CodeSnippetResponse,
@@ -185,7 +186,7 @@ export async function getNotes(): Promise<Note[]> {
     throw new Error("No session found");
   }
 
-  const response = await fetch(`${API_BASE_URL}/v1/notes`, {
+  const response = await fetch(`${API_BASE_URL}/v2/documents`, {
     headers: {
       Authorization: `Bearer ${session.access_token}`,
       "Content-Type": "application/json",
@@ -196,8 +197,10 @@ export async function getNotes(): Promise<Note[]> {
     throw new Error("Failed to fetch notes");
   }
 
-  const result: NotesResponse = await response.json();
-  return result.data;
+  const result = (await response.json()) as {
+    data: Array<Omit<Note, "content"> & { markdown: string }>;
+  };
+  return result.data.map(({ markdown, ...note }) => ({ ...note, content: markdown }));
 }
 
 export async function getNote(id: string): Promise<Note> {
@@ -209,7 +212,7 @@ export async function getNote(id: string): Promise<Note> {
     throw new Error("No session found");
   }
 
-  const response = await fetch(`${API_BASE_URL}/v1/notes/${id}`, {
+  const response = await fetch(`${API_BASE_URL}/v2/documents/${id}`, {
     headers: {
       Authorization: `Bearer ${session.access_token}`,
       "Content-Type": "application/json",
@@ -220,8 +223,8 @@ export async function getNote(id: string): Promise<Note> {
     throw new Error("Failed to fetch note");
   }
 
-  const result: NoteResponse = await response.json();
-  return result.data;
+  const result = (await response.json()) as { data: Omit<Note, "content"> & { markdown: string } };
+  return { ...result.data, content: result.data.markdown };
 }
 
 export async function createNote(note: {
@@ -237,13 +240,18 @@ export async function createNote(note: {
     throw new Error("No session found");
   }
 
-  const response = await fetch(`${API_BASE_URL}/v1/notes`, {
+  const response = await fetch(`${API_BASE_URL}/v2/documents`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${session.access_token}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(note),
+    body: JSON.stringify({
+      ...note,
+      markdown: note.content,
+      content: undefined,
+      device_id: getDeviceId(),
+    }),
   });
 
   if (!response.ok) {
@@ -251,7 +259,7 @@ export async function createNote(note: {
   }
 
   const result = await response.json();
-  return result.data;
+  return { ...result.data, content: result.data.markdown };
 }
 
 export async function updateNote(id: string, updates: Partial<Note>): Promise<Note> {
@@ -263,13 +271,19 @@ export async function updateNote(id: string, updates: Partial<Note>): Promise<No
     throw new Error("No session found");
   }
 
-  const response = await fetch(`${API_BASE_URL}/v1/notes/${id}`, {
+  const response = await fetch(`${API_BASE_URL}/v2/documents/${id}`, {
     method: "PUT",
     headers: {
       Authorization: `Bearer ${session.access_token}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(updates),
+    body: JSON.stringify({
+      ...updates,
+      markdown: updates.content,
+      content: undefined,
+      base_revision_id: updates.head_revision_id,
+      device_id: getDeviceId(),
+    }),
   });
 
   // Handle version conflict (409)
@@ -286,7 +300,7 @@ export async function updateNote(id: string, updates: Partial<Note>): Promise<No
   }
 
   const result = await response.json();
-  return result.data;
+  return { ...result.data, content: result.data.markdown };
 }
 
 export async function deleteNote(id: string): Promise<void> {
@@ -298,7 +312,7 @@ export async function deleteNote(id: string): Promise<void> {
     throw new Error("No session found");
   }
 
-  const response = await fetch(`${API_BASE_URL}/v1/notes/${id}`, {
+  const response = await fetch(`${API_BASE_URL}/v2/documents/${id}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${session.access_token}`,
@@ -309,6 +323,60 @@ export async function deleteNote(id: string): Promise<void> {
   if (!response.ok) {
     throw new Error("Failed to delete note");
   }
+}
+
+function getDeviceId(): string {
+  const key = "turbodoc-device-id";
+  const existing = globalThis.localStorage?.getItem(key);
+  if (existing) return existing;
+  const id = `web-${crypto.randomUUID()}`;
+  globalThis.localStorage?.setItem(key, id);
+  return id;
+}
+
+async function documentRequest<T>(path: string, init?: RequestInit): Promise<T> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session) throw new Error("No session found");
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...init,
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      "Content-Type": "application/json",
+      ...init?.headers,
+    },
+  });
+  if (!response.ok) throw new Error("Document history request failed");
+  return response.json() as Promise<T>;
+}
+
+export async function getDocumentRevisions(id: string): Promise<DocumentRevision[]> {
+  const result = await documentRequest<{ data: DocumentRevision[] }>(
+    `/v2/documents/${id}/revisions`,
+  );
+  return result.data;
+}
+
+export async function nameDocumentRevision(documentId: string, revisionId: string, name: string) {
+  return documentRequest<{ data: DocumentRevision }>(
+    `/v2/documents/${documentId}/revisions/${revisionId}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ name }),
+    },
+  );
+}
+
+export async function restoreDocumentRevision(
+  documentId: string,
+  revisionId: string,
+): Promise<Note> {
+  const result = await documentRequest<{ data: Omit<Note, "content"> & { markdown: string } }>(
+    `/v2/documents/${documentId}/revisions/${revisionId}/restore`,
+    { method: "POST" },
+  );
+  return { ...result.data, content: result.data.markdown };
 }
 
 // Code Snippets API functions
@@ -476,7 +544,7 @@ export async function getDiagram(id: string): Promise<Diagram> {
 
 export async function createDiagram(diagram: {
   title: string;
-  diagram_type?: 'canvas' | 'mermaid';
+  diagram_type?: "canvas" | "mermaid";
   mermaid_source?: string | null;
   shapes?: any[];
   connections?: any[];

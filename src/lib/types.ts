@@ -5,7 +5,7 @@ export interface Bookmark {
   url: string;
   time_added: number;
   tags: string | null;
-  status: 'read' | 'unread' | 'archived';
+  status: "read" | "unread" | "archived";
   created_at: string | null;
   updated_at: string | null;
   ogImage?: string | null;
@@ -41,8 +41,25 @@ export interface Note {
   content: string;
   tags: string | null;
   version: number;
+  head_revision_id?: string | null;
+  schema_version?: number;
+  last_edited_by_device?: string | null;
   created_at: string | null;
   updated_at: string | null;
+}
+
+export interface DocumentRevision {
+  id: string;
+  document_id: string;
+  revision_number: number;
+  title: string;
+  markdown: string;
+  tags: string | null;
+  is_favorite: boolean;
+  name: string | null;
+  change_summary: string | null;
+  device_id: string | null;
+  created_at: string;
 }
 
 export interface NotesResponse {
@@ -82,7 +99,7 @@ export interface CodeSnippetResponse {
 
 export interface DiagramShape {
   id: string;
-  type: 'rectangle' | 'circle' | 'diamond' | 'database' | 'text' | 'image';
+  type: "rectangle" | "circle" | "diamond" | "database" | "text" | "image";
   x: number;
   y: number;
   width: number;
@@ -105,7 +122,7 @@ export interface Diagram {
   id: string;
   user_id: string;
   title: string;
-  diagram_type?: 'canvas' | 'mermaid';
+  diagram_type?: "canvas" | "mermaid";
   mermaid_source?: string | null;
   shapes: DiagramShape[];
   connections: DiagramConnection[];
@@ -117,7 +134,7 @@ export interface Diagram {
 export interface DiagramListItem {
   id: string;
   title: string;
-  diagram_type?: 'canvas' | 'mermaid';
+  diagram_type?: "canvas" | "mermaid";
   mermaid_source?: string | null;
   thumbnail?: string | null;
   updated_at: string;
