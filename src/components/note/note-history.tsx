@@ -4,19 +4,7 @@ import { useMemo, useState } from "react";
 import { getDocumentRevisions, nameDocumentRevision } from "@/lib/api";
 import type { DocumentRevision, Note } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-
-function lineDiff(previous: string, selected: string) {
-  const before = previous.split("\n");
-  const after = selected.split("\n");
-  const max = Math.max(before.length, after.length);
-  return Array.from({ length: max }, (_, index) => {
-    if (before[index] === after[index]) return { kind: "same", text: after[index] ?? "" };
-    return [
-      ...(before[index] === undefined ? [] : [{ kind: "removed", text: before[index] }]),
-      ...(after[index] === undefined ? [] : [{ kind: "added", text: after[index] }]),
-    ];
-  }).flat();
-}
+import { createNoteLineDiff } from "./note-diff";
 
 export function NoteHistory({
   note,
@@ -41,8 +29,15 @@ export function NoteHistory({
     : -1;
   const previous = selectedIndex >= 0 ? revisions[selectedIndex + 1] : undefined;
   const diff = useMemo(
-    () => lineDiff(previous?.markdown ?? "", selected?.markdown ?? ""),
+    () => createNoteLineDiff(previous?.markdown ?? "", selected?.markdown ?? ""),
     [previous?.markdown, selected?.markdown],
+  );
+  const changeCounts = useMemo(
+    () => ({
+      added: diff.filter((line) => line.kind === "added").length,
+      removed: diff.filter((line) => line.kind === "removed").length,
+    }),
+    [diff],
   );
 
   const restore = useMutation({
@@ -155,16 +150,31 @@ export function NoteHistory({
                     <p className="text-xs text-muted-foreground">
                       Changes from the preceding revision
                     </p>
+                    <p className="mt-1 text-xs">
+                      <span className="text-emerald-600 dark:text-emerald-400">
+                        +{changeCounts.added}
+                      </span>
+                      <span className="mx-1.5 text-muted-foreground">/</span>
+                      <span className="text-red-600 dark:text-red-400">
+                        −{changeCounts.removed}
+                      </span>
+                    </p>
                   </div>
                   {diff.map((line, index) => (
                     <div
-                      key={`${index}-${line.kind}`}
-                      className={`whitespace-pre-wrap px-2 ${line.kind === "added" ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" : line.kind === "removed" ? "bg-red-500/15 text-red-700 line-through dark:text-red-300" : "text-muted-foreground"}`}
+                      key={`${line.oldLine ?? "x"}-${line.newLine ?? "x"}-${line.kind}-${index}`}
+                      className={`grid min-h-6 grid-cols-[2.5rem_2.5rem_1.5rem_minmax(0,1fr)] px-2 ${line.kind === "added" ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" : line.kind === "removed" ? "bg-red-500/15 text-red-700 dark:text-red-300" : "text-muted-foreground"}`}
                     >
-                      <span className="mr-3 select-none opacity-50">
+                      <span className="select-none text-right opacity-40">
+                        {line.oldLine ?? ""}
+                      </span>
+                      <span className="select-none border-r pr-2 text-right opacity-40">
+                        {line.newLine ?? ""}
+                      </span>
+                      <span className="select-none text-center opacity-60">
                         {line.kind === "added" ? "+" : line.kind === "removed" ? "−" : " "}
                       </span>
-                      {line.text || " "}
+                      <span className="whitespace-pre-wrap break-words">{line.text || " "}</span>
                     </div>
                   ))}
                 </div>

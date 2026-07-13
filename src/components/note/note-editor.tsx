@@ -128,6 +128,8 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
 
   // Auto-save effect
   useEffect(() => {
+    if (!note) return;
+
     if (
       shouldAutoSaveNote({
         note,

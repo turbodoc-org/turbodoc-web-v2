@@ -149,6 +149,9 @@ importers:
       cmdk:
         specifier: 1.1.1
         version: 1.1.1(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      diff:
+        specifier: 8.0.2
+        version: 8.0.2
       html-to-image:
         specifier: ^1.11.13
         version: 1.11.13
@@ -3042,6 +3045,10 @@ packages:
 
   diff@5.2.2:
     resolution: {integrity: sha512-vtcDfH3TOjP8UekytvnHH1o1P4FcUdt4eQ1Y+Abap1tk/OB2MWQvcwS2ClCd1zuIhc3JKOx6p3kod8Vfys3E+A==}
+    engines: {node: '>=0.3.1'}
+
+  diff@8.0.2:
+    resolution: {integrity: sha512-sSuxWU5j5SR9QQji/o2qMvqRNYRDOcBTgsJ/DeCf4iSN4gW+gNMXM7wFIP+fdXZxoNiAnHUTGjCr+TSWXdRDKg==}
     engines: {node: '>=0.3.1'}
 
   diff@8.0.4:
@@ -7204,6 +7211,8 @@ snapshots:
       dequal: 2.0.3
 
   diff@5.2.2: {}
+
+  diff@8.0.2: {}
 
   diff@8.0.4: {}
 
