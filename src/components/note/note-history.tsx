@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, History, Loader2, RotateCcw, Tag, X } from "lucide-react";
 import { useMemo, useState } from "react";
-import { getDocumentRevisions, nameDocumentRevision, restoreDocumentRevision } from "@/lib/api";
+import { getDocumentRevisions, nameDocumentRevision } from "@/lib/api";
 import type { DocumentRevision, Note } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 
@@ -18,7 +18,15 @@ function lineDiff(previous: string, selected: string) {
   }).flat();
 }
 
-export function NoteHistory({ note, onClose }: { note: Note; onClose: () => void }) {
+export function NoteHistory({
+  note,
+  onClose,
+  onRestore,
+}: {
+  note: Note;
+  onClose: () => void;
+  onRestore: (revision: DocumentRevision) => Promise<Note>;
+}) {
   const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState<string>();
   const [namingId, setNamingId] = useState<string>();
@@ -38,9 +46,8 @@ export function NoteHistory({ note, onClose }: { note: Note; onClose: () => void
   );
 
   const restore = useMutation({
-    mutationFn: (revision: DocumentRevision) => restoreDocumentRevision(note.id, revision.id),
-    onSuccess: (restored) => {
-      queryClient.setQueryData(["note", note.id], restored);
+    mutationFn: onRestore,
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["document-revisions", note.id] });
       onClose();
     },

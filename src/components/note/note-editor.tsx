@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Note } from "@/lib/types";
-import { getNote, updateNote, deleteNote } from "@/lib/api";
+import type { DocumentRevision, Note } from "@/lib/types";
+import { deleteNote, getNote, restoreDocumentRevision, updateNote } from "@/lib/api";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,7 @@ import { ArrowLeft, Trash2, Loader2, Clock, StickyNote, PencilLine } from "lucid
 import { Link, useNavigate } from "@tanstack/react-router";
 import { MDXEditorWrapper } from "./mdx-editor-wrapper";
 import type { MDXEditorMethods } from "@mdxeditor/editor";
+import { shouldAutoSaveNote } from "./note-autosave";
 import { NoteHistory } from "./note-history";
 
 interface NoteEditorProps {
@@ -31,11 +32,15 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
   const queryClient = useQueryClient();
   const editorRef = useRef<MDXEditorMethods>(null);
   const titleRef = useRef<HTMLTextAreaElement>(null);
+  const contentRef = useRef("");
+  const pendingSaveRef = useRef<Promise<Note> | null>(null);
+  const restoringRef = useRef(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [autoSaving, setAutoSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [documentEpoch, setDocumentEpoch] = useState(0);
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -45,6 +50,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
   const debouncedTitle = useDebounce(title, 1000);
   const debouncedContent = useDebounce(content, 1000);
   const debouncedTags = useDebounce(tags, 1000);
+  const debouncedDocumentEpoch = useDebounce(documentEpoch, 1000);
 
   useLayoutEffect(() => {
     const titleElement = titleRef.current;
@@ -77,6 +83,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
     if (note) {
       setTitle(note.title || "");
       setContent(note.content || "");
+      contentRef.current = note.content || "";
       setTags(note.tags || "");
       setLastSaved(new Date());
 
@@ -121,26 +128,33 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
 
   // Auto-save effect
   useEffect(() => {
-    if (!note) return;
-
-    const hasDataChanges =
-      debouncedTitle !== (note.title || "") ||
-      debouncedContent !== (note.content || "") ||
-      debouncedTags !== (note.tags || "");
-
-    if (hasDataChanges && (debouncedTitle || debouncedContent || debouncedTags)) {
+    if (
+      shouldAutoSaveNote({
+        note,
+        title: debouncedTitle,
+        content: debouncedContent,
+        tags: debouncedTags,
+        restoring: restoringRef.current,
+        documentEpoch,
+        debouncedDocumentEpoch,
+      })
+    ) {
       const autoSave = async () => {
+        let savePromise: Promise<Note> | null = null;
         try {
           setAutoSaving(true);
-          await updateNoteMutation.mutateAsync({
+          savePromise = updateNoteMutation.mutateAsync({
             title: debouncedTitle || undefined,
             content: debouncedContent || undefined,
             tags: debouncedTags || null,
             head_revision_id: note.head_revision_id,
           });
+          pendingSaveRef.current = savePromise;
+          await savePromise;
         } catch (error) {
           console.error("Failed to auto-save note:", error);
         } finally {
+          if (pendingSaveRef.current === savePromise) pendingSaveRef.current = null;
           setAutoSaving(false);
         }
       };
@@ -148,7 +162,65 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
       autoSave();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedTitle, debouncedContent, debouncedTags, note?.title, note?.content, note?.tags]);
+  }, [
+    debouncedTitle,
+    debouncedContent,
+    debouncedTags,
+    debouncedDocumentEpoch,
+    documentEpoch,
+    note?.title,
+    note?.content,
+    note?.tags,
+  ]);
+
+  const handleRestore = async (revision: DocumentRevision): Promise<Note> => {
+    restoringRef.current = true;
+
+    try {
+      // A restore must be the last write. Wait for any auto-save that was
+      // already sent before creating the restored head revision.
+      await pendingSaveRef.current;
+
+      // Preserve edits that have not reached the debounce yet as their own
+      // revision before restoring the selected historical version.
+      const currentNote = queryClient.getQueryData<Note>(["note", noteId]) ?? note;
+      const hasUnsavedDraft =
+        currentNote &&
+        (title !== (currentNote.title || "") ||
+          content !== (currentNote.content || "") ||
+          tags !== (currentNote.tags || ""));
+
+      if (currentNote && hasUnsavedDraft) {
+        await updateNoteMutation.mutateAsync({
+          title: title || undefined,
+          content,
+          tags: tags || null,
+          head_revision_id: currentNote.head_revision_id,
+        });
+      }
+
+      const restored = await restoreDocumentRevision(noteId, revision.id);
+
+      // Invalidate every debounced snapshot captured before the restore, then
+      // make the restored server document the editor's new local baseline.
+      setDocumentEpoch((epoch) => epoch + 1);
+      setTitle(restored.title || "");
+      setContent(restored.content || "");
+      contentRef.current = restored.content || "";
+      setTags(restored.tags || "");
+      editorRef.current?.setMarkdown(restored.content || "");
+      queryClient.setQueryData(["note", noteId], restored);
+      queryClient.setQueryData<Note[]>(["notes"], (old = []) =>
+        old.map((item) => (item.id === noteId ? restored : item)),
+      );
+      setHasChanges(false);
+      setLastSaved(new Date());
+
+      return restored;
+    } finally {
+      restoringRef.current = false;
+    }
+  };
 
   const handleDelete = async () => {
     if (!note) return;
@@ -167,8 +239,10 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
   };
 
   const handleContentChange = (value: string) => {
-    // Only update if the value actually changed
-    if (value !== content) {
+    // The editor also emits changes for programmatic setMarkdown calls. Keep a
+    // synchronous ref so applying a restore is not marked as a fresh user edit.
+    if (value !== contentRef.current) {
+      contentRef.current = value;
       setContent(value);
       setHasChanges(true);
     }
@@ -286,7 +360,9 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
           </div>
         </div>
       </header>
-      {showHistory ? <NoteHistory note={note} onClose={() => setShowHistory(false)} /> : null}
+      {showHistory ? (
+        <NoteHistory note={note} onClose={() => setShowHistory(false)} onRestore={handleRestore} />
+      ) : null}
 
       {/* Editor Content */}
       <main className="flex-1 w-full">
