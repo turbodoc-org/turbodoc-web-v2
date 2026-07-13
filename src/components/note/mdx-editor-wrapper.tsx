@@ -25,9 +25,18 @@ import {
   CreateLink,
   ListsToggle,
   InsertCodeBlock,
+  addComposerChild$,
+  realmPlugin,
 } from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
 import { toEditorMarkdown, toStoredMarkdown } from "@/lib/mdx-blanklines";
+import { EmptyParagraphPlugin } from "./empty-paragraph-plugin";
+
+const emptyParagraphPlugin = realmPlugin({
+  init(realm) {
+    realm.pubIn({ [addComposerChild$]: EmptyParagraphPlugin });
+  },
+});
 
 interface MDXEditorWrapperProps extends Omit<MDXEditorProps, "plugins"> {
   editorRef?: React.Ref<MDXEditorMethods>;
@@ -63,17 +72,21 @@ export const MDXEditorWrapper = forwardRef<MDXEditorMethods, MDXEditorWrapperPro
         {...props}
         ref={innerRef}
         markdown={toEditorMarkdown(markdown)}
-        onChange={(value) => onChange?.(toStoredMarkdown(value))}
+        onChange={(value, initialNormalize) =>
+          onChange?.(toStoredMarkdown(value), initialNormalize)
+        }
         toMarkdownOptions={{
           bullet: "-",
           bulletOther: "*",
         }}
+        trim={false}
         plugins={[
           // Headings, lists, quotes
           headingsPlugin(),
           listsPlugin(),
           quotePlugin(),
           thematicBreakPlugin(),
+          emptyParagraphPlugin(),
 
           // Links
           linkPlugin(),

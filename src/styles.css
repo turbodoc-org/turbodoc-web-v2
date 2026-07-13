@@ -717,6 +717,11 @@ code {
 
 .note-editor-mdx .mdxeditor-root-contenteditable {
   min-height: max(32rem, calc(100svh - 18rem)) !important;
+  padding: 0 !important;
+}
+
+.note-editor-mdx .mdxeditor-root-contenteditable [contenteditable="true"],
+.note-editor-mdx .mdxeditor-root-contenteditable [class*="_placeholder_"] {
   padding: 0.75rem 0 0 !important;
   color: color-mix(in oklch, var(--foreground) 92%, transparent) !important;
   font-size: 1.0625rem !important;
@@ -726,7 +731,12 @@ code {
   outline: none;
 }
 
-.note-editor-mdx .mdxeditor-root-contenteditable > :first-child {
+.note-editor-mdx .mdxeditor-root-contenteditable [class*="_placeholder_"] {
+  color: var(--muted-foreground) !important;
+  opacity: 0.6;
+}
+
+.note-editor-mdx .mdxeditor-root-contenteditable [contenteditable="true"] > :first-child {
   margin-top: 0 !important;
 }
 

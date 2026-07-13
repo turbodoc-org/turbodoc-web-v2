@@ -316,7 +316,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
             <MDXEditorWrapper
               key={noteId}
               ref={editorRef}
-              markdown={note?.content || ""}
+              markdown={content}
               onChange={handleContentChange}
               className="note-editor-mdx"
               placeholder="Start writing, or type # for a heading…"
