@@ -114,7 +114,7 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
                     setShowDeleteDialog(true);
                   }}
                   disabled={isDeleting}
-                  className="text-destructive focus:text-destructive"
+                  className="text-destructive focus:bg-destructive focus:text-destructive-foreground"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete
