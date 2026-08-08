@@ -302,7 +302,7 @@ function CodeSnippetCard({ snippet, onEdit, onDelete, onCopy }: CodeSnippetCardP
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => onDelete(snippet.id)}
-                className="text-destructive focus:text-destructive"
+                className="text-red-600 focus:bg-red-50 focus:text-red-700 dark:text-red-400 dark:focus:bg-red-950 dark:focus:text-red-300"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Delete
