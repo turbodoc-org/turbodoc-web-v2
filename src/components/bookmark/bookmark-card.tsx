@@ -232,7 +232,7 @@ export function BookmarkCard({ bookmark, onUpdate, onDelete }: BookmarkCardProps
                 <DropdownMenuItem
                   onClick={() => setShowDeleteDialog(true)}
                   disabled={isDeleting}
-                  className="text-destructive focus:text-destructive"
+                  className="text-destructive dark:text-red-400 focus:text-destructive dark:focus:text-red-400 focus:bg-destructive/10 dark:focus:bg-destructive/20"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete
