@@ -78,6 +78,8 @@ export const MDXEditorWrapper = forwardRef<MDXEditorMethods, MDXEditorWrapperPro
         toMarkdownOptions={{
           bullet: "-",
           bulletOther: "*",
+          // Never emit `<url>` autolinks: MDX parses them as JSX and fails.
+          resourceLink: true,
         }}
         trim={false}
         plugins={[

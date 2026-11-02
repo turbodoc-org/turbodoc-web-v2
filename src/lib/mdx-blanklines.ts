@@ -30,7 +30,7 @@ export const EMPTY_PARAGRAPH_MARKER = "\u2060";
  * paragraphs (one per "visible blank line" the user intended).
  */
 export function toEditorMarkdown(markdown: string): string {
-  return markdown.replace(/\n{2,}/g, (match) => {
+  return convertAutolinks(markdown).replace(/\n{2,}/g, (match) => {
     const newlines = match.length;
     const blankLines = Math.max(0, Math.ceil((newlines - 2) / 2));
     return "\n\n" + `${EMPTY_PARAGRAPH_MARKER}\n\n`.repeat(blankLines);
@@ -49,4 +49,28 @@ export function toStoredMarkdown(markdown: string): string {
   return markdown
     .replace(new RegExp(`${EMPTY_PARAGRAPH_MARKER}\\n`, "g"), "\n")
     .replace(new RegExp(`${EMPTY_PARAGRAPH_MARKER}$`), "\n");
+}
+
+/**
+ * Rewrites CommonMark autolinks (`<https://example.com>`, `<me@example.com>`)
+ * into regular `[text](url)` links.
+ *
+ * MDXEditor parses markdown as MDX, where `<` starts a JSX tag, so an autolink
+ * such as `<https://example.com>` fails to parse ("Unexpected character `/`
+ * before local name") and the editor falls back to an error state. Fenced code
+ * blocks and inline code spans are left untouched.
+ */
+export function convertAutolinks(markdown: string): string {
+  return markdown.replace(
+    /(^|\n)( {0,3})(`{3,}|~{3,})[^\n]*\n[\s\S]*?(?:\n {0,3}\3[`~]*[ \t]*(?=\n|$)|$)|(`+)[^`]*?\4|<([a-zA-Z][a-zA-Z0-9+.-]{1,31}:[^\s<>]*)>|<([a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*)>/g,
+    (match, _nl, _indent, _fence, _ticks, url?: string, email?: string) => {
+      if (url) return `[${escapeLinkText(url)}](${url.replace(/[()\\]/g, "\\$&")})`;
+      if (email) return `[${escapeLinkText(email)}](mailto:${email})`;
+      return match;
+    },
+  );
+}
+
+function escapeLinkText(text: string): string {
+  return text.replace(/[[\]\\*_`]/g, "\\$&");
 }
