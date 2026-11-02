@@ -1,0 +1,23 @@
+src/components/note/mdx-editor-wrapper.tsx
+  s_02c8f77c0667c6::t_6e1f6f22d44b05 81-82
+src/lib/mdx-blanklines.test.ts
+  s_02c8f77c0667c6::t_14fd81b4966c9e 1-23
+src/lib/mdx-blanklines.ts
+  s_02c8f77c0667c6::t_9bb4269628e271 33,53-76
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4dd7fa71f4327991a2f4dd2f4fa10929c544b40e",
+  "prompts": {},
+  "sessions": {
+    "s_02c8f77c0667c6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "s_02c8f77c0667c6",
+        "model": "unknown"
+      },
+      "human_author": "Nico Botha <nicolaasb@pm.me>"
+    }
+  }
+}
