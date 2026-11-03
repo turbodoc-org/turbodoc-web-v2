@@ -1,4 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
+import { toast } from 'sonner';
 import {
   getDiagrams,
   getDiagram,
@@ -120,4 +122,30 @@ export function useDuplicateDiagram() {
       );
     },
   });
+}
+
+/**
+ * Create a blank canvas diagram and open it. Shared by the Diagrams grid and the
+ * dashboard's New menu.
+ */
+export function useCreateAndOpenDiagram() {
+  const navigate = useNavigate();
+  const createDiagramMutation = useCreateDiagram();
+
+  const createAndOpen = async () => {
+    if (createDiagramMutation.isPending) return;
+    try {
+      const newDiagram = await createDiagramMutation.mutateAsync({
+        title: `Diagram ${new Date().toLocaleDateString()}`,
+        shapes: [],
+        connections: [],
+      });
+      navigate({ to: '/diagram/$diagramId', params: { diagramId: newDiagram.id } });
+    } catch (error) {
+      console.error('Failed to create new diagram:', error);
+      toast.error('Failed to create new diagram. Please try again.');
+    }
+  };
+
+  return { createAndOpen, isPending: createDiagramMutation.isPending };
 }

@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Code2, Copy, Download, Loader2, PenLine, Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,43 +13,59 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  CardActionButton,
+  ContentCard,
+  ContentCardSkeleton,
+  ContentGrid,
+  DESTRUCTIVE_MENU_ITEM,
+} from "@/components/shared/content-card";
+import {
+  GridEmptyState,
+  GridPageHeader,
+  GridToolbar,
+  NewItemButton,
+  NoResults,
+  useGridShortcuts,
+  usePersistentOption,
+} from "@/components/shared/grid-page";
+import { MobileFab } from "@/components/shared/module-nav";
 import { deleteCodeSnippet, getCodeSnippets } from "@/lib/api";
+import { formatLanguage, formatRelativeDate, pluralize, toDate } from "@/lib/format";
 import type { CodeSnippet } from "@/lib/types";
-import { Code2, Copy, Download, Edit2, Loader2, MoreVertical, Plus, Trash2 } from "lucide-react";
-import { useRef } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 
-function CodeSnippetCardSkeleton() {
-  return (
-    <div className="relative bg-card rounded-lg border border-border overflow-hidden">
-      <Skeleton className="h-48 w-full rounded-none" />
-      <div className="p-4 border-t border-border space-y-2">
-        <Skeleton className="h-4 w-3/4" />
-        <div className="flex gap-2">
-          <Skeleton className="h-5 w-16 rounded" />
-          <Skeleton className="h-5 w-16 rounded" />
-        </div>
-      </div>
-    </div>
-  );
+type SnippetSort = "updated" | "created" | "title";
+
+const SNIPPET_SORTS: { value: SnippetSort; label: string }[] = [
+  { value: "updated", label: "Last edited" },
+  { value: "created", label: "Created" },
+  { value: "title", label: "A–Z" },
+];
+
+function timeOf(value: string | null | undefined) {
+  return toDate(value)?.getTime() ?? 0;
 }
 
 interface CodeSnippetGridProps {
   onEdit: (snippetId: string) => void;
+  onCreate: () => void;
+  /** False while the editor overlay is open, so grid shortcuts don't fire behind it. */
+  shortcutsEnabled?: boolean;
 }
 
-export function CodeSnippetGrid({ onEdit }: CodeSnippetGridProps) {
+export function CodeSnippetGrid({ onEdit, onCreate, shortcutsEnabled = true }: CodeSnippetGridProps) {
   const queryClient = useQueryClient();
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [snippetToDelete, setSnippetToDelete] = useState<string | null>(null);
   const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
+  const [sort, setSort] = usePersistentOption<SnippetSort>(
+    "turbodoc:snippets:sort",
+    "updated",
+    SNIPPET_SORTS.map((o) => o.value),
+  );
 
   // Fetch snippets with React Query
   const { data: snippets = [], isLoading } = useQuery({
@@ -68,7 +86,9 @@ export function CodeSnippetGrid({ onEdit }: CodeSnippetGridProps) {
     },
   });
 
-  const handleDelete = async (id: string) => {
+  useGridShortcuts({ searchRef: searchInputRef, onNew: onCreate, enabled: shortcutsEnabled });
+
+  const handleDelete = (id: string) => {
     setSnippetToDelete(id);
     setDeleteDialogOpen(true);
   };
@@ -76,26 +96,25 @@ export function CodeSnippetGrid({ onEdit }: CodeSnippetGridProps) {
   const confirmDelete = async () => {
     if (!snippetToDelete) return;
 
-    const snippet = snippets.find((s) => s.id === snippetToDelete);
+    const id = snippetToDelete;
+    const snippet = snippets.find((s) => s.id === id);
 
-    setRemovingIds((prev) => new Set(prev).add(snippetToDelete));
+    setRemovingIds((prev) => new Set(prev).add(id));
     setDeleteDialogOpen(false);
 
     toast.success("Code snippet deleted", {
-      description: snippet
-        ? `"${snippet.title}" has been removed.`
-        : "The snippet has been removed.",
+      description: snippet ? `"${snippet.title}" has been removed.` : "The snippet has been removed.",
     });
 
     setTimeout(async () => {
       try {
-        await deleteSnippetMutation.mutateAsync(snippetToDelete);
+        await deleteSnippetMutation.mutateAsync(id);
       } catch (error) {
         console.error("Failed to delete snippet:", error);
       } finally {
         setRemovingIds((prev) => {
           const next = new Set(prev);
-          next.delete(snippetToDelete);
+          next.delete(id);
           return next;
         });
         setSnippetToDelete(null);
@@ -113,59 +132,81 @@ export function CodeSnippetGrid({ onEdit }: CodeSnippetGridProps) {
     }
   };
 
-  const visibleSnippets = snippets.filter((s) => !removingIds.has(s.id));
+  const visibleSnippets = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    const filtered = snippets.filter((s) => {
+      if (removingIds.has(s.id)) return false;
+      if (!term) return true;
+      return (
+        s.title.toLowerCase().includes(term) ||
+        s.code.toLowerCase().includes(term) ||
+        s.language.toLowerCase().includes(term)
+      );
+    });
+    return filtered.sort((a, b) => {
+      if (sort === "title") return (a.title || "").localeCompare(b.title || "");
+      if (sort === "created") return timeOf(b.created_at) - timeOf(a.created_at);
+      return timeOf(b.updated_at ?? b.created_at) - timeOf(a.updated_at ?? a.created_at);
+    });
+  }, [snippets, removingIds, searchTerm, sort]);
 
-  if (isLoading) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <CodeSnippetCardSkeleton key={i} />
-        ))}
-      </div>
-    );
-  }
-
-  if (!visibleSnippets || visibleSnippets.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 md:py-20 animate-in fade-in zoom-in-95 duration-300">
-        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-          <Code2 className="h-8 w-8 text-muted-foreground" />
-        </div>
-        <h3 className="text-lg font-semibold mb-2">No code snippets yet</h3>
-        <p className="text-muted-foreground text-sm text-center max-w-md mb-6">
-          Create your first beautiful code screenshot with syntax highlighting and custom styling.
-        </p>
-        <Button
-          onClick={() => {
-            // Dispatch a custom event or use a callback to open editor
-            // Since we don't have direct access to parent's state here,
-            // we'll rely on the parent route's New Screenshot button
-            const event = new CustomEvent("openCodeEditor");
-            window.dispatchEvent(event);
-          }}
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Create Your First Screenshot
-        </Button>
-      </div>
-    );
-  }
+  const subtitle = isLoading
+    ? "Loading…"
+    : `${pluralize(snippets.length, "snippet")} · code screenshots with syntax highlighting`;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {visibleSnippets.map((snippet, index) => (
-        <div
-          key={snippet.id}
-          className="animate-in fade-in slide-in-from-bottom-4 duration-600 fill-mode-forwards"
-        >
-          <CodeSnippetCard
-            snippet={snippet}
-            onEdit={onEdit}
-            onDelete={handleDelete}
-            onCopy={handleCopyCode}
-          />
-        </div>
-      ))}
+    <>
+      <GridPageHeader
+        title="Snippets"
+        subtitle={subtitle}
+        action={<NewItemButton label="New snippet" onClick={onCreate} />}
+      />
+
+      <GridToolbar
+        searchRef={searchInputRef}
+        search={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Search snippets"
+        sort={sort}
+        sortOptions={SNIPPET_SORTS}
+        onSortChange={setSort}
+      />
+
+      {isLoading ? (
+        <ContentGrid>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <ContentCardSkeleton key={i} />
+          ))}
+        </ContentGrid>
+      ) : snippets.length === 0 ? (
+        <GridEmptyState
+          icon={Code2}
+          title="No code snippets yet"
+          description="Create your first beautiful code screenshot with syntax highlighting and custom styling."
+          action={
+            <Button onClick={onCreate}>
+              <Plus className="h-4 w-4" />
+              Create your first snippet
+            </Button>
+          }
+        />
+      ) : visibleSnippets.length === 0 && searchTerm.trim() ? (
+        <NoResults onReset={() => setSearchTerm("")} />
+      ) : (
+        <ContentGrid>
+          {visibleSnippets.map((snippet) => (
+            <CodeSnippetCard
+              key={snippet.id}
+              snippet={snippet}
+              onEdit={onEdit}
+              onDelete={handleDelete}
+              onCopy={handleCopyCode}
+            />
+          ))}
+        </ContentGrid>
+      )}
+
+      <MobileFab label="New snippet" onClick={onCreate} />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent className="animate-in zoom-in-95 fade-in duration-200">
@@ -201,7 +242,7 @@ export function CodeSnippetGrid({ onEdit }: CodeSnippetGridProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </>
   );
 }
 
@@ -212,12 +253,25 @@ interface CodeSnippetCardProps {
   onCopy: (code: string) => void;
 }
 
-function CodeSnippetCard({ snippet, onEdit, onDelete, onCopy }: CodeSnippetCardProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+// Enough lines to fill the thumbnail.
+const PREVIEW_LINES = 14;
 
-  const handleExport = async () => {
-    // This will be implemented with proper rendering
-    // For now, we'll download the code as a text file
+export function CodeSnippetCard({ snippet, onEdit, onDelete, onCopy }: CodeSnippetCardProps) {
+  const lineCount = useMemo(() => snippet.code.split("\n").length, [snippet.code]);
+  const previewCode = useMemo(
+    () => snippet.code.split("\n").slice(0, PREVIEW_LINES).join("\n"),
+    [snippet.code],
+  );
+
+  const language = formatLanguage(snippet.language);
+  const edited = formatRelativeDate(snippet.updated_at ?? snippet.created_at);
+  const details = [language, pluralize(lineCount, "line"), edited && `Edited ${edited}`]
+    .filter(Boolean)
+    .join(" · ");
+
+  const themeBackground = getThemeBackground(snippet.theme);
+
+  const handleExport = () => {
     const blob = new Blob([snippet.code], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -231,89 +285,79 @@ function CodeSnippetCard({ snippet, onEdit, onDelete, onCopy }: CodeSnippetCardP
   };
 
   return (
-    <div className="group relative bg-card rounded-lg border border-border overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
-      <div
-        className="p-6 h-48 flex items-center justify-center relative overflow-hidden"
-        style={{
-          background: snippet.background_value,
-        }}
-      >
-        <div
-          className="relative rounded-lg shadow-2xl overflow-hidden max-w-full group-hover:scale-[1.02] transition-transform duration-300"
-          style={{
-            padding: `${snippet.padding / 4}px`,
-            backgroundColor: getThemeBackground(snippet.theme),
-          }}
-        >
-          {snippet.window_style !== "none" && (
-            <div className="flex gap-2 mb-3">
-              <div className="w-3 h-3 rounded-full bg-red-500" />
-              <div className="w-3 h-3 rounded-full bg-yellow-500" />
-              <div className="w-3 h-3 rounded-full bg-green-500" />
-            </div>
-          )}
-          <pre
-            className="text-xs overflow-hidden"
-            style={{
-              fontFamily: snippet.font_family,
-              fontSize: `${snippet.font_size * 0.75}px`,
-              color: getThemeForeground(snippet.theme),
-              maxHeight: "140px",
-            }}
-          >
-            <code className="line-clamp-6">{snippet.code}</code>
-          </pre>
-        </div>
-      </div>
-
-      <div className="p-4 bg-card border-t border-border">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-sm truncate mb-1">{snippet.title}</h3>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="px-2 py-0.5 bg-muted rounded">{snippet.language}</span>
-              <span className="px-2 py-0.5 bg-muted rounded">{snippet.theme}</span>
+    <ContentCard
+      kind="code"
+      title={snippet.title || "Untitled snippet"}
+      details={details}
+      onOpen={() => onEdit(snippet.id)}
+      previewClassName="border-transparent"
+      // The user's chosen screenshot styling: background, code theme and window chrome.
+      previewStyle={{ background: snippet.background_value }}
+      preview={
+        <>
+          <div className="absolute inset-0 flex items-center justify-center p-[7%]">
+            <div
+              className="relative flex max-h-full w-full flex-col overflow-hidden rounded-md shadow-xl transition-transform duration-300 group-hover:scale-[1.02] motion-reduce:transition-none"
+              style={{
+                backgroundColor: themeBackground,
+                padding: `${Math.min(Math.max(snippet.padding / 4, 6), 12)}px`,
+              }}
+            >
+              {snippet.window_style !== "none" && (
+                <div aria-hidden className="mb-2 flex shrink-0 gap-1">
+                  <span className="size-[7px] rounded-full bg-[#ff5f57]" />
+                  <span className="size-[7px] rounded-full bg-[#febc2e]" />
+                  <span className="size-[7px] rounded-full bg-[#28c840]" />
+                </div>
+              )}
+              <pre
+                className="min-h-0 overflow-hidden whitespace-pre text-[10px] leading-[15px]"
+                style={{
+                  fontFamily: `${snippet.font_family}, ui-monospace, SFMono-Regular, Menlo, monospace`,
+                  color: getThemeForeground(snippet.theme),
+                }}
+              >
+                <code>{previewCode}</code>
+              </pre>
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 bottom-0 h-6"
+                style={{ background: `linear-gradient(to bottom, transparent, ${themeBackground})` }}
+              />
             </div>
           </div>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <MoreVertical className="h-4 w-4" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEdit(snippet.id)}>
-                <Edit2 className="h-4 w-4 mr-2" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onCopy(snippet.code)}>
-                <Copy className="h-4 w-4 mr-2" />
-                Copy Code
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleExport}>
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => onDelete(snippet.id)}
-                className="text-destructive dark:text-red-400 focus:text-destructive dark:focus:text-red-400 focus:bg-destructive/10 dark:focus:bg-destructive/20"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
-
-      <canvas ref={canvasRef} className="hidden" />
-    </div>
+          <span className="absolute bottom-2.5 right-2.5 rounded-[5px] bg-black/55 px-[7px] py-0.5 text-[10px] font-semibold text-white backdrop-blur-sm">
+            {language}
+          </span>
+        </>
+      }
+      quickActions={
+        <CardActionButton label="Copy code" onClick={() => onCopy(snippet.code)}>
+          <Copy />
+        </CardActionButton>
+      }
+      menuItems={
+        <>
+          <DropdownMenuItem onSelect={() => onEdit(snippet.id)}>
+            <PenLine />
+            Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => onCopy(snippet.code)}>
+            <Copy />
+            Copy code
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={handleExport}>
+            <Download />
+            Export
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem className={DESTRUCTIVE_MENU_ITEM} onSelect={() => onDelete(snippet.id)}>
+            <Trash2 />
+            Delete
+          </DropdownMenuItem>
+        </>
+      }
+    />
   );
 }
 

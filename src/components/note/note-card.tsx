@@ -1,10 +1,14 @@
-"use client";
-
-import { useState } from "react";
-import { Note } from "@/lib/types";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import * as React from "react";
+import ReactMarkdown, { type Components } from "react-markdown";
+import { useNavigate } from "@tanstack/react-router";
+import { Check, Loader2, PenLine, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import type { Note } from "@/lib/types";
+import { deleteNote } from "@/lib/api";
+import { cn, parseTags } from "@/lib/utils";
+import { countTasks, formatRelativeDate } from "@/lib/format";
+import { ContentCard, DESTRUCTIVE_MENU_ITEM, PREVIEW_PADDING } from "@/components/shared/content-card";
+import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,18 +19,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Trash2, Edit, MoreVertical, Clock, StickyNote, Loader2 } from "lucide-react";
-import { deleteNote } from "@/lib/api";
-import { parseTags } from "@/lib/utils";
-import { useNavigate } from "@tanstack/react-router";
-import { MarkdownRenderer } from "@/components/markdown/markdown-renderer";
-import { toast } from "sonner";
 
 interface NoteCardProps {
   note: Note;
@@ -35,15 +27,19 @@ interface NoteCardProps {
 
 export function NoteCard({ note, onDelete }: NoteCardProps) {
   const navigate = useNavigate();
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = React.useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
 
-  const tags = parseTags(note.tags);
+  const title = note.title?.trim() || "Untitled note";
+  const details = React.useMemo(() => noteDetails(note), [note]);
+
+  const openNote = () => navigate({ to: "/note/$noteId", params: { noteId: note.id } });
 
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
       await deleteNote(note.id);
+      setShowDeleteDialog(false);
       onDelete(note.id, note.title);
     } catch (error) {
       console.error("Failed to delete note:", error);
@@ -52,149 +48,56 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
     }
   };
 
-  const handleEdit = () => {
-    navigate({ to: `/note/${note.id}` });
-  };
-
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "Unknown date";
-
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
-      return "Invalid date";
-    }
-
-    return date.toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const truncateText = (text: string, maxLength: number) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + "...";
-  };
-
   return (
-    <Card
-      className="group h-80 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border border-border hover:border-primary/30 shadow-sm bg-card overflow-hidden dark:border-gray-400 flex flex-col cursor-pointer"
-      onClick={handleEdit}
-    >
-      <CardContent className="p-0 flex flex-col h-full">
-        {/* Header with icon and action menu */}
-        <div className="relative p-3 sm:p-4 border-b border-border bg-muted/30 dark:bg-gray-800">
-          <div className="flex items-center gap-2">
-            <StickyNote className="h-4 w-4 text-primary shrink-0" />
-            <h3 className="font-semibold text-sm leading-tight text-foreground flex-1 min-w-0">
-              {note.title ? truncateText(note.title, 30) : "Untitled Note"}
-            </h3>
-          </div>
+    <>
+      <ContentCard
+        kind="note"
+        title={title}
+        details={details}
+        href={`/note/${note.id}`}
+        onOpen={openNote}
+        fadeClassName="to-thumb"
+        preview={<NotePreview content={note.content} />}
+        menuItems={
+          <>
+            <DropdownMenuItem onSelect={openNote}>
+              <PenLine />
+              Open note
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className={DESTRUCTIVE_MENU_ITEM}
+              disabled={isDeleting}
+              onSelect={() => setShowDeleteDialog(true)}
+            >
+              <Trash2 />
+              Delete
+            </DropdownMenuItem>
+          </>
+        }
+      />
 
-          {/* Action Menu */}
-          <div className="absolute top-2 right-2" onClick={(e) => e.stopPropagation()}>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background/90"
-                >
-                  <MoreVertical className="h-3 w-3 text-foreground" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={handleEdit}>
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit note
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowDeleteDialog(true);
-                  }}
-                  disabled={isDeleting}
-                  className="text-destructive dark:text-red-400 focus:text-destructive dark:focus:text-red-400 focus:bg-destructive/10 dark:focus:bg-destructive/20"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-
-        {/* Content Preview */}
-        <div className="flex-1 p-3 sm:p-4 overflow-hidden">
-          <div className="h-full overflow-hidden">
-            {note.content ? (
-              <div className="text-xs text-muted-foreground line-clamp-6 overflow-hidden prose prose-xs max-w-none dark:prose-invert">
-                <MarkdownRenderer preview>{truncateText(note.content, 300)}</MarkdownRenderer>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-full text-muted-foreground text-xs">
-                Empty note
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Tags */}
-        {tags.length > 0 && (
-          <div className="px-3 sm:px-4 pb-3">
-            <div className="flex flex-wrap gap-1">
-              {tags.slice(0, 2).map((tag, index) => (
-                <Badge
-                  key={index}
-                  variant="secondary"
-                  className="text-xs px-2 py-0.5 bg-warning/10 text-warning-foreground border-warning/20 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600"
-                >
-                  {truncateText(tag, 12)}
-                </Badge>
-              ))}
-              {tags.length > 2 && (
-                <Badge
-                  variant="outline"
-                  className="text-xs px-2 py-0.5 border-border text-muted-foreground dark:border-gray-500 dark:text-gray-400"
-                >
-                  +{tags.length - 2}
-                </Badge>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Footer */}
-        <div className="px-3 sm:px-4 py-2 bg-muted/30 border-t border-border dark:border-gray-500 dark:bg-gray-800">
-          <div className="flex items-center justify-center text-xs text-muted-foreground">
-            <Clock className="h-3 w-3 mr-1" />
-            <span>{formatDate(note.updated_at)}</span>
-          </div>
-        </div>
-      </CardContent>
-
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent
-          onClick={(e) => e.stopPropagation()}
-          className="animate-in zoom-in-95 fade-in duration-200"
-        >
+        <AlertDialogContent className="animate-in zoom-in-95 fade-in duration-200">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Note</AlertDialogTitle>
+            <AlertDialogTitle>Delete note</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this note? This action cannot be undone.
+              Are you sure you want to delete &quot;{title}&quot;? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleDelete}
+              onClick={(event) => {
+                event.preventDefault();
+                handleDelete();
+              }}
               disabled={isDeleting}
               className="bg-destructive hover:bg-destructive/90"
             >
               {isDeleting ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Deleting...
                 </>
               ) : (
@@ -204,6 +107,128 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Card>
+    </>
+  );
+}
+
+/** "Edited today · design, launch +1 · 2/9 done" */
+function noteDetails(note: Note): string {
+  const parts: string[] = [];
+  const edited = formatRelativeDate(note.updated_at ?? note.created_at);
+  if (edited) parts.push(`Edited ${edited}`);
+
+  const tags = parseTags(note.tags);
+  if (tags.length > 0) {
+    parts.push(tags.slice(0, 2).join(", ") + (tags.length > 2 ? ` +${tags.length - 2}` : ""));
+  }
+
+  const tasks = countTasks(note.content ?? "");
+  if (tasks.total > 0) parts.push(`${tasks.done}/${tasks.total} done`);
+
+  return parts.join(" · ");
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Preview: the first lines of the note rendered as compact markdown, fading out at the bottom.
+ * ----------------------------------------------------------------------------------------------*/
+
+// Enough to fill the thumbnail; keeps parsing cheap for long notes.
+const PREVIEW_CHARS = 700;
+
+const UNCHECKED = "☐";
+const CHECKED = "☑";
+
+/** Turn "- [ ] item" / "- [x] item" into marker characters the list renderer understands. */
+function markTasks(markdown: string): string {
+  return markdown
+    .replace(/^(\s*[-*+]\s+)\[ \]\s?/gm, `$1${UNCHECKED} `)
+    .replace(/^(\s*[-*+]\s+)\[(x|X)\]\s?/gm, `$1${CHECKED} `);
+}
+
+/** Strip a leading task marker from a list item's children (tight or loose lists). */
+function splitTaskMarker(children: React.ReactNode): { checked: boolean | null; rest: React.ReactNode } {
+  const items = React.Children.toArray(children);
+  const [first, ...others] = items;
+
+  if (typeof first === "string" && (first.startsWith(UNCHECKED) || first.startsWith(CHECKED))) {
+    return { checked: first.startsWith(CHECKED), rest: [first.slice(2), ...others] };
+  }
+
+  if (React.isValidElement<{ children?: React.ReactNode }>(first)) {
+    const inner = splitTaskMarker(first.props.children);
+    if (inner.checked !== null) {
+      return {
+        checked: inner.checked,
+        rest: [React.cloneElement(first, undefined, inner.rest), ...others],
+      };
+    }
+  }
+
+  return { checked: null, rest: children };
+}
+
+const heading = ({ children }: { children?: React.ReactNode }) => (
+  <p className="mb-1 text-xs font-semibold leading-[17px] text-thumb-ink">{children}</p>
+);
+
+const PREVIEW_COMPONENTS: Components = {
+  h1: heading,
+  h2: heading,
+  h3: heading,
+  h4: heading,
+  h5: heading,
+  h6: heading,
+  p: ({ children }) => <p className="mb-1.5 last:mb-0">{children}</p>,
+  ul: ({ children }) => <ul className="mb-1.5 list-disc pl-3.5 marker:text-faint">{children}</ul>,
+  ol: ({ children }) => <ol className="mb-1.5 list-decimal pl-4 marker:text-faint">{children}</ol>,
+  li: ({ children }) => {
+    const { checked, rest } = splitTaskMarker(children);
+    if (checked === null) return <li className="[&>p]:mb-0">{children}</li>;
+    return (
+      <li className="-ml-3.5 flex list-none items-start gap-1.5 [&>p]:mb-0">
+        <span
+          aria-hidden
+          className={cn(
+            "mt-[3px] flex size-[11px] shrink-0 items-center justify-center rounded-[3px] border",
+            checked ? "border-primary bg-primary text-primary-foreground" : "border-faint",
+          )}
+        >
+          {checked && <Check className="size-2" strokeWidth={3.5} />}
+        </span>
+        <span className={cn("min-w-0", checked && "text-faint line-through")}>{rest}</span>
+      </li>
+    );
+  },
+  blockquote: ({ children }) => (
+    <blockquote className="mb-1.5 border-l-2 border-line-strong pl-2 italic">{children}</blockquote>
+  ),
+  pre: ({ children }) => (
+    <pre className="mb-1.5 overflow-hidden whitespace-pre rounded-md border border-border bg-code-bg px-2.5 py-2 font-mono text-[10px] leading-4 text-code-ink [&_code]:bg-transparent [&_code]:p-0">
+      {children}
+    </pre>
+  ),
+  code: ({ children, className }) =>
+    /language-mermaid/.test(className ?? "") ? (
+      <code>Mermaid diagram</code>
+    ) : (
+      <code className="rounded bg-code-bg px-1 font-mono text-[10px] text-code-ink">{children}</code>
+    ),
+  // The whole card is a link; avoid nested interactive elements and heavy media.
+  a: ({ children }) => <span className="text-primary">{children}</span>,
+  img: () => null,
+  hr: () => <hr className="my-1.5 border-border" />,
+};
+
+function NotePreview({ content }: { content: string }) {
+  const source = React.useMemo(() => markTasks((content ?? "").slice(0, PREVIEW_CHARS)), [content]);
+
+  if (!source.trim()) {
+    return <div className="flex h-full items-center justify-center text-faint">Empty note</div>;
+  }
+
+  return (
+    <div className={cn(PREVIEW_PADDING, "h-full overflow-hidden break-words")}>
+      <ReactMarkdown components={PREVIEW_COMPONENTS}>{source}</ReactMarkdown>
+    </div>
   );
 }

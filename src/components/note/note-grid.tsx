@@ -7,15 +7,22 @@ import { NoteCard } from "@/components/note/note-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Loader2, StickyNote, FileText } from "lucide-react";
+import { ContentCardSkeleton, ContentGrid } from "@/components/shared/content-card";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Plus, Search, Loader2, X, StickyNote, FileText } from "lucide-react";
+  collectTags,
+  GridEmptyState,
+  GridPageHeader,
+  GridToolbar,
+  NewItemButton,
+  NoResults,
+  useGridShortcuts,
+  usePersistentOption,
+} from "@/components/shared/grid-page";
+import { MobileFab } from "@/components/shared/module-nav";
+import { formatRelativeDate, pluralize, toDate } from "@/lib/format";
+import { parseTags } from "@/lib/utils";
 import { getNotes, createNote, updateNote } from "@/lib/api";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { useNavigate } from "@tanstack/react-router";
@@ -23,43 +30,38 @@ import { MDXEditorWrapper } from "@/components/note/mdx-editor-wrapper";
 import type { MDXEditorMethods } from "@mdxeditor/editor";
 import { toast } from "sonner";
 
-function NoteCardSkeleton() {
-  return (
-    <div className="h-80 flex flex-col overflow-hidden rounded-xl border bg-card shadow-sm">
-      <div className="relative p-3 sm:p-4 border-b bg-muted/30 space-y-2">
-        <div className="flex items-center gap-2">
-          <Skeleton className="h-4 w-4 rounded-full" />
-          <Skeleton className="h-4 w-3/4" />
-        </div>
-      </div>
-      <div className="flex-1 p-3 sm:p-4 space-y-2">
-        <Skeleton className="h-3 w-full" />
-        <Skeleton className="h-3 w-5/6" />
-        <Skeleton className="h-3 w-4/5" />
-        <Skeleton className="h-3 w-full" />
-        <Skeleton className="h-3 w-3/4" />
-        <Skeleton className="h-3 w-5/6" />
-      </div>
-      <div className="px-3 sm:px-4 pb-3 flex gap-1">
-        <Skeleton className="h-5 w-12 rounded-full" />
-        <Skeleton className="h-5 w-12 rounded-full" />
-      </div>
-      <div className="px-3 sm:px-4 py-2 bg-muted/30 border-t flex justify-center">
-        <Skeleton className="h-3 w-24" />
-      </div>
-    </div>
-  );
+type NoteSort = "updated" | "created" | "title";
+
+const NOTE_SORTS: { value: NoteSort; label: string }[] = [
+  { value: "updated", label: "Last edited" },
+  { value: "created", label: "Created" },
+  { value: "title", label: "A–Z" },
+];
+
+function timeOf(value: string | null | undefined) {
+  return toDate(value)?.getTime() ?? 0;
 }
 
-export function NoteGrid() {
+interface NoteGridProps {
+  /** Open the "new note" dialog on mount (e.g. arriving from the dashboard's New menu). */
+  initialCreateOpen?: boolean;
+}
+
+export function NoteGrid({ initialCreateOpen = false }: NoteGridProps = {}) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const editorRef = useRef<MDXEditorMethods>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(initialCreateOpen);
   const [draftNoteId, setDraftNoteId] = useState<string | null>(null);
   const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [sort, setSort] = usePersistentOption<NoteSort>(
+    "turbodoc:notes:sort",
+    "updated",
+    NOTE_SORTS.map((o) => o.value),
+  );
 
   // Debounce search term with 300ms delay
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -104,19 +106,38 @@ export function NoteGrid() {
     },
   });
 
-  // Filter notes based on search term
-  const filteredNotes = useMemo(() => {
-    if (!debouncedSearchTerm.trim()) {
-      return notes;
-    }
+  const tagOptions = useMemo(() => collectTags(notes.map((note) => parseTags(note.tags))), [notes]);
 
-    return notes.filter(
-      (note) =>
-        note.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        note.content.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        (note.tags && note.tags.toLowerCase().includes(debouncedSearchTerm.toLowerCase())),
-    );
-  }, [notes, debouncedSearchTerm]);
+  // Drop a tag filter that no longer exists (e.g. its last note was deleted).
+  useEffect(() => {
+    if (selectedTag && !tagOptions.some((t) => t.tag === selectedTag)) setSelectedTag(null);
+  }, [selectedTag, tagOptions]);
+
+  // Filter by search term and tag, then sort
+  const filteredNotes = useMemo(() => {
+    const term = debouncedSearchTerm.trim().toLowerCase();
+
+    const filtered = notes.filter((note) => {
+      if (selectedTag && !parseTags(note.tags).includes(selectedTag)) return false;
+      if (!term) return true;
+      return (
+        note.title.toLowerCase().includes(term) ||
+        note.content.toLowerCase().includes(term) ||
+        (note.tags?.toLowerCase().includes(term) ?? false)
+      );
+    });
+
+    return [...filtered].sort((a, b) => {
+      if (sort === "title") return (a.title || "").localeCompare(b.title || "");
+      if (sort === "created") return timeOf(b.created_at) - timeOf(a.created_at);
+      return timeOf(b.updated_at ?? b.created_at) - timeOf(a.updated_at ?? a.created_at);
+    });
+  }, [notes, debouncedSearchTerm, selectedTag, sort]);
+
+  const lastEdited = useMemo(() => {
+    const latest = Math.max(0, ...notes.map((n) => timeOf(n.updated_at ?? n.created_at)));
+    return latest ? formatRelativeDate(latest) : null;
+  }, [notes]);
 
   // Auto-create draft note when user starts typing
   useEffect(() => {
@@ -243,179 +264,133 @@ export function NoteGrid() {
     [filteredNotes, queryClient],
   );
 
-  // Keyboard shortcut: "/" to focus search
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        e.key === "/" &&
-        !e.ctrlKey &&
-        !e.metaKey &&
-        !["INPUT", "TEXTAREA", "SELECT"].includes((e.target as HTMLElement).tagName)
-      ) {
-        e.preventDefault();
-        searchInputRef.current?.focus();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  useGridShortcuts({ searchRef: searchInputRef, onNew: () => setIsCreateDialogOpen(true) });
 
   const visibleNotes = filteredNotes.filter((n) => !removingIds.has(n.id));
 
-  if (isLoading) {
-    return (
-      <div className="space-y-8">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-          <Skeleton className="h-10 flex-1 sm:max-w-md" />
-          <Skeleton className="h-10 w-32" />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <NoteCardSkeleton key={i} />
-          ))}
-        </div>
-      </div>
-    );
-  }
+  const hasFilters = Boolean(searchTerm.trim() || selectedTag);
+  const clearFilters = () => {
+    setSearchTerm("");
+    setSelectedTag(null);
+  };
+
+  const subtitle = isLoading
+    ? "Loading…"
+    : [pluralize(notes.length, "note"), lastEdited && `last edited ${lastEdited}`]
+        .filter(Boolean)
+        .join(" · ");
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-        <div className="relative flex-1 sm:max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            ref={searchInputRef}
-            placeholder="Search notes..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") {
-                setSearchTerm("");
-                searchInputRef.current?.blur();
-              }
-            }}
-            className="pl-10 pr-10 bg-background/60 backdrop-blur-sm border-border focus:border-primary focus:ring-primary/20 text-foreground placeholder:text-muted-foreground"
-          />
-          {searchTerm && (
-            <button
-              type="button"
-              onClick={() => {
-                setSearchTerm("");
-                searchInputRef.current?.focus();
-              }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={handleCreateDialogChange}>
-          <DialogTrigger asChild>
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Note
+    <>
+      <GridPageHeader
+        title="Notes"
+        subtitle={subtitle}
+        action={<NewItemButton label="New note" onClick={() => setIsCreateDialogOpen(true)} />}
+      />
+
+      <GridToolbar
+        searchRef={searchInputRef}
+        search={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Search notes"
+        tags={tagOptions}
+        selectedTag={selectedTag}
+        onTagChange={setSelectedTag}
+        sort={sort}
+        sortOptions={NOTE_SORTS}
+        onSortChange={setSort}
+      />
+
+      {isLoading ? (
+        <ContentGrid>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <ContentCardSkeleton key={i} />
+          ))}
+        </ContentGrid>
+      ) : notes.length === 0 ? (
+        <GridEmptyState
+          icon={StickyNote}
+          title="No notes yet"
+          description="Jot down your first idea, draft, or plan. Your notes are auto-saved as you type."
+          action={
+            <Button onClick={() => setIsCreateDialogOpen(true)}>
+              <FileText className="h-4 w-4" />
+              Create your first note
             </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-5xl max-h-[85vh] overflow-y-auto animate-in zoom-in-95 fade-in duration-200">
-            <DialogHeader>
-              <DialogTitle>Create New Note</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="new-title">Title (optional)</Label>
-                <Input
-                  id="new-title"
-                  value={newNote.title}
-                  onChange={(e) => setNewNote({ ...newNote, title: e.target.value })}
-                  placeholder="Enter note title"
-                  className="mt-2"
+          }
+        />
+      ) : visibleNotes.length === 0 && hasFilters ? (
+        <NoResults onReset={clearFilters} />
+      ) : (
+        <ContentGrid>
+          {visibleNotes.map((note) => (
+            <NoteCard key={note.id} note={note} onDelete={handleDeleteNote} />
+          ))}
+        </ContentGrid>
+      )}
+
+      <MobileFab label="New note" onClick={() => setIsCreateDialogOpen(true)} />
+
+      <Dialog open={isCreateDialogOpen} onOpenChange={handleCreateDialogChange}>
+        <DialogContent className="sm:max-w-5xl max-h-[85vh] overflow-y-auto animate-in zoom-in-95 fade-in duration-200">
+          <DialogHeader>
+            <DialogTitle>Create New Note</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="new-title">Title (optional)</Label>
+              <Input
+                id="new-title"
+                value={newNote.title}
+                onChange={(e) => setNewNote({ ...newNote, title: e.target.value })}
+                placeholder="Enter note title"
+                className="mt-2"
+              />
+            </div>
+            <div>
+              <Label htmlFor="new-content">Content</Label>
+              <div className="border border-border/50 rounded-md overflow-hidden bg-background/50 focus-within:border-primary/50 transition-colors mt-2 mdxeditor-dialog">
+                <MDXEditorWrapper
+                  key={`create-note-${isCreateDialogOpen}`}
+                  ref={editorRef}
+                  markdown={newNote.content}
+                  onChange={(value) => setNewNote({ ...newNote, content: value })}
                 />
               </div>
-              <div>
-                <Label htmlFor="new-content">Content</Label>
-                <div className="border border-border/50 rounded-md overflow-hidden bg-background/50 focus-within:border-primary/50 transition-colors mt-2 mdxeditor-dialog">
-                  <MDXEditorWrapper
-                    key={`create-note-${isCreateDialogOpen}`}
-                    ref={editorRef}
-                    markdown={newNote.content}
-                    onChange={(value) => setNewNote({ ...newNote, content: value })}
-                  />
-                </div>
-              </div>
-              <div className="flex justify-between items-center">
-                <p className="text-sm text-muted-foreground">
-                  Start typing to create your note. It will be saved automatically.
-                </p>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setNewNote({ title: "", content: "", tags: "" });
-                      handleCreateDialogChange(false);
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={handleCreateAndEdit}
-                    disabled={createNoteMutation.isPending}
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                  >
-                    {createNoteMutation.isPending ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Creating...
-                      </>
-                    ) : (
-                      "Create & Edit"
-                    )}
-                  </Button>
-                </div>
+            </div>
+            <div className="flex justify-between items-center">
+              <p className="text-sm text-muted-foreground">
+                Start typing to create your note. It will be saved automatically.
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setNewNote({ title: "", content: "", tags: "" });
+                    handleCreateDialogChange(false);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleCreateAndEdit}
+                  disabled={createNoteMutation.isPending}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                >
+                  {createNoteMutation.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    "Create & Edit"
+                  )}
+                </Button>
               </div>
             </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {visibleNotes.length === 0 ? (
-        <div className="text-center py-16 animate-in fade-in zoom-in-95 duration-300">
-          <div className="w-20 h-20 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4 border border-border">
-            {searchTerm ? (
-              <Search className="h-8 w-8 text-primary" />
-            ) : (
-              <StickyNote className="h-8 w-8 text-primary" />
-            )}
           </div>
-          <h3 className="text-lg font-semibold mb-2 text-foreground">
-            {searchTerm ? "No notes found" : "No notes yet"}
-          </h3>
-          <p className="text-muted-foreground text-sm mb-6 max-w-sm mx-auto">
-            {searchTerm
-              ? "Try adjusting your search terms or check the spelling."
-              : "Jot down your first idea, draft, or plan. Your notes are auto-saved as you type."}
-          </p>
-          {!searchTerm && (
-            <Button
-              onClick={() => setIsCreateDialogOpen(true)}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              Create Your First Note
-            </Button>
-          )}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-          {visibleNotes.map((note, index) => (
-            <div
-              key={note.id}
-              className="animate-in fade-in slide-in-from-bottom-4 duration-600 fill-mode-forwards"
-            >
-              <NoteCard note={note} onDelete={handleDeleteNote} />
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

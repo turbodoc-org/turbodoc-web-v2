@@ -1,14 +1,20 @@
 import { AuthButton } from "@/components/auth/auth-button";
 import { Logo } from "@/components/shared/logo";
+import { ModuleTabs } from "@/components/shared/module-nav";
 import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { LayoutDashboard } from "lucide-react";
 
 interface AppHeaderProps {
   showNavLinks?: boolean;
+  /**
+   * "dashboard" (default) shows a single Dashboard link; "modules" shows the
+   * Bookmarks / Notes / Snippets / Diagrams tabs used on the module grid pages.
+   */
+  nav?: "dashboard" | "modules";
 }
 
-export function AppHeader({ showNavLinks = true }: AppHeaderProps) {
+export function AppHeader({ showNavLinks = true, nav = "dashboard" }: AppHeaderProps) {
   const router = useRouterState();
   const currentPath = router.location.pathname;
 
@@ -18,10 +24,17 @@ export function AppHeader({ showNavLinks = true }: AppHeaderProps) {
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-background/90 backdrop-blur-lg border-b border-border shadow-sm mobile-safe-area">
-      <div className="w-full max-w-7xl mx-auto flex justify-between items-center p-3 md:p-4 px-4 md:px-6">
+      <div
+        className={
+          nav === "modules"
+            ? "mx-auto flex h-14 w-full max-w-[1248px] items-center justify-between px-4 sm:h-16 sm:px-6"
+            : "w-full max-w-7xl mx-auto flex justify-between items-center p-3 md:p-4 px-4 md:px-6"
+        }
+      >
         <div className="flex items-center gap-4 md:gap-6">
-          <Logo size="md" />
-          {showNavLinks && (
+          {nav === "modules" ? <Logo size="sm" href="/dashboard" /> : <Logo size="md" />}
+          {showNavLinks && nav === "modules" && <ModuleTabs />}
+          {showNavLinks && nav === "dashboard" && (
             <div className="hidden sm:flex items-center gap-1">
               <Link
                 to="/dashboard"

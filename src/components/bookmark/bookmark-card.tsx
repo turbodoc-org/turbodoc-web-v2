@@ -1,12 +1,19 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { Bookmark } from "@/lib/types";
-import { Badge } from "@/components/ui/badge";
+import { useEffect, useMemo, useState } from "react";
+import { Check, CircleDot, Copy, ExternalLink, PenLine, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import type { Bookmark } from "@/lib/types";
+import { deleteBookmark, getOgImage, updateBookmark } from "@/lib/api";
+import { formatRelativeDate, getDomain } from "@/lib/format";
+import {
+  CardActionButton,
+  CardBadge,
+  ContentCard,
+  DESTRUCTIVE_MENU_ITEM,
+} from "@/components/shared/content-card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,27 +24,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Trash2,
-  Edit,
-  ExternalLink,
-  MoreVertical,
-  Globe,
-  Clock,
-  ImageIcon,
-  Check,
-  Circle,
-} from "lucide-react";
-import { deleteBookmark, updateBookmark, getOgImage } from "@/lib/api";
-import { toast } from "sonner";
 
 interface BookmarkCardProps {
   bookmark: Bookmark;
@@ -55,12 +43,8 @@ export function BookmarkCard({ bookmark, onUpdate, onDelete }: BookmarkCardProps
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  const tags = bookmark.tags
-    ? bookmark.tags
-        .split("|")
-        .map((tag) => tag.trim())
-        .filter(Boolean)
-    : [];
+  const domain = getDomain(bookmark.url);
+  const isUnread = bookmark.status === "unread";
 
   // Fetch OG image if not already available
   useEffect(() => {
@@ -90,6 +74,7 @@ export function BookmarkCard({ bookmark, onUpdate, onDelete }: BookmarkCardProps
     setIsDeleting(true);
     try {
       await deleteBookmark(bookmark.id);
+      setShowDeleteDialog(false);
       onDelete(bookmark.id, bookmark.title);
     } catch (error) {
       console.error("Failed to delete bookmark:", error);
@@ -116,9 +101,7 @@ export function BookmarkCard({ bookmark, onUpdate, onDelete }: BookmarkCardProps
   const handleToggleStatus = async () => {
     try {
       const newStatus = bookmark.status === "read" ? "unread" : "read";
-      const updated = await updateBookmark(bookmark.id, {
-        status: newStatus,
-      });
+      const updated = await updateBookmark(bookmark.id, { status: newStatus });
       onUpdate(updated);
       toast.success(newStatus === "read" ? "Marked as read" : "Marked as unread");
     } catch (error) {
@@ -127,198 +110,87 @@ export function BookmarkCard({ bookmark, onUpdate, onDelete }: BookmarkCardProps
     }
   };
 
-  const formatDate = (timestamp: number) => {
-    // Convert to number in case it comes as string
-    let ts = typeof timestamp === "string" ? parseInt(timestamp) : timestamp;
-
-    // If timestamp is in seconds (less than year 2000), convert to milliseconds
-    if (ts < 946684800000) {
-      // Jan 1, 2000 in milliseconds
-      ts = ts * 1000;
-    }
-
-    const date = new Date(ts);
-
-    // Check if date is valid
-    if (isNaN(date.getTime())) {
-      return "Invalid date";
-    }
-
-    return date.toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const getDomain = (url: string) => {
+  const handleCopyLink = async () => {
     try {
-      return new URL(url).hostname;
+      await navigator.clipboard.writeText(bookmark.url);
+      toast.success("Link copied");
     } catch {
-      return url;
+      toast.error("Failed to copy link");
     }
   };
+
+  const saved = formatRelativeDate(bookmark.time_added);
+  const details = [domain, saved && `Saved ${saved}`].filter(Boolean).join(" · ");
+  const showImage = Boolean(ogImage) && !imageError;
 
   return (
-    <Card className="group h-full hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border border-border hover:border-primary/20 shadow-sm bg-card overflow-hidden dark:border-gray-400">
-      <CardContent className="p-0 flex flex-col h-full">
-        {/* OG Image Header */}
-        <a
-          href={bookmark.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="relative h-32 sm:h-40 bg-secondary border-b border-border block hover:opacity-90 transition-opacity cursor-pointer overflow-hidden"
-        >
-          {ogImage && !imageError ? (
+    <>
+      <ContentCard
+        kind="bookmark"
+        title={bookmark.title || domain}
+        details={details}
+        href={bookmark.url}
+        external
+        preview={
+          showImage ? (
             <img
-              src={ogImage}
-              alt={bookmark.title}
-              className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+              src={ogImage!}
+              alt=""
+              loading="lazy"
               onError={() => setImageError(true)}
+              className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none"
             />
+          ) : imageLoading ? (
+            <Skeleton className="absolute inset-0 rounded-none" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              {imageLoading ? (
-                <Skeleton className="absolute inset-0 rounded-none" />
-              ) : (
-                <div className="flex flex-col items-center gap-2">
-                  <ImageIcon className="h-8 w-8 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground font-medium">
-                    {getDomain(bookmark.url)}
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Action Menu Overlay */}
-          <div className="absolute top-2 right-2" onClick={(e) => e.preventDefault()}>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background/90"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <MoreVertical className="h-4 w-4 text-foreground" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit bookmark
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleToggleStatus} className="cursor-pointer">
-                  {bookmark.status === "read" ? (
-                    <>
-                      <Circle className="h-4 w-4 mr-2" />
-                      Mark as unread
-                    </>
-                  ) : (
-                    <>
-                      <Check className="h-4 w-4 mr-2" />
-                      Mark as read
-                    </>
-                  )}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => window.open(bookmark.url, "_blank")}
-                  className="cursor-pointer"
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Open link
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setShowDeleteDialog(true)}
-                  disabled={isDeleting}
-                  className="text-destructive dark:text-red-400 focus:text-destructive dark:focus:text-red-400 focus:bg-destructive/10 dark:focus:bg-destructive/20"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </a>
-
-        <div className="p-3 sm:p-4 flex-grow flex flex-col">
-          <div className="mb-3">
-            <a
-              href={bookmark.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block group/title"
+            <DomainFallback domain={domain} />
+          )
+        }
+        badge={
+          isUnread ? (
+            <CardBadge dotClassName="bg-blue-400">Unread</CardBadge>
+          ) : bookmark.status === "archived" ? (
+            <CardBadge>Archived</CardBadge>
+          ) : null
+        }
+        quickActions={
+          <CardActionButton
+            label={isUnread ? "Mark as read" : "Mark as unread"}
+            onClick={handleToggleStatus}
+          >
+            {isUnread ? <Check /> : <CircleDot />}
+          </CardActionButton>
+        }
+        menuItems={
+          <>
+            <DropdownMenuItem onSelect={() => window.open(bookmark.url, "_blank", "noopener")}>
+              <ExternalLink />
+              Open link
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={handleCopyLink}>
+              <Copy />
+              Copy link
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setIsEditing(true)}>
+              <PenLine />
+              Edit bookmark
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={handleToggleStatus}>
+              {isUnread ? <Check /> : <CircleDot />}
+              {isUnread ? "Mark as read" : "Mark as unread"}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className={DESTRUCTIVE_MENU_ITEM}
+              disabled={isDeleting}
+              onSelect={() => setShowDeleteDialog(true)}
             >
-              <h3 className="font-semibold text-base leading-tight line-clamp-2 text-foreground mb-2 transition-colors">
-                {bookmark.title}
-              </h3>
-            </a>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Globe className="h-3 w-3 flex-shrink-0" />
-              <a
-                href={bookmark.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-foreground hover:underline truncate"
-              >
-                {getDomain(bookmark.url)}
-              </a>
-            </div>
-          </div>
-
-          {tags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {tags.slice(0, 3).map((tag, index) => (
-                <Badge
-                  key={index}
-                  variant="secondary"
-                  className="text-xs px-2 py-1 bg-warning/10 text-warning-foreground border-warning/20 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600"
-                >
-                  {tag}
-                </Badge>
-              ))}
-              {tags.length > 3 && (
-                <Badge
-                  variant="outline"
-                  className="text-xs px-2 py-1 border-border text-muted-foreground dark:border-gray-500 dark:text-gray-400"
-                >
-                  +{tags.length - 3} more
-                </Badge>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="px-3 sm:px-4 py-3 bg-muted/30 border-t border-border dark:border-gray-500 dark:bg-gray-800 dark:text-gray-300">
-          <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              <Clock className="h-3 w-3" />
-              <span>{formatDate(bookmark.time_added)}</span>
-            </div>
-            <Badge
-              variant={bookmark.status === "read" ? "default" : "outline"}
-              className={`text-xs px-2.5 py-1 font-semibold ${
-                bookmark.status === "read"
-                  ? "bg-green-500/90 hover:bg-green-500 text-white border-green-600 dark:bg-green-600 dark:border-green-700"
-                  : "bg-blue-500/10 text-blue-600 border-blue-500/30 hover:bg-blue-500/20 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/40"
-              }`}
-            >
-              {bookmark.status === "read" ? (
-                <span className="flex items-center gap-1">
-                  <Check className="h-3 w-3" />
-                  Read
-                </span>
-              ) : (
-                <span className="flex items-center gap-1">
-                  <Circle className="h-3 w-3" />
-                  Unread
-                </span>
-              )}
-            </Badge>
-          </div>
-        </div>
-      </CardContent>
+              <Trash2 />
+              Delete
+            </DropdownMenuItem>
+          </>
+        }
+      />
 
       {/* Edit Dialog */}
       <Dialog open={isEditing} onOpenChange={setIsEditing}>
@@ -328,13 +200,17 @@ export function BookmarkCard({ bookmark, onUpdate, onDelete }: BookmarkCardProps
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="title">Title</Label>
-              <Input id="title" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
+              <Label htmlFor={`title-${bookmark.id}`}>Title</Label>
+              <Input
+                id={`title-${bookmark.id}`}
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+              />
             </div>
             <div>
-              <Label htmlFor="tags">Tags (pipe-separated)</Label>
+              <Label htmlFor={`tags-${bookmark.id}`}>Tags (pipe-separated)</Label>
               <Input
-                id="tags"
+                id={`tags-${bookmark.id}`}
                 value={editTags}
                 onChange={(e) => setEditTags(e.target.value)}
                 placeholder="work | important | read-later"
@@ -363,7 +239,10 @@ export function BookmarkCard({ bookmark, onUpdate, onDelete }: BookmarkCardProps
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleDelete}
+              onClick={(event) => {
+                event.preventDefault();
+                handleDelete();
+              }}
               disabled={isDeleting}
               className="bg-destructive hover:bg-destructive/90"
             >
@@ -372,6 +251,36 @@ export function BookmarkCard({ bookmark, onUpdate, onDelete }: BookmarkCardProps
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Card>
+    </>
+  );
+}
+
+/** Stable hue per domain so fallback tiles are distinguishable without fetching favicons. */
+function hueFor(text: string) {
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) hash = (hash * 31 + text.charCodeAt(i)) | 0;
+  return Math.abs(hash) % 360;
+}
+
+function DomainFallback({ domain }: { domain: string }) {
+  const hue = useMemo(() => hueFor(domain), [domain]);
+  const letter = domain.replace(/^www\./, "").charAt(0).toUpperCase() || "?";
+
+  return (
+    <div
+      className="absolute inset-0 flex flex-col items-center justify-center gap-2"
+      style={{
+        backgroundImage: `linear-gradient(135deg, hsl(${hue} 75% 55% / 0.2), hsl(${(hue + 50) % 360} 75% 55% / 0.06))`,
+      }}
+    >
+      <span
+        aria-hidden
+        className="flex size-9 items-center justify-center rounded-[10px] text-base font-semibold text-white shadow-sm"
+        style={{ backgroundColor: `hsl(${hue} 55% 45%)` }}
+      >
+        {letter}
+      </span>
+      <span className="max-w-[85%] truncate text-xs font-medium text-thumb-text">{domain}</span>
+    </div>
   );
 }

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import {
   useDiagrams,
   useDeleteDiagram,
@@ -8,15 +8,6 @@ import {
 } from "@/lib/hooks/use-diagrams";
 import { Button } from "@/components/ui/button";
 import { MermaidDiagram } from "@/components/markdown/mermaid-diagram";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,48 +18,68 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { FileText, Trash2, Copy, Pencil, Check, X, Loader2, Shapes, Plus } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { Copy, ExternalLink, Loader2, Pencil, Plus, Shapes, Trash2, Workflow } from "lucide-react";
 import { toast } from "sonner";
+import type { Diagram } from "@/lib/types";
+import {
+  CardActionButton,
+  ContentCard,
+  ContentCardSkeleton,
+  ContentGrid,
+  DESTRUCTIVE_MENU_ITEM,
+} from "@/components/shared/content-card";
+import {
+  GridEmptyState,
+  GridPageHeader,
+  GridToolbar,
+  NewItemButton,
+  NoResults,
+  useGridShortcuts,
+  usePersistentOption,
+} from "@/components/shared/grid-page";
+import { MobileFab } from "@/components/shared/module-nav";
+import { formatRelativeDate, pluralize, toDate } from "@/lib/format";
 
-function DiagramCardSkeleton() {
-  return (
-    <Card className="overflow-hidden">
-      <CardHeader className="pb-3 space-y-2">
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-3 w-1/3" />
-      </CardHeader>
-      <CardContent className="pb-3">
-        <Skeleton className="aspect-video w-full rounded-md" />
-      </CardContent>
-      <CardFooter className="flex gap-2">
-        <Skeleton className="h-8 flex-1" />
-        <Skeleton className="h-8 w-8" />
-        <Skeleton className="h-8 w-8" />
-      </CardFooter>
-    </Card>
-  );
+type DiagramSort = "updated" | "created" | "title";
+
+const DIAGRAM_SORTS: { value: DiagramSort; label: string }[] = [
+  { value: "updated", label: "Last edited" },
+  { value: "created", label: "Created" },
+  { value: "title", label: "A–Z" },
+];
+
+function timeOf(value: string | null | undefined) {
+  return toDate(value)?.getTime() ?? 0;
 }
 
 interface DiagramGridProps {
-  onEdit?: (diagramId: string) => void;
+  onCreate: () => void;
+  isCreating?: boolean;
 }
 
-export function DiagramGrid({}: DiagramGridProps) {
+export function DiagramGrid({ onCreate, isCreating }: DiagramGridProps) {
   const { data: diagrams = [], isLoading } = useDiagrams();
   const deleteDiagramMutation = useDeleteDiagram();
   const duplicateDiagramMutation = useDuplicateDiagram();
   const updateDiagramMutation = useUpdateDiagram();
 
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [diagramToDelete, setDiagramToDelete] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
   const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
+  const [sort, setSort] = usePersistentOption<DiagramSort>(
+    "turbodoc:diagrams:sort",
+    "updated",
+    DIAGRAM_SORTS.map((o) => o.value),
+  );
 
-  const handleDuplicateDiagram = async (id: string) => {
+  useGridShortcuts({ searchRef: searchInputRef, onNew: isCreating ? undefined : onCreate });
+
+  const handleDuplicateDiagram = (id: string) => {
     duplicateDiagramMutation.mutate(id, {
       onSuccess: () => {
         toast.success("Diagram duplicated");
@@ -94,17 +105,16 @@ export function DiagramGrid({}: DiagramGridProps) {
     setEditingTitle("");
   };
 
-  const handleSaveRename = async (id: string) => {
-    if (!editingTitle.trim()) {
+  const handleSaveRename = (id: string) => {
+    const diagram = diagrams.find((d) => d.id === id);
+    const title = editingTitle.trim();
+    if (!title || title === diagram?.title) {
       handleCancelRename();
       return;
     }
 
     updateDiagramMutation.mutate(
-      {
-        id,
-        updates: { title: editingTitle.trim() },
-      },
+      { id, updates: { title } },
       {
         onSuccess: () => {
           toast.success("Diagram renamed");
@@ -121,218 +131,112 @@ export function DiagramGrid({}: DiagramGridProps) {
   const confirmDelete = () => {
     if (!diagramToDelete) return;
 
-    const diagram = diagrams.find((d) => d.id === diagramToDelete);
+    const id = diagramToDelete;
+    const diagram = diagrams.find((d) => d.id === id);
 
-    setDeletingId(diagramToDelete);
-    setRemovingIds((prev) => new Set(prev).add(diagramToDelete));
+    setRemovingIds((prev) => new Set(prev).add(id));
     setDeleteDialogOpen(false);
 
     toast.success("Diagram deleted", {
-      description: diagram
-        ? `"${diagram.title}" has been removed.`
-        : "The diagram has been removed.",
+      description: diagram ? `"${diagram.title}" has been removed.` : "The diagram has been removed.",
     });
 
-    deleteDiagramMutation.mutate(diagramToDelete, {
+    deleteDiagramMutation.mutate(id, {
       onSettled: () => {
-        setDeletingId(null);
         setDiagramToDelete(null);
         setRemovingIds((prev) => {
           const next = new Set(prev);
-          next.delete(diagramToDelete);
+          next.delete(id);
           return next;
         });
       },
     });
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+  const visibleDiagrams = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    const filtered = diagrams.filter(
+      (d) => !removingIds.has(d.id) && (!term || d.title.toLowerCase().includes(term)),
+    );
+    return filtered.sort((a, b) => {
+      if (sort === "title") return (a.title || "").localeCompare(b.title || "");
+      if (sort === "created") return timeOf(b.created_at) - timeOf(a.created_at);
+      return timeOf(b.updated_at) - timeOf(a.updated_at);
     });
-  };
+  }, [diagrams, removingIds, searchTerm, sort]);
 
-  const visibleDiagrams = diagrams.filter((d) => !removingIds.has(d.id));
+  const lastEdited = useMemo(() => {
+    const latest = Math.max(0, ...diagrams.map((d) => timeOf(d.updated_at)));
+    return latest ? formatRelativeDate(latest) : null;
+  }, [diagrams]);
 
-  if (isLoading) {
-    return (
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <DiagramCardSkeleton key={i} />
-        ))}
-      </div>
-    );
-  }
-
-  if (visibleDiagrams.length === 0) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="text-center animate-in fade-in zoom-in-95 duration-300">
-          <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-            <Shapes className="h-8 w-8 text-primary" />
-          </div>
-          <h3 className="text-lg font-semibold mb-2">No diagrams yet</h3>
-          <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
-            Map out your first flowchart, architecture, or idea with powerful drawing tools.
-          </p>
-          <Button
-            onClick={() => {
-              // The parent route handles new diagram creation
-              const event = new CustomEvent("createNewDiagram");
-              window.dispatchEvent(event);
-            }}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Create Your First Diagram
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  const subtitle = isLoading
+    ? "Loading…"
+    : [pluralize(diagrams.length, "diagram"), lastEdited && `last edited ${lastEdited}`]
+        .filter(Boolean)
+        .join(" · ");
 
   return (
     <>
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <TooltipProvider>
-          {visibleDiagrams.map((diagram, index) => (
-            <Card
-              key={diagram.id}
-              className="overflow-hidden group hover:shadow-lg hover:-translate-y-0.5 transition-all duration-600 animate-in fade-in slide-in-from-bottom-4 fill-mode-forwards"
-            >
-              <CardHeader className="pb-3">
-                {editingId === diagram.id ? (
-                  <div className="flex items-center gap-2 animate-in zoom-in-95 duration-150">
-                    <Input
-                      value={editingTitle}
-                      onChange={(e) => setEditingTitle(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          handleSaveRename(diagram.id);
-                        } else if (e.key === "Escape") {
-                          handleCancelRename();
-                        }
-                      }}
-                      className="flex-1 text-sm"
-                      autoFocus
-                    />
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 w-7 p-0"
-                      onClick={() => handleSaveRename(diagram.id)}
-                    >
-                      <Check className="h-4 w-4 text-green-600" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 w-7 p-0"
-                      onClick={handleCancelRename}
-                    >
-                      <X className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-between gap-2">
-                    <CardTitle className="text-base truncate">{diagram.title}</CardTitle>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => handleStartRename(diagram.id, diagram.title)}
-                        >
-                          <Pencil className="h-3 w-3" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Rename diagram</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                )}
-                <CardDescription className="text-xs">
-                  Updated {formatDate(diagram.updated_at)}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pb-3">
-                {diagram.diagram_type === "mermaid" && diagram.mermaid_source ? (
-                  <div className="aspect-video overflow-hidden rounded-md bg-muted p-2">
-                    <MermaidDiagram
-                      chart={diagram.mermaid_source}
-                      className="m-0 flex h-full items-center justify-center border-0 bg-background p-2 [&_svg]:max-h-full"
-                    />
-                  </div>
-                ) : diagram.thumbnail ? (
-                  <div className="aspect-video overflow-hidden rounded-md bg-muted">
-                    <img
-                      src={diagram.thumbnail}
-                      alt={diagram.title}
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  </div>
-                ) : (
-                  <div className="aspect-video rounded-md bg-muted flex items-center justify-center">
-                    <FileText className="h-8 w-8 text-muted-foreground" />
-                  </div>
-                )}
-              </CardContent>
-              <CardFooter className="flex gap-2">
-                <Button variant="outline" size="sm" className="flex-1" asChild>
-                  <Link to="/diagram/$diagramId" params={{ diagramId: diagram.id }}>
-                    Open
-                  </Link>
-                </Button>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDuplicateDiagram(diagram.id)}
-                      disabled={duplicateDiagramMutation.isPending}
-                    >
-                      {duplicateDiagramMutation.isPending ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Duplicate diagram</p>
-                  </TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteDiagram(diagram.id)}
-                      disabled={deletingId === diagram.id}
-                    >
-                      {deletingId === diagram.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      )}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Delete diagram</p>
-                  </TooltipContent>
-                </Tooltip>
-              </CardFooter>
-            </Card>
+      <GridPageHeader
+        title="Diagrams"
+        subtitle={subtitle}
+        action={<NewItemButton label="New diagram" onClick={onCreate} pending={isCreating} />}
+      />
+
+      <GridToolbar
+        searchRef={searchInputRef}
+        search={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Search diagrams"
+        sort={sort}
+        sortOptions={DIAGRAM_SORTS}
+        onSortChange={setSort}
+      />
+
+      {isLoading ? (
+        <ContentGrid>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <ContentCardSkeleton key={i} />
           ))}
-        </TooltipProvider>
-      </div>
+        </ContentGrid>
+      ) : diagrams.length === 0 ? (
+        <GridEmptyState
+          icon={Shapes}
+          title="No diagrams yet"
+          description="Map out your first flowchart, architecture, or idea with powerful drawing tools."
+          action={
+            <Button onClick={onCreate} disabled={isCreating}>
+              {isCreating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+              Create your first diagram
+            </Button>
+          }
+        />
+      ) : visibleDiagrams.length === 0 && searchTerm.trim() ? (
+        <NoResults onReset={() => setSearchTerm("")} />
+      ) : (
+        <ContentGrid>
+          {visibleDiagrams.map((diagram) => (
+            <DiagramCard
+              key={diagram.id}
+              diagram={diagram}
+              isEditing={editingId === diagram.id}
+              editingTitle={editingTitle}
+              onEditingTitleChange={setEditingTitle}
+              onStartRename={() => handleStartRename(diagram.id, diagram.title)}
+              onSaveRename={() => handleSaveRename(diagram.id)}
+              onCancelRename={handleCancelRename}
+              onDuplicate={() => handleDuplicateDiagram(diagram.id)}
+              isDuplicating={
+                duplicateDiagramMutation.isPending && duplicateDiagramMutation.variables === diagram.id
+              }
+              onDelete={() => handleDeleteDiagram(diagram.id)}
+            />
+          ))}
+        </ContentGrid>
+      )}
+
+      <MobileFab label="New diagram" onClick={onCreate} disabled={isCreating} />
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -355,5 +259,166 @@ export function DiagramGrid({}: DiagramGridProps) {
         </AlertDialogContent>
       </AlertDialog>
     </>
+  );
+}
+
+interface DiagramCardProps {
+  diagram: Diagram;
+  isEditing: boolean;
+  editingTitle: string;
+  onEditingTitleChange: (title: string) => void;
+  onStartRename: () => void;
+  onSaveRename: () => void;
+  onCancelRename: () => void;
+  onDuplicate: () => void;
+  isDuplicating: boolean;
+  onDelete: () => void;
+}
+
+export function DiagramCard({
+  diagram,
+  isEditing,
+  editingTitle,
+  onEditingTitleChange,
+  onStartRename,
+  onSaveRename,
+  onCancelRename,
+  onDuplicate,
+  isDuplicating,
+  onDelete,
+}: DiagramCardProps) {
+  const navigate = useNavigate();
+  const openDiagram = () =>
+    navigate({ to: "/diagram/$diagramId", params: { diagramId: diagram.id } });
+
+  const isMermaid = diagram.diagram_type === "mermaid";
+  // The list endpoint may omit shapes, so only show a count when we have one.
+  const nodeCount = Array.isArray(diagram.shapes) ? diagram.shapes.length : 0;
+  const edited = formatRelativeDate(diagram.updated_at);
+  const details = [
+    isMermaid ? "Mermaid" : "Canvas",
+    !isMermaid && nodeCount > 0 && pluralize(nodeCount, "node"),
+    edited && `Edited ${edited}`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  let preview: ReactNode;
+  if (isMermaid && diagram.mermaid_source) {
+    preview = (
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-[6%]">
+        <MermaidDiagram
+          chart={diagram.mermaid_source}
+          className="m-0 flex size-full items-center justify-center overflow-hidden border-0 bg-transparent p-0 [&_svg]:max-h-full [&_svg]:max-w-full"
+        />
+      </div>
+    );
+  } else if (diagram.thumbnail) {
+    preview = (
+      <img
+        src={diagram.thumbnail}
+        alt=""
+        loading="lazy"
+        className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none"
+      />
+    );
+  } else {
+    preview = (
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-faint">
+        <Workflow className="size-6" strokeWidth={1.6} />
+        <span>Empty canvas</span>
+      </div>
+    );
+  }
+
+  return (
+    <ContentCard
+      kind="diagram"
+      title={diagram.title || "Untitled diagram"}
+      details={details}
+      href={`/diagram/${diagram.id}`}
+      onOpen={openDiagram}
+      previewClassName="bg-canvas bg-[radial-gradient(var(--canvas-dot)_1px,transparent_1px)] bg-[length:14px_14px]"
+      preview={preview}
+      titleEditor={
+        isEditing ? (
+          <RenameInput
+            value={editingTitle}
+            onChange={onEditingTitleChange}
+            onSave={onSaveRename}
+            onCancel={onCancelRename}
+          />
+        ) : undefined
+      }
+      quickActions={
+        <CardActionButton label="Duplicate" onClick={onDuplicate} disabled={isDuplicating}>
+          {isDuplicating ? <Loader2 className="animate-spin" /> : <Copy />}
+        </CardActionButton>
+      }
+      menuItems={
+        <>
+          <DropdownMenuItem onSelect={openDiagram}>
+            <ExternalLink />
+            Open
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={onStartRename}>
+            <Pencil />
+            Rename
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={onDuplicate} disabled={isDuplicating}>
+            <Copy />
+            Duplicate
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem className={DESTRUCTIVE_MENU_ITEM} onSelect={onDelete}>
+            <Trash2 />
+            Delete
+          </DropdownMenuItem>
+        </>
+      }
+    />
+  );
+}
+
+interface RenameInputProps {
+  value: string;
+  onChange: (value: string) => void;
+  onSave: () => void;
+  onCancel: () => void;
+}
+
+function RenameInput({ value, onChange, onSave, onCancel }: RenameInputProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const cancelled = useRef(false);
+
+  // Focus after the "more" menu has finished closing, which would otherwise take focus back.
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }, 0);
+    return () => window.clearTimeout(id);
+  }, []);
+
+  return (
+    <input
+      ref={inputRef}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          inputRef.current?.blur();
+        } else if (e.key === "Escape") {
+          cancelled.current = true;
+          onCancel();
+        }
+      }}
+      onBlur={() => {
+        if (!cancelled.current) onSave();
+      }}
+      aria-label="Diagram title"
+      className="relative z-10 -my-0.5 h-6 w-full rounded-md border border-primary bg-background px-1.5 text-sm font-semibold text-foreground outline-none ring-[3px] ring-focus-ring"
+    />
   );
 }
