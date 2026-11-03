@@ -119,6 +119,48 @@ export async function deleteBookmark(id: string): Promise<void> {
   }
 }
 
+const BATCH_LIMIT = 100;
+
+/** Delete many bookmarks via the batch endpoint. Resolves to the IDs actually deleted. */
+export async function deleteBookmarks(ids: string[]): Promise<string[]> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    throw new Error("No session found");
+  }
+
+  const deleted: string[] = [];
+  for (let i = 0; i < ids.length; i += BATCH_LIMIT) {
+    const response = await fetch(`${API_BASE_URL}/v1/bookmarks/batch`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        operations: ids.slice(i, i + BATCH_LIMIT).map((id) => ({ operation: "delete", id })),
+      }),
+    });
+
+    if (!response.ok) {
+      // Report what earlier chunks already deleted rather than losing it.
+      if (deleted.length) break;
+      throw new Error("Failed to delete bookmarks");
+    }
+
+    const { results } = (await response.json()) as {
+      results: { success: boolean; id?: string }[];
+    };
+    for (const result of results) {
+      if (result.success && result.id) deleted.push(result.id);
+    }
+  }
+
+  return deleted;
+}
+
 export async function updateBookmark(id: string, updates: Partial<Bookmark>): Promise<Bookmark> {
   const {
     data: { session },

@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { countTasks, formatRelativeDate, getDomain, pluralize, toDate } from "./format";
+import {
+  countTasks,
+  describeLinkFailure,
+  formatRelativeDate,
+  getDomain,
+  pluralize,
+  toDate,
+} from "./format";
 
 const now = new Date(2026, 10, 3, 15, 0, 0); // Nov 3 2026, local time
 
@@ -52,5 +59,19 @@ describe("helpers", () => {
       done: 2,
       total: 4,
     });
+  });
+});
+
+describe("describeLinkFailure", () => {
+  it("names common HTTP failures", () => {
+    expect(describeLinkFailure(404, null)).toBe("404 Not found");
+    expect(describeLinkFailure(410, null)).toBe("410 Gone");
+    expect(describeLinkFailure(599, null)).toBe("599 Server error");
+  });
+
+  it("falls back to the network error, then to a generic reason", () => {
+    expect(describeLinkFailure(null, "Timed out")).toBe("Timed out");
+    expect(describeLinkFailure(null, "  ")).toBe("Unreachable");
+    expect(describeLinkFailure(undefined, undefined)).toBe("Unreachable");
   });
 });

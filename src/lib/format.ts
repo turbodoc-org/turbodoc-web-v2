@@ -100,3 +100,24 @@ export function countTasks(markdown: string): { done: number; total: number } {
   const done = matches.filter((m) => /\[(x|X)\]/.test(m)).length;
   return { done, total: matches.length };
 }
+
+const HTTP_REASONS: Record<number, string> = {
+  404: "Not found",
+  410: "Gone",
+  500: "Server error",
+  502: "Bad gateway",
+  503: "Unavailable",
+  504: "Gateway timeout",
+};
+
+/**
+ * Why a bookmark's link is considered broken, from the link checker's last
+ * result: "404 Not found", "Timed out", "DNS lookup failed", or "Unreachable".
+ */
+export function describeLinkFailure(statusCode?: number | null, error?: string | null): string {
+  if (statusCode) {
+    const reason = HTTP_REASONS[statusCode] ?? (statusCode >= 500 ? "Server error" : null);
+    return reason ? `${statusCode} ${reason}` : `HTTP ${statusCode}`;
+  }
+  return error?.trim() || "Unreachable";
+}

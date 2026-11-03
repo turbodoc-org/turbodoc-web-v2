@@ -8,12 +8,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Globe, Link as LinkIcon } from "lucide-react";
-import { getBookmarks, createBookmark, searchBookmarks } from "@/lib/api";
+import { Loader2, Globe, Link as LinkIcon, Trash2, Unlink } from "lucide-react";
+import { getBookmarks, createBookmark, deleteBookmarks, searchBookmarks } from "@/lib/api";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { toast } from "sonner";
 import { ContentCardSkeleton, ContentGrid } from "@/components/shared/content-card";
 import {
+  Chip,
   collectTags,
   GridEmptyState,
   GridPageHeader,
@@ -54,6 +65,10 @@ function matchesTerm(bookmark: Bookmark, term: string) {
   );
 }
 
+function isBroken(bookmark: Bookmark) {
+  return bookmark.link_status === "broken";
+}
+
 function addedAt(bookmark: Bookmark) {
   return toDate(bookmark.time_added)?.getTime() ?? 0;
 }
@@ -70,6 +85,9 @@ export function BookmarkGrid({ initialCreateOpen = false }: BookmarkGridProps = 
   const [isSearching, setIsSearching] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [brokenOnly, setBrokenOnly] = useState(false);
+  const [showDeleteBroken, setShowDeleteBroken] = useState(false);
+  const [isDeletingBroken, setIsDeletingBroken] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(initialCreateOpen);
   const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
   const [sort, setSort] = usePersistentOption<BookmarkSort>(
@@ -157,9 +175,17 @@ export function BookmarkGrid({ initialCreateOpen = false }: BookmarkGridProps = 
     if (selectedTag && !tagOptions.some((t) => t.tag === selectedTag)) setSelectedTag(null);
   }, [selectedTag, tagOptions]);
 
-  // Tag filter + sort on top of the (optional) text search results
+  const brokenCount = useMemo(() => bookmarks.filter(isBroken).length, [bookmarks]);
+
+  // Drop the filter once the last broken bookmark is gone.
+  useEffect(() => {
+    if (brokenOnly && brokenCount === 0) setBrokenOnly(false);
+  }, [brokenOnly, brokenCount]);
+
+  // Broken / tag filters + sort on top of the (optional) text search results
   const filteredBookmarks = useMemo(() => {
     let results = searchResults ?? bookmarks;
+    if (brokenOnly) results = results.filter(isBroken);
     if (selectedTag) {
       const tag = selectedTag.toLowerCase();
       results = results.filter((b) => bookmarkTags(b).some((t) => t.toLowerCase() === tag));
@@ -169,7 +195,7 @@ export function BookmarkGrid({ initialCreateOpen = false }: BookmarkGridProps = 
       if (sort === "oldest") return addedAt(a) - addedAt(b);
       return addedAt(b) - addedAt(a);
     });
-  }, [bookmarks, searchResults, selectedTag, sort]);
+  }, [bookmarks, searchResults, selectedTag, sort, brokenOnly]);
 
   useGridShortcuts({ searchRef: searchInputRef, onNew: () => setIsDialogOpen(true) });
 
@@ -245,16 +271,51 @@ export function BookmarkGrid({ initialCreateOpen = false }: BookmarkGridProps = 
 
   const visibleBookmarks = filteredBookmarks.filter((b) => !removingIds.has(b.id));
   const unreadCount = bookmarks.filter((b) => b.status === "unread").length;
-  const hasFilters = Boolean(searchTerm.trim() || selectedTag);
+  const hasFilters = Boolean(searchTerm.trim() || selectedTag || brokenOnly);
+  // "Delete all" acts on exactly what the Broken filter is showing (incl. search / tag).
+  const brokenToDelete = brokenOnly ? visibleBookmarks : [];
 
   const clearFilters = () => {
     setSearchTerm("");
     setSelectedTag(null);
+    setBrokenOnly(false);
+  };
+
+  const handleDeleteBroken = async () => {
+    const targets = brokenToDelete;
+    if (!targets.length) return;
+    setIsDeletingBroken(true);
+    try {
+      const deleted = new Set(await deleteBookmarks(targets.map((b) => b.id)));
+      queryClient.setQueryData<Bookmark[]>(["bookmarks"], (old = []) =>
+        old.filter((b) => !deleted.has(b.id)),
+      );
+      setSearchResults((old) => (old ? old.filter((b) => !deleted.has(b.id)) : old));
+      setShowDeleteBroken(false);
+
+      const failed = targets.length - deleted.size;
+      if (failed > 0) {
+        toast.error(`Deleted ${deleted.size} of ${targets.length} broken bookmarks`, {
+          description: `${pluralize(failed, "bookmark")} couldn't be deleted. Try again.`,
+        });
+      } else {
+        toast.success(`Deleted ${pluralize(deleted.size, "broken bookmark")}`);
+      }
+    } catch (error) {
+      console.error("Failed to delete broken bookmarks:", error);
+      toast.error("Failed to delete broken bookmarks");
+    } finally {
+      setIsDeletingBroken(false);
+    }
   };
 
   const subtitle = isLoading
     ? "Loading…"
-    : [pluralize(bookmarks.length, "bookmark"), unreadCount > 0 && `${unreadCount} unread`]
+    : [
+        pluralize(bookmarks.length, "bookmark"),
+        unreadCount > 0 && `${unreadCount} unread`,
+        brokenCount > 0 && `${brokenCount} broken`,
+      ]
         .filter(Boolean)
         .join(" · ");
 
@@ -278,7 +339,37 @@ export function BookmarkGrid({ initialCreateOpen = false }: BookmarkGridProps = 
         sort={sort}
         sortOptions={BOOKMARK_SORTS}
         onSortChange={setSort}
+        filters={
+          brokenCount > 0 || brokenOnly ? (
+            <Chip tone="danger" active={brokenOnly} onClick={() => setBrokenOnly((v) => !v)}>
+              <Unlink aria-hidden />
+              Broken · {brokenCount}
+            </Chip>
+          ) : null
+        }
       />
+
+      {brokenOnly && brokenToDelete.length > 0 && (
+        <div className="flex flex-col gap-3 rounded-card border border-red-500/30 bg-red-500/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">
+              {pluralize(brokenToDelete.length, "link")} no longer{" "}
+              {brokenToDelete.length === 1 ? "loads" : "load"}.
+            </span>{" "}
+            Links are flagged after failing two checks in a row (page not found, server errors,
+            or the site is unreachable).
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowDeleteBroken(true)}
+            className="shrink-0 border-red-500/40 text-red-600 hover:bg-red-500/10 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete {brokenToDelete.length === 1 ? "it" : `all ${brokenToDelete.length}`}
+          </Button>
+        </div>
+      )}
 
       {isLoading ? (
         <ContentGrid>
@@ -314,6 +405,33 @@ export function BookmarkGrid({ initialCreateOpen = false }: BookmarkGridProps = 
       )}
 
       <MobileFab label="New bookmark" onClick={() => setIsDialogOpen(true)} />
+
+      <AlertDialog open={showDeleteBroken} onOpenChange={setShowDeleteBroken}>
+        <AlertDialogContent className="animate-in zoom-in-95 fade-in duration-200">
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Delete {pluralize(brokenToDelete.length, "broken bookmark")}?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This removes every bookmark currently shown under the Broken filter. This action
+              cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeletingBroken}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(event) => {
+                event.preventDefault();
+                handleDeleteBroken();
+              }}
+              disabled={isDeletingBroken}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {isDeletingBroken ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-md animate-in zoom-in-95 fade-in duration-200">

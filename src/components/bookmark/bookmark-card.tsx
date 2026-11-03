@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, CircleDot, Copy, ExternalLink, PenLine, Trash2 } from "lucide-react";
+import { Check, CircleDot, Copy, ExternalLink, PenLine, Trash2, Unlink } from "lucide-react";
 import { toast } from "sonner";
 import type { Bookmark } from "@/lib/types";
 import { deleteBookmark, getOgImage, updateBookmark } from "@/lib/api";
-import { formatRelativeDate, getDomain } from "@/lib/format";
+import { describeLinkFailure, formatRelativeDate, getDomain } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import {
   CardActionButton,
   CardBadge,
@@ -45,11 +46,12 @@ export function BookmarkCard({ bookmark, onUpdate, onDelete }: BookmarkCardProps
 
   const domain = getDomain(bookmark.url);
   const isUnread = bookmark.status === "unread";
+  const isBroken = bookmark.link_status === "broken";
 
-  // Fetch OG image if not already available
+  // Fetch OG image if not already available (dead links have nothing to fetch)
   useEffect(() => {
     const fetchOgImage = async () => {
-      if (!ogImage && !imageLoading && !imageError) {
+      if (!ogImage && !imageLoading && !imageError && !isBroken) {
         setImageLoading(true);
         try {
           const result = await getOgImage(bookmark.url);
@@ -68,7 +70,7 @@ export function BookmarkCard({ bookmark, onUpdate, onDelete }: BookmarkCardProps
     };
 
     fetchOgImage();
-  }, [bookmark.url, ogImage, imageLoading, imageError]);
+  }, [bookmark.url, ogImage, imageLoading, imageError, isBroken]);
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -120,8 +122,20 @@ export function BookmarkCard({ bookmark, onUpdate, onDelete }: BookmarkCardProps
   };
 
   const saved = formatRelativeDate(bookmark.time_added);
-  const details = [domain, saved && `Saved ${saved}`].filter(Boolean).join(" · ");
   const showImage = Boolean(ogImage) && !imageError;
+
+  const brokenReason = isBroken
+    ? describeLinkFailure(bookmark.link_status_code, bookmark.link_error)
+    : null;
+
+  const details = isBroken ? (
+    <>
+      <span className="font-medium text-red-600 dark:text-red-400">{brokenReason}</span>
+      {` · ${domain}`}
+    </>
+  ) : (
+    [domain, saved && `Saved ${saved}`].filter(Boolean).join(" · ")
+  );
 
   return (
     <>
@@ -131,6 +145,15 @@ export function BookmarkCard({ bookmark, onUpdate, onDelete }: BookmarkCardProps
         details={details}
         href={bookmark.url}
         external
+        className={cn(
+          isBroken &&
+            "border-red-500/50 hover:border-red-500/80 dark:border-red-500/40 dark:hover:border-red-500/70",
+        )}
+        // Desaturate the artwork so broken cards stand out at a glance in the grid.
+        previewClassName={cn(
+          isBroken &&
+            "[&>img]:opacity-50 [&>img]:grayscale [&>.domain-fallback]:opacity-60 [&>.domain-fallback]:grayscale",
+        )}
         preview={
           showImage ? (
             <img
@@ -147,7 +170,12 @@ export function BookmarkCard({ bookmark, onUpdate, onDelete }: BookmarkCardProps
           )
         }
         badge={
-          isUnread ? (
+          isBroken ? (
+            <CardBadge className="bg-red-600/95 dark:bg-red-500/95">
+              <Unlink aria-hidden className="size-3" />
+              Broken link
+            </CardBadge>
+          ) : isUnread ? (
             <CardBadge dotClassName="bg-blue-400">Unread</CardBadge>
           ) : bookmark.status === "archived" ? (
             <CardBadge>Archived</CardBadge>
@@ -268,7 +296,7 @@ function DomainFallback({ domain }: { domain: string }) {
 
   return (
     <div
-      className="absolute inset-0 flex flex-col items-center justify-center gap-2"
+      className="domain-fallback absolute inset-0 flex flex-col items-center justify-center gap-2"
       style={{
         backgroundImage: `linear-gradient(135deg, hsl(${hue} 75% 55% / 0.2), hsl(${(hue + 50) % 360} 75% 55% / 0.06))`,
       }}

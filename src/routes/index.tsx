@@ -2,7 +2,9 @@ import { AppHeader } from "@/components/shared/app-header";
 import { AppFooter } from "@/components/shared/app-footer";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth/context";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { isSignedIn } from "@/lib/auth/session";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Image } from "@unpic/react";
 import {
   Sparkles,
@@ -18,6 +20,13 @@ import { GithubIcon, LinkedinIcon, XIcon } from "@/components/shared/brand-icons
 import { JsonLd, organizationSchema, softwareApplicationSchema } from "@/components/shared/json-ld";
 
 export const Route = createFileRoute("/")({
+  // Signed-in visitors go straight to their dashboard. Runs on the server for
+  // full page loads, so the landing page is never shown to them first.
+  beforeLoad: async () => {
+    if (await isSignedIn()) {
+      throw redirect({ to: "/dashboard", replace: true });
+    }
+  },
   head: () => ({
     meta: [
       {
@@ -40,6 +49,14 @@ export const Route = createFileRoute("/")({
 
 function App() {
   const { loading, user } = useAuth();
+  const navigate = useNavigate();
+
+  // Fallback for sessions the server couldn't see yet (a session still in
+  // localStorage from before cookies, migrated on first load) and for signing
+  // in from this page.
+  useEffect(() => {
+    if (!loading && user) navigate({ to: "/dashboard", replace: true });
+  }, [loading, user, navigate]);
   return (
     <main className="min-h-screen flex flex-col bg-linear-to-br from-background via-background to-muted/20">
       <JsonLd data={softwareApplicationSchema} />

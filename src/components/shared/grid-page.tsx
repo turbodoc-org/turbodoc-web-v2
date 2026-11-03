@@ -123,6 +123,8 @@ interface GridToolbarProps<T extends string> {
   sort: T;
   sortOptions: SortOption<T>[];
   onSortChange: (value: T) => void;
+  /** Extra filter chips shown before the tag chips (e.g. bookmarks' "Broken"). */
+  filters?: React.ReactNode;
 }
 
 export function GridToolbar<T extends string>({
@@ -137,8 +139,10 @@ export function GridToolbar<T extends string>({
   sort,
   sortOptions,
   onSortChange,
+  filters,
 }: GridToolbarProps<T>) {
   const showTags = Boolean(onTagChange && tags && tags.length > 0);
+  const showChipRow = showTags || Boolean(filters);
 
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -149,14 +153,20 @@ export function GridToolbar<T extends string>({
         placeholder={searchPlaceholder}
         searching={searching}
       />
-      {showTags && onTagChange && tags && (
-        <TagChips tags={tags} selected={selectedTag} onChange={onTagChange} />
+      {showChipRow && (
+        <div className="order-3 -mx-4 flex w-[calc(100%+2rem)] min-w-0 items-center gap-1.5 overflow-x-auto px-4 scrollbar-none sm:order-2 sm:mx-0 sm:w-auto sm:flex-1 sm:px-0">
+          {filters}
+          {filters && showTags && <span aria-hidden className="mx-1 h-5 w-px shrink-0 bg-border" />}
+          {showTags && onTagChange && tags && (
+            <TagChips tags={tags} selected={selectedTag} onChange={onTagChange} />
+          )}
+        </div>
       )}
       <SortMenu
         value={sort}
         options={sortOptions}
         onChange={onSortChange}
-        className={cn(!showTags && "sm:ml-auto")}
+        className={cn(!showChipRow && "sm:ml-auto")}
       />
     </div>
   );
@@ -248,11 +258,7 @@ function TagChips({ tags, selected, onChange }: TagChipsProps) {
   const overflow = tags.filter((t) => !visible.some((v) => v.tag === t.tag));
 
   return (
-    <div
-      role="group"
-      aria-label="Filter by tag"
-      className="order-3 -mx-4 flex w-[calc(100%+2rem)] min-w-0 items-center gap-1.5 overflow-x-auto px-4 scrollbar-none sm:order-2 sm:mx-0 sm:w-auto sm:flex-1 sm:px-0"
-    >
+    <div role="group" aria-label="Filter by tag" className="flex items-center gap-1.5">
       <Chip active={selected === null} onClick={() => onChange(null)}>
         All
       </Chip>
@@ -311,10 +317,13 @@ export function Chip({
   active,
   onClick,
   children,
+  tone = "default",
 }: {
   active: boolean;
   onClick: () => void;
   children: React.ReactNode;
+  /** "danger" for problem filters such as broken links. */
+  tone?: "default" | "danger";
 }) {
   return (
     <button
@@ -324,9 +333,17 @@ export function Chip({
       className={cn(
         "h-8 max-w-[12rem] shrink-0 truncate rounded-full px-3 text-[13px] transition-colors",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        active
-          ? "bg-foreground font-medium text-background"
-          : "border border-border text-muted-foreground hover:border-line-strong hover:text-foreground",
+        tone === "danger"
+          ? cn(
+              // Flex layout for the icon; danger chips have short fixed labels, so no truncation needed.
+              "inline-flex items-center gap-1.5 [&_svg]:size-3.5 [&_svg]:shrink-0",
+              active
+                ? "bg-red-600 font-medium text-white dark:bg-red-500"
+                : "border border-red-500/40 text-red-600 hover:border-red-500/70 hover:bg-red-500/5 dark:text-red-400",
+            )
+          : active
+            ? "bg-foreground font-medium text-background"
+            : "border border-border text-muted-foreground hover:border-line-strong hover:text-foreground",
       )}
     >
       {children}

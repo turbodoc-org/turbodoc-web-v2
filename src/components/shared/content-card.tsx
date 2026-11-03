@@ -298,9 +298,22 @@ export const CardActionButton = React.forwardRef<HTMLButtonElement, CardActionBu
 CardActionButton.displayName = "CardActionButton";
 
 /** "● Unread"-style pill for the top-left of a preview. */
-export function CardBadge({ children, dotClassName }: { children: React.ReactNode; dotClassName?: string }) {
+export function CardBadge({
+  children,
+  dotClassName,
+  className,
+}: {
+  children: React.ReactNode;
+  dotClassName?: string;
+  className?: string;
+}) {
   return (
-    <span className="flex items-center gap-1.5 rounded-full bg-black/70 px-2 py-[3px] text-[10px] font-semibold leading-none text-white backdrop-blur-sm">
+    <span
+      className={cn(
+        "flex items-center gap-1.5 rounded-full bg-black/70 px-2 py-[3px] text-[10px] font-semibold leading-none text-white backdrop-blur-sm",
+        className,
+      )}
+    >
       {dotClassName && <span aria-hidden className={cn("size-1.5 rounded-full", dotClassName)} />}
       {children}
     </span>

@@ -6,6 +6,11 @@ export interface Bookmark {
   time_added: number;
   tags: string | null;
   status: "read" | "unread" | "archived";
+  /** Broken link checker result. "broken" = failed two consecutive checks. */
+  link_status?: "unknown" | "ok" | "broken";
+  link_status_code?: number | null;
+  link_error?: string | null;
+  link_checked_at?: string | null;
   created_at: string | null;
   updated_at: string | null;
   ogImage?: string | null;

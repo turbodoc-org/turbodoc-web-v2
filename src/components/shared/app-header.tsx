@@ -2,6 +2,7 @@ import { AuthButton } from "@/components/auth/auth-button";
 import { Logo } from "@/components/shared/logo";
 import { ModuleTabs } from "@/components/shared/module-nav";
 import { ThemeSwitcher } from "@/components/shared/theme-switcher";
+import { useAuth } from "@/lib/auth/context";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { LayoutDashboard } from "lucide-react";
 
@@ -17,6 +18,9 @@ interface AppHeaderProps {
 export function AppHeader({ showNavLinks = true, nav = "dashboard" }: AppHeaderProps) {
   const router = useRouterState();
   const currentPath = router.location.pathname;
+  const { user } = useAuth();
+  // Signed-in users treat the dashboard as home.
+  const homeHref = user ? "/dashboard" : "/";
 
   const isActive = (path: string) => {
     return currentPath === path || currentPath.startsWith(`${path}/`);
@@ -32,7 +36,11 @@ export function AppHeader({ showNavLinks = true, nav = "dashboard" }: AppHeaderP
         }
       >
         <div className="flex items-center gap-4 md:gap-6">
-          {nav === "modules" ? <Logo size="sm" href="/dashboard" /> : <Logo size="md" />}
+          {nav === "modules" ? (
+            <Logo size="sm" href="/dashboard" />
+          ) : (
+            <Logo size="md" href={homeHref} />
+          )}
           {showNavLinks && nav === "modules" && <ModuleTabs />}
           {showNavLinks && nav === "dashboard" && (
             <div className="hidden sm:flex items-center gap-1">
