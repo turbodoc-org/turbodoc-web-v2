@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import type { DocumentRevision, Note } from "@/lib/types";
-import { deleteNote, getNote, restoreDocumentRevision, updateNote } from "@/lib/api";
+import { deleteNote, getNote, restoreDocumentRevision, saveNoteDocument } from "@/lib/api";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,8 +21,17 @@ import { ArrowLeft, Trash2, Loader2, Clock, StickyNote, PencilLine } from "lucid
 import { Link, useNavigate } from "@tanstack/react-router";
 import { MDXEditorWrapper } from "./mdx-editor-wrapper";
 import type { MDXEditorMethods } from "@mdxeditor/editor";
-import { shouldAutoSaveNote } from "./note-autosave";
 import { NoteHistory } from "./note-history";
+import {
+  afterSave,
+  draftOf,
+  hasUnsyncedEdits,
+  onRemoteNote,
+  syncedFrom,
+  type NoteDraft,
+  type SyncDecision,
+  type SyncedState,
+} from "./note-sync";
 
 interface NoteEditorProps {
   noteId: string;
@@ -33,14 +43,20 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
   const editorRef = useRef<MDXEditorMethods>(null);
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const contentRef = useRef("");
-  const pendingSaveRef = useRef<Promise<Note> | null>(null);
+  // Editor state as of the last keystroke (state updates lag behind).
+  const latestRef = useRef<NoteDraft>({ title: "", content: "", tags: "" });
+  // Last document agreed with the server, and the revision that holds it.
+  const syncedRef = useRef<SyncedState | null>(null);
+  const loadedNoteIdRef = useRef<string | null>(null);
+  const pendingSaveRef = useRef<Promise<void> | null>(null);
   const restoringRef = useRef(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [autoSaving, setAutoSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [documentEpoch, setDocumentEpoch] = useState(0);
+  // Bumped after each successful save, so edits typed meanwhile are saved next.
+  const [saveCount, setSaveCount] = useState(0);
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -50,7 +66,6 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
   const debouncedTitle = useDebounce(title, 1000);
   const debouncedContent = useDebounce(content, 1000);
   const debouncedTags = useDebounce(tags, 1000);
-  const debouncedDocumentEpoch = useDebounce(documentEpoch, 1000);
 
   useLayoutEffect(() => {
     const titleElement = titleRef.current;
@@ -59,13 +74,6 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
     titleElement.style.height = "auto";
     titleElement.style.height = `${titleElement.scrollHeight}px`;
   }, [title]);
-
-  // Invalidate notes query when component unmounts to ensure fresh data on notes page
-  useEffect(() => {
-    return () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
-    };
-  }, [queryClient]);
 
   // Fetch note with React Query
   const {
@@ -78,22 +86,53 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
     retry: 1,
   });
 
-  // Initialize form when note loads
-  useEffect(() => {
-    if (note) {
-      setTitle(note.title || "");
-      setContent(note.content || "");
-      contentRef.current = note.content || "";
-      setTags(note.tags || "");
-      setLastSaved(new Date());
+  const cacheNote = (saved: Note) => {
+    queryClient.setQueryData(["note", noteId], saved);
+    queryClient.setQueryData<Note[]>(["notes"], (old = []) =>
+      old.map((n) => (n.id === noteId ? saved : n)),
+    );
+  };
 
-      // Update editor content via ref if it exists and content changed
-      if (editorRef.current && note.content !== content) {
-        editorRef.current.setMarkdown(note.content || "");
-      }
+  /** Replace the editor contents, e.g. with a merged or remote document. */
+  const loadDraft = (draft: NoteDraft) => {
+    latestRef.current = draft;
+    setTitle(draft.title);
+    setTags(draft.tags);
+    setContent(draft.content);
+    if (contentRef.current !== draft.content) {
+      // Set first so the editor's change event is not taken for a user edit.
+      contentRef.current = draft.content;
+      editorRef.current?.setMarkdown(draft.content);
     }
+  };
+
+  const applyDecision = (decision: SyncDecision) => {
+    syncedRef.current = decision.synced;
+    if (decision.adopt) loadDraft(decision.adopt);
+    setHasChanges(hasUnsyncedEdits(latestRef.current, decision.synced));
+  };
+
+  // Load the note, then take newer server versions (window refocus, live
+  // updates) whenever the editor has nothing unsaved.
+  useEffect(() => {
+    if (!note) return;
+    if (loadedNoteIdRef.current !== note.id || !syncedRef.current) {
+      loadedNoteIdRef.current = note.id;
+      syncedRef.current = syncedFrom(note);
+      loadDraft(draftOf(note));
+      setHasChanges(false);
+      setLastSaved(new Date());
+      return;
+    }
+    const decision = onRemoteNote(
+      note,
+      syncedRef.current,
+      latestRef.current,
+      pendingSaveRef.current !== null || restoringRef.current,
+    );
+    if (decision) applyDecision(decision);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [note?.id]); // Only run when note ID changes (new note loaded)
+  }, [note]);
 
   // Navigate away if note fails to load
   useEffect(() => {
@@ -103,18 +142,62 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
     }
   }, [isError, navigate]);
 
-  // Update note mutation
-  const updateNoteMutation = useMutation({
-    mutationFn: (data: Partial<Note>) => updateNote(noteId, data),
-    onSuccess: (updatedNote) => {
-      queryClient.setQueryData(["note", noteId], updatedNote);
-      queryClient.setQueryData<Note[]>(["notes"], (old = []) =>
-        old.map((n) => (n.id === noteId ? updatedNote : n)),
-      );
-      setHasChanges(false);
-      setLastSaved(new Date());
-    },
-  });
+  /** Save unsynced edits. One save at a time; later edits go in the next one. */
+  const save = async () => {
+    const synced = syncedRef.current;
+    if (!synced || pendingSaveRef.current || restoringRef.current) return;
+    const sent = latestRef.current;
+    if (!hasUnsyncedEdits(sent, synced)) return;
+
+    const run = (async () => {
+      setAutoSaving(true);
+      try {
+        const result = await saveNoteDocument(noteId, sent, synced.revisionId);
+        applyDecision(afterSave(sent, latestRef.current, result));
+        cacheNote(result.note);
+        setLastSaved(new Date());
+        if (result.conflicts > 0) {
+          toast.warning("This note was also edited on another device", {
+            description:
+              "Where you both changed the same passage, both versions were kept. Review the note and remove the one you don't want.",
+          });
+        }
+        setSaveCount((count) => count + 1);
+      } catch (error) {
+        // Edits stay unsynced and are retried with the next change.
+        console.error("Failed to auto-save note:", error);
+      } finally {
+        pendingSaveRef.current = null;
+        setAutoSaving(false);
+      }
+    })();
+    pendingSaveRef.current = run;
+    await run;
+  };
+
+  // Auto-save once typing pauses, and again after a save if typing continued.
+  useEffect(() => {
+    void save();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedTitle, debouncedContent, debouncedTags, saveCount]);
+
+  // Leaving the editor: save anything typed within the debounce window, then
+  // refresh the notes list.
+  useEffect(() => {
+    return () => {
+      const flush = async () => {
+        await pendingSaveRef.current;
+        const synced = syncedRef.current;
+        const latest = latestRef.current;
+        if (synced && !restoringRef.current && hasUnsyncedEdits(latest, synced)) {
+          await saveNoteDocument(noteId, latest, synced.revisionId);
+        }
+      };
+      void flush()
+        .catch((error) => console.error("Failed to save note on close:", error))
+        .finally(() => queryClient.invalidateQueries({ queryKey: ["notes"] }));
+    };
+  }, [noteId, queryClient]);
 
   // Delete note mutation
   const deleteNoteMutation = useMutation({
@@ -126,96 +209,23 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
     },
   });
 
-  // Auto-save effect
-  useEffect(() => {
-    if (!note) return;
-
-    if (
-      shouldAutoSaveNote({
-        note,
-        title: debouncedTitle,
-        content: debouncedContent,
-        tags: debouncedTags,
-        restoring: restoringRef.current,
-        documentEpoch,
-        debouncedDocumentEpoch,
-      })
-    ) {
-      const autoSave = async () => {
-        let savePromise: Promise<Note> | null = null;
-        try {
-          setAutoSaving(true);
-          savePromise = updateNoteMutation.mutateAsync({
-            title: debouncedTitle || undefined,
-            content: debouncedContent || undefined,
-            tags: debouncedTags || null,
-            head_revision_id: note.head_revision_id,
-          });
-          pendingSaveRef.current = savePromise;
-          await savePromise;
-        } catch (error) {
-          console.error("Failed to auto-save note:", error);
-        } finally {
-          if (pendingSaveRef.current === savePromise) pendingSaveRef.current = null;
-          setAutoSaving(false);
-        }
-      };
-
-      autoSave();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    debouncedTitle,
-    debouncedContent,
-    debouncedTags,
-    debouncedDocumentEpoch,
-    documentEpoch,
-    note?.title,
-    note?.content,
-    note?.tags,
-  ]);
-
   const handleRestore = async (revision: DocumentRevision): Promise<Note> => {
     restoringRef.current = true;
 
     try {
-      // A restore must be the last write. Wait for any auto-save that was
-      // already sent before creating the restored head revision.
+      // A restore must be the last write. Wait for any save already sent.
       await pendingSaveRef.current;
 
-      // Preserve edits that have not reached the debounce yet as their own
-      // revision before restoring the selected historical version.
-      const currentNote = queryClient.getQueryData<Note>(["note", noteId]) ?? note;
-      const hasUnsavedDraft =
-        currentNote &&
-        (title !== (currentNote.title || "") ||
-          content !== (currentNote.content || "") ||
-          tags !== (currentNote.tags || ""));
-
-      if (currentNote && hasUnsavedDraft) {
-        await updateNoteMutation.mutateAsync({
-          title: title || undefined,
-          content,
-          tags: tags || null,
-          head_revision_id: currentNote.head_revision_id,
-        });
+      // Keep edits that had not been saved yet as their own revision first.
+      const synced = syncedRef.current;
+      if (synced && hasUnsyncedEdits(latestRef.current, synced)) {
+        const result = await saveNoteDocument(noteId, latestRef.current, synced.revisionId);
+        cacheNote(result.note);
       }
 
       const restored = await restoreDocumentRevision(noteId, revision.id);
-
-      // Invalidate every debounced snapshot captured before the restore, then
-      // make the restored server document the editor's new local baseline.
-      setDocumentEpoch((epoch) => epoch + 1);
-      setTitle(restored.title || "");
-      setContent(restored.content || "");
-      contentRef.current = restored.content || "";
-      setTags(restored.tags || "");
-      editorRef.current?.setMarkdown(restored.content || "");
-      queryClient.setQueryData(["note", noteId], restored);
-      queryClient.setQueryData<Note[]>(["notes"], (old = []) =>
-        old.map((item) => (item.id === noteId ? restored : item)),
-      );
-      setHasChanges(false);
+      applyDecision({ synced: syncedFrom(restored), adopt: draftOf(restored) });
+      cacheNote(restored);
       setLastSaved(new Date());
 
       return restored;
@@ -236,15 +246,17 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
   };
 
   const handleTitleChange = (value: string) => {
+    latestRef.current = { ...latestRef.current, title: value };
     setTitle(value);
     setHasChanges(true);
   };
 
   const handleContentChange = (value: string) => {
     // The editor also emits changes for programmatic setMarkdown calls. Keep a
-    // synchronous ref so applying a restore is not marked as a fresh user edit.
+    // synchronous ref so loading server content is not marked as a user edit.
     if (value !== contentRef.current) {
       contentRef.current = value;
+      latestRef.current = { ...latestRef.current, content: value };
       setContent(value);
       setHasChanges(true);
     }

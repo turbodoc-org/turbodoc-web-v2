@@ -345,6 +345,67 @@ export async function updateNote(id: string, updates: Partial<Note>): Promise<No
   return { ...result.data, content: result.data.markdown };
 }
 
+export interface SaveNoteResult {
+  note: Note;
+  /** True when the server combined these edits with newer ones. */
+  merged: boolean;
+  /** Passages both devices rewrote; both versions were kept. */
+  conflicts: number;
+  /** Revision holding exactly what was sent. Next base if typing continued. */
+  submittedRevisionId: string | null;
+}
+
+/**
+ * Save the full editor state on top of `baseRevisionId`, the revision the
+ * edits started from. The server merges with anything saved since.
+ */
+export async function saveNoteDocument(
+  id: string,
+  draft: { title: string; content: string; tags: string },
+  baseRevisionId: string | null,
+): Promise<SaveNoteResult> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    throw new Error("No session found");
+  }
+
+  const response = await fetch(`${API_BASE_URL}/v2/documents/${id}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      title: draft.title,
+      markdown: draft.content,
+      tags: draft.tags || null,
+      base_revision_id: baseRevisionId,
+      device_id: getDeviceId(),
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to save note (${response.status})`);
+  }
+
+  const result = (await response.json()) as {
+    data: Omit<Note, "content"> & { markdown: string };
+    merged?: boolean;
+    conflicts?: number;
+    submitted_revision_id?: string | null;
+  };
+  const { markdown, ...note } = result.data;
+  return {
+    note: { ...note, content: markdown },
+    merged: result.merged ?? false,
+    conflicts: result.conflicts ?? 0,
+    submittedRevisionId: result.submitted_revision_id ?? null,
+  };
+}
+
 export async function deleteNote(id: string): Promise<void> {
   const {
     data: { session },
