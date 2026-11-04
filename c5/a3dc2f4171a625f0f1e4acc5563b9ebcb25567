@@ -1,0 +1,21 @@
+src/components/note/note-editor.tsx
+  s_bb009d8e765b28::t_1bc63cea603981 9,89
+src/lib/hooks/use-live-note.ts
+  s_bb009d8e765b28::t_39957eb5eb59f4 1-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c5a3dc2f4171a625f0f1e4acc5563b9ebcb25567",
+  "prompts": {},
+  "sessions": {
+    "s_bb009d8e765b28": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "s_bb009d8e765b28",
+        "model": "unknown"
+      },
+      "human_author": "Nico Botha <nicolaasb@pm.me>"
+    }
+  }
+}
