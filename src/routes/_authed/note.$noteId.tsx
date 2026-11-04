@@ -8,5 +8,6 @@ export const Route = createFileRoute('/_authed/note/$noteId')({
 
 function NoteEditorPage() {
   const params = Route.useParams();
-  return <NoteEditor noteId={params.noteId} />;
+  // One editor per note, so unsaved edits and sync state never cross notes.
+  return <NoteEditor key={params.noteId} noteId={params.noteId} />;
 }
