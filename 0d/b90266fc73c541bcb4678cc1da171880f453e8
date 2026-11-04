@@ -1,0 +1,27 @@
+src/components/note/note-editor.tsx
+  s_9853413cb3f2f4::t_04d7e296a49b8a 5,7,25-34,46-51,58-59,89-116,118-123,125,127-133,135,145-200,216,219-223,227-228,249,256,259
+src/components/note/note-sync.test.ts
+  s_9853413cb3f2f4::t_5763d517178aee 1-73
+src/components/note/note-sync.ts
+  s_9853413cb3f2f4::t_1c678f57729c83 3-14,20-102
+src/lib/api.ts
+  s_9853413cb3f2f4::t_a4ccadf61cc8f8 348-408
+src/routes/_authed/note.$noteId.tsx
+  s_9853413cb3f2f4::t_1a5d724a200721 11-12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0db90266fc73c541bcb4678cc1da171880f453e8",
+  "prompts": {},
+  "sessions": {
+    "s_9853413cb3f2f4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "s_9853413cb3f2f4",
+        "model": "unknown"
+      },
+      "human_author": "Nico Botha <nicolaasb@pm.me>"
+    }
+  }
+}
