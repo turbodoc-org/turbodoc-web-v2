@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import type { DocumentRevision, Note } from "@/lib/types";
 import { deleteNote, getNote, restoreDocumentRevision, saveNoteDocument } from "@/lib/api";
 import { useDebounce } from "@/lib/hooks/useDebounce";
+import { useLiveNote } from "@/lib/hooks/use-live-note";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -85,6 +86,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
     queryFn: () => getNote(noteId),
     retry: 1,
   });
+  useLiveNote(noteId);
 
   const cacheNote = (saved: Note) => {
     queryClient.setQueryData(["note", noteId], saved);
