@@ -23,6 +23,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { MDXEditorWrapper } from "./mdx-editor-wrapper";
 import type { MDXEditorMethods } from "@mdxeditor/editor";
 import { NoteHistory } from "./note-history";
+import { preserveSourceFormatting } from "./preserve-formatting";
 import {
   afterSave,
   draftOf,
@@ -43,7 +44,15 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
   const queryClient = useQueryClient();
   const editorRef = useRef<MDXEditorMethods>(null);
   const titleRef = useRef<HTMLTextAreaElement>(null);
+  // Last markdown the editor itself reported (its own serialisation).
   const contentRef = useRef("");
+  // Stored markdown last loaded into the editor, and the editor's serialisation
+  // of it. Edits are mapped back onto `source` so lines the user did not touch
+  // keep their original formatting (see preserve-formatting.ts).
+  const baselineRef = useRef<{ source: string; loaded: string | null }>({
+    source: "",
+    loaded: null,
+  });
   // Editor state as of the last keystroke (state updates lag behind).
   const latestRef = useRef<NoteDraft>({ title: "", content: "", tags: "" });
   // Last document agreed with the server, and the revision that holds it.
@@ -97,14 +106,23 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
 
   /** Replace the editor contents, e.g. with a merged or remote document. */
   const loadDraft = (draft: NoteDraft) => {
+    const previousContent = latestRef.current.content;
     latestRef.current = draft;
     setTitle(draft.title);
     setTags(draft.tags);
     setContent(draft.content);
-    if (contentRef.current !== draft.content) {
-      // Set first so the editor's change event is not taken for a user edit.
+    if (draft.content !== previousContent || baselineRef.current.source !== draft.content) {
+      const baseline = { source: draft.content, loaded: null as string | null };
+      baselineRef.current = baseline;
       contentRef.current = draft.content;
       editorRef.current?.setMarkdown(draft.content);
+      // setMarkdown commits in a microtask and emits no change event. Read the
+      // editor's serialisation once it has, before the user can type.
+      setTimeout(() => {
+        if (baselineRef.current !== baseline || !editorRef.current) return;
+        baseline.loaded = editorRef.current.getMarkdown();
+        contentRef.current = baseline.loaded;
+      }, 0);
     }
   };
 
@@ -253,15 +271,20 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
     setHasChanges(true);
   };
 
-  const handleContentChange = (value: string) => {
-    // The editor also emits changes for programmatic setMarkdown calls. Keep a
-    // synchronous ref so loading server content is not marked as a user edit.
-    if (value !== contentRef.current) {
-      contentRef.current = value;
-      latestRef.current = { ...latestRef.current, content: value };
-      setContent(value);
-      setHasChanges(true);
+  const handleContentChange = (value: string, initialNormalize?: boolean) => {
+    if (value === contentRef.current) return;
+    contentRef.current = value;
+    if (initialNormalize) {
+      // The editor's first serialisation of what it was given, not an edit.
+      if (baselineRef.current.loaded === null) baselineRef.current.loaded = value;
+      return;
     }
+    const { source, loaded } = baselineRef.current;
+    const stored = loaded === null ? value : preserveSourceFormatting(source, loaded, value);
+    if (stored === latestRef.current.content) return;
+    latestRef.current = { ...latestRef.current, content: stored };
+    setContent(stored);
+    setHasChanges(true);
   };
 
   const formatDate = (dateString: string | null) => {
