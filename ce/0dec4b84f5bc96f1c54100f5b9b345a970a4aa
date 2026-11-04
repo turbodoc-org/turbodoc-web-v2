@@ -1,0 +1,29 @@
+package.json
+  s_c8bc38c3a42baf::t_3ca4636dfe0cd7 68
+pnpm-lock.yaml
+  s_c8bc38c3a42baf::t_8ca649995fe65f 170-172,3670-3673,8118-8119
+src/components/note/mdx-editor-behaviour.test.tsx
+  s_c8bc38c3a42baf::t_ce060d42238264 1-30
+src/components/note/note-editor.tsx
+  s_c8bc38c3a42baf::t_dbded1e19fbec0 26,47,49-55,109,114-116,119-125,274-280,282-287
+src/components/note/preserve-formatting.test.ts
+  s_c8bc38c3a42baf::t_7c73f31ff6d259 1-37
+src/components/note/preserve-formatting.ts
+  s_c8bc38c3a42baf::t_cf7f4acaa40bd5 1-79
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ce0dec4b84f5bc96f1c54100f5b9b345a970a4aa",
+  "prompts": {},
+  "sessions": {
+    "s_c8bc38c3a42baf": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "s_c8bc38c3a42baf",
+        "model": "unknown"
+      },
+      "human_author": "Nico Botha <nicolaasb@pm.me>"
+    }
+  }
+}

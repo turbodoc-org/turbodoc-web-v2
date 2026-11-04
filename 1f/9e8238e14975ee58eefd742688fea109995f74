@@ -1,0 +1,38 @@
+src/components/note/note-editor.tsx
+  s_9853413cb3f2f4::t_04d7e296a49b8a 5,7,26-35,47-52,59-60,91-118,120-125,127,129-135,137,147-202,218,221-225,229-230,251,258,261
+  s_bb009d8e765b28::t_1bc63cea603981 9,89
+src/components/note/note-sync.test.ts
+  s_9853413cb3f2f4::t_5763d517178aee 1-73
+src/components/note/note-sync.ts
+  s_9853413cb3f2f4::t_1c678f57729c83 3-14,20-102
+src/lib/api.ts
+  s_9853413cb3f2f4::t_a4ccadf61cc8f8 348-408
+src/routes/_authed/note.$noteId.tsx
+  s_9853413cb3f2f4::t_1a5d724a200721 11-12
+src/lib/hooks/use-live-note.ts
+  s_bb009d8e765b28::t_39957eb5eb59f4 1-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1f9e8238e14975ee58eefd742688fea109995f74",
+  "prompts": {},
+  "sessions": {
+    "s_9853413cb3f2f4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "s_9853413cb3f2f4",
+        "model": "unknown"
+      },
+      "human_author": "Nico Botha <nicolaasb@pm.me>"
+    },
+    "s_bb009d8e765b28": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "s_bb009d8e765b28",
+        "model": "unknown"
+      },
+      "human_author": "Nico Botha <nicolaasb@pm.me>"
+    }
+  }
+}
